@@ -1,0 +1,2097 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>奶茶店后台管理系统 - 现场点单</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="/styles/admin-modern.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .sidebar {
+            min-height: 100vh;
+            background-color: #343a40;
+            color: white;
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+        }
+        .sidebar a:hover {
+            background-color: #495057;
+        }
+        .content {
+            padding: 20px;
+        }
+        .card {
+            margin-bottom: 20px;
+        }
+        .pos-product-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .pos-product-card {
+            transition: all 0.2s ease;
+        }
+        .pos-product-card .card-img-top {
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+        }
+        .pos-product-card .card-img-top-placeholder {
+            aspect-ratio: 1 / 1;
+        }
+        /* 每行5个商品的布局 */
+        .pos-products-grid .col-pos-item {
+            flex: 0 0 20%;
+            max-width: 20%;
+            padding: 0 6px;
+            margin-bottom: 12px;
+        }
+        @media (max-width: 991px) {
+            .pos-products-grid .col-pos-item {
+                flex: 0 0 25%;
+                max-width: 25%;
+            }
+        }
+        @media (max-width: 767px) {
+            .pos-products-grid .col-pos-item {
+                flex: 0 0 33.333%;
+                max-width: 33.333%;
+            }
+        }
+        @media (max-width: 575px) {
+            .pos-products-grid .col-pos-item {
+                flex: 0 0 50%;
+                max-width: 50%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- 侧边栏 -->
+            <div class="col-md-2 sidebar">
+                <div class="p-3 bg-dark text-center">
+                    <h5>奶茶店管理系统</h5>
+                </div>
+                <ul class="nav flex-column p-3">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/dashboard">
+                            <i class="bi bi-house"></i> 首页
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/admin/pos">
+                            <i class="bi bi-shop"></i> 现场点单
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/products">
+                            <i class="bi bi-box"></i> 商品管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/orders">
+                            <i class="bi bi-phone"></i> 小程序订单
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/all-orders">
+                            <i class="bi bi-cart"></i> 订单管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/users">
+                            <i class="bi bi-people-fill"></i> 用户管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/members">
+                            <i class="bi bi-people"></i> 会员管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/coupons">
+                            <i class="bi bi-ticket"></i> 优惠券管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/recharge">
+                            <i class="bi bi-wallet2"></i> 储值管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/group-buy">
+                            <i class="bi bi-people-fill"></i> 团购管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/ui">
+                            <i class="bi bi-palette-fill"></i> UI管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/delivery-platforms">
+                            <i class="bi bi-truck"></i> 外卖平台
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/stores">
+                            <i class="bi bi-building"></i> 店铺管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/stats">
+                            <i class="bi bi-bar-chart"></i> 数据统计
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/logout">
+                            <i class="bi bi-box-arrow-right"></i> 退出登录
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 主内容区 -->
+            <div class="col-md-10 content">
+                <!-- 顶部导航栏 -->
+                <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4">
+                    <div class="container-fluid d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0"><i class="bi bi-shop"></i> 现场点单</h4>
+                        <div>
+                            <button class="btn btn-outline-secondary btn-sm me-2" onclick="testPrinter()">
+                                <i class="bi bi-printer"></i> 测试打印机
+                            </button>
+                            <span class="text-muted">欢迎，<strong>admin</strong></span>
+                        </div>
+                    </div>
+                </nav>
+
+                <!-- 点单主区域 -->
+                <div class="row">
+                    <!-- 左侧：商品选择区 -->
+                    <div class="col-md-7">
+                        <div class="card">
+                            <div class="card-body">
+                                <!-- 分类标签 -->
+                                <div class="mb-3" id="posCategories">
+                                    <button class="btn btn-primary btn-sm me-2 mb-2 active" data-category="">全部</button>
+                                </div>
+                                <!-- 商品网格 -->
+                                <div class="row pos-products-grid" id="posProducts">
+                                    <div class="col-12 text-center text-muted">
+                                        <div class="spinner-border" role="status"></div>
+                                        <p class="mt-2">加载商品中...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 右侧：点单列表区 -->
+                    <div class="col-md-5">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0"><i class="bi bi-list-check"></i> 点单列表</h5>
+                                <span class="badge bg-primary" id="cartCount">0</span>
+                            </div>
+                            <div class="card-body">
+                                <!-- 点单列表 -->
+                                <div id="cartItems" style="max-height: 400px; overflow-y: auto;">
+                                    <div class="text-center text-muted py-5">
+                                        <i class="bi bi-list-check" style="font-size: 3rem;"></i>
+                                        <p class="mt-2">点单列表是空的</p>
+                                    </div>
+                                </div>
+
+                                <!-- 点单合计 -->
+                                <div id="cartSummary" class="border-top pt-3 mt-3" style="display: none;">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>商品金额:</span>
+                                        <strong id="cartProductTotal">¥0.00</strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>会员折扣:</span>
+                                        <span class="text-danger" id="cartMemberDiscount">-¥0.00</span>
+                                    </div>
+                                    <hr>
+                                    <div class="d-flex justify-content-between mb-3">
+                                        <strong>应付金额:</strong>
+                                        <strong class="text-danger fs-5" id="cartFinalPrice">¥0.00</strong>
+                                    </div>
+
+                                    <!-- 结算选项 -->
+                                    <div class="mb-3">
+                                        <label class="form-label">会员手机号（选填）</label>
+                                        <input type="tel" class="form-control" id="posMemberPhone" placeholder="输入手机号享受会员折扣">
+                                        <small class="text-muted" id="memberDiscountInfo"></small>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">支付方式</label>
+                                        <select class="form-select" id="posPaymentMethod">
+                                            <option value="cash">现金支付</option>
+                                            <option value="wechat">微信支付</option>
+                                            <option value="alipay">支付宝</option>
+                                            <option value="wallet">储值支付</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">订单类型</label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="posOrderType" id="posOrderDineIn" value="dine_in" checked>
+                                            <label class="form-check-label" for="posOrderDineIn">
+                                                堂食
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="posOrderType" id="posOrderTakeout" value="takeout">
+                                            <label class="form-check-label" for="posOrderTakeout">
+                                                外带
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-grid gap-2">
+                                        <button type="button" class="btn btn-success btn-lg" onclick="submitCartOrder()">
+                                            <i class="bi bi-check-circle"></i> 立即结算
+                                        </button>
+                                        <button type="button" class="btn btn-outline-danger" onclick="clearCart()">
+                                            <i class="bi bi-trash"></i> 清空列表
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 商品下单模态框 -->
+    <div class="modal fade" id="posProductModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="posProductTitle">选择商品</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="posProductId">
+
+                    <!-- 规格 -->
+                    <div class="mb-3" id="posSpecSection">
+                        <label class="form-label">规格</label>
+                        <div class="btn-group w-100" role="group" id="posSpecOptions"></div>
+                    </div>
+
+                    <!-- 糖度 -->
+                    <div class="mb-3" id="posSugarSection">
+                        <label class="form-label">糖度</label>
+                        <div class="btn-group w-100" role="group" id="posSugarOptions"></div>
+                    </div>
+
+                    <!-- 冰度 -->
+                    <div class="mb-3" id="posIceSection">
+                        <label class="form-label">冰度</label>
+                        <div class="btn-group w-100" role="group" id="posIceOptions"></div>
+                    </div>
+
+                    <!-- 配料 -->
+                    <div class="mb-3" id="posToppingsSection">
+                        <label class="form-label">配料</label>
+                        <div class="row g-2" id="posToppingsOptions"></div>
+                    </div>
+
+                    <!-- 数量 -->
+                    <div class="mb-3">
+                        <label class="form-label">数量</label>
+                        <div class="input-group">
+                            <button class="btn btn-outline-secondary" type="button" onclick="updatePosQuantity(-1)">-</button>
+                            <input type="number" class="form-control text-center" id="posQuantity" value="1" min="1" max="99">
+                            <button class="btn btn-outline-secondary" type="button" onclick="updatePosQuantity(1)">+</button>
+                        </div>
+                    </div>
+
+                    <!-- 价格 -->
+                    <div class="alert alert-info mb-0">
+                        <div class="d-flex justify-content-between">
+                            <span>商品金额:</span>
+                            <strong id="posProductPrice">¥0.00</strong>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>会员折扣:</span>
+                            <span class="text-danger" id="posMemberDiscount">-¥0.00</span>
+                        </div>
+                        <hr class="my-2">
+                        <div class="d-flex justify-content-between">
+                            <strong>小计:</strong>
+                            <strong class="text-danger" id="posItemPrice">¥0.00</strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="addToCart()">加入点单</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/webusb-printer.js"></script>
+    <script>
+        // ==================== POS点单功能 ====================
+        let posProducts = [];
+        let posCategories = [];
+        let currentPosProduct = null;
+        let currentPosSpec = null;
+        let currentPosSpecPrice = 0;
+        let currentMemberDiscountRate = 0;
+        let currentMemberDiscount = 0;
+        let cartItems = []; // 点单列表数组
+        let cartMemberDiscountRate = 0; // 点单列表会员折扣率
+        let cartMemberDiscount = 0; // 点单列表会员折扣总额
+
+        // 加载POS商品
+        async function loadPosProducts() {
+            try {
+                const response = await fetch('/api/products?limit=1000');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+
+                console.log('获取到的商品数据:', data);
+                console.log('商品总数:', data.products ? data.products.length : 0);
+
+                if (data.products && data.products.length > 0) {
+                    // 兼容字符串和数字类型的 is_active
+                    posProducts = data.products.filter(p => {
+                        const isActive = p.is_active === 1 || p.is_active === '1' || p.is_active === true;
+                        console.log('商品:', p.name, 'is_active:', p.is_active, '是否启用:', isActive);
+                        return isActive;
+                    });
+                    console.log('启用的商品数量:', posProducts.length);
+
+                    // 提取分类
+                    const categorySet = new Set();
+                    posProducts.forEach(p => {
+                        if (p.category && p.category.name) {
+                            categorySet.add(p.category.name);
+                        }
+                    });
+                    posCategories = [...categorySet];
+                    console.log('分类列表:', posCategories);
+
+                    renderPosCategories();
+                    renderPosProducts();
+                } else {
+                    // 没有商品数据，显示空状态
+                    document.getElementById('posProducts').innerHTML = `
+                        <div class="col-12 text-center text-muted py-5">
+                            <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                            <p class="mt-2">暂无商品，请先添加商品</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('加载商品失败:', error);
+                document.getElementById('posProducts').innerHTML = `
+                    <div class="col-12 text-center text-muted py-5">
+                        <i class="bi bi-exclamation-circle" style="font-size: 3rem; color: #dc3545;"></i>
+                        <p class="mt-2">加载失败，请刷新页面重试</p>
+                        <button class="btn btn-primary btn-sm mt-2" onclick="loadPosProducts()">重新加载</button>
+                    </div>
+                `;
+            }
+        }
+
+        // 渲染分类标签
+        function renderPosCategories() {
+            const container = document.getElementById('posCategories');
+            let html = `<button class="btn btn-outline-primary btn-sm me-2 mb-2 active" onclick="filterPosProducts('')">全部</button>`;
+
+            posCategories.forEach(category => {
+                html += `<button class="btn btn-outline-primary btn-sm me-2 mb-2" onclick="filterPosProducts('${category}')">${category}</button>`;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // 渲染商品列表
+        function renderPosProducts(category = '') {
+            const container = document.getElementById('posProducts');
+            let products = posProducts;
+
+            if (category) {
+                products = posProducts.filter(p => p.category && p.category.name === category);
+            }
+
+            if (products.length === 0) {
+                container.innerHTML = '<div class="col-12 text-center text-muted">暂无商品</div>';
+                return;
+            }
+
+            let html = '';
+            products.forEach(product => {
+                html += `
+                    <div class="col-pos-item">
+                        <div class="card h-100 pos-product-card" onclick="openPosProductModal(${product.id})" style="cursor: pointer;">
+                            ${product.image ? `<img src="${product.image}" class="card-img-top" alt="${product.name}">` : '<div class="card-img-top bg-light d-flex align-items-center justify-content-center card-img-top-placeholder"><i class="bi bi-image text-muted h3"></i></div>'}
+                            <div class="card-body p-2">
+                                <h6 class="card-title mb-1 text-truncate" style="font-size: 0.75rem;">${product.name}</h6>
+                                <p class="card-text text-danger mb-0" style="font-size: 0.875rem;"><strong>¥${parseFloat(product.price).toFixed(2)}</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // 筛选商品
+        function filterPosProducts(category) {
+            document.querySelectorAll('#posCategories button').forEach(btn => {
+                btn.classList.remove('active', 'btn-primary');
+                btn.classList.add('btn-outline-primary');
+            });
+            event.target.classList.add('active', 'btn-primary');
+            event.target.classList.remove('btn-outline-primary');
+
+            renderPosProducts(category);
+        }
+
+        // 打开商品下单模态框
+        async function openPosProductModal(productId) {
+            try {
+                const response = await fetch(`/api/products/${productId}`);
+                const product = await response.json();
+
+                console.log('商品详情:', product);
+
+                currentPosProduct = product;
+                currentMemberDiscount = 0;
+
+                document.getElementById('posProductId').value = product.id;
+                document.getElementById('posProductTitle').textContent = product.name;
+                document.getElementById('posQuantity').value = 1;
+
+                // 解析杯型规格（sizes）
+                const sizes = product.sizes && Array.isArray(product.sizes) ? product.sizes : [];
+                const specContainer = document.getElementById('posSpecOptions');
+                const specSection = document.getElementById('posSpecSection');
+
+                if (sizes.length > 0) {
+                    specSection.style.display = 'block';
+                    let specHtml = '';
+                    sizes.forEach((size, index) => {
+                        // sizes 是对象数组：{ name: '中杯', price: 12 }
+                        const sizeName = size.name;
+                        const sizePrice = size.price;
+                        const isActive = index === 0 ? 'active' : '';
+                        const isPrimary = index === 0 ? 'btn-primary' : 'btn-outline-primary';
+                        specHtml += `<button type="button" class="btn ${isPrimary} pos-spec" data-spec="${sizeName}" data-price="${sizePrice}" onclick="selectPosSpec(this)">${sizeName}</button>`;
+                    });
+                    specContainer.innerHTML = specHtml;
+                    currentPosSpec = sizes[0].name;
+                    currentPosSpecPrice = sizes[0].price;
+                } else {
+                    specSection.style.display = 'none';
+                    currentPosSpec = null;
+                    currentPosSpecPrice = parseFloat(product.price) || 0;
+                }
+
+                // 渲染糖度选项（从商品数据中获取）
+                const sugars = product.sugars && Array.isArray(product.sugars) ? product.sugars : ['正常糖', '少糖', '微糖', '无糖'];
+                const sugarContainer = document.getElementById('posSugarOptions');
+                let sugarHtml = '';
+                sugars.forEach((sugar, index) => {
+                    const isActive = index === 0 ? 'active' : '';
+                    const isPrimary = index === 0 ? 'btn-secondary' : 'btn-outline-secondary';
+                    sugarHtml += `<button type="button" class="btn ${isPrimary} pos-sugar" data-value="${sugar}">${sugar}</button>`;
+                });
+                sugarContainer.innerHTML = sugarHtml;
+
+                // 渲染冰度选项（从商品数据中获取）
+                const ices = product.specs && Array.isArray(product.specs) ? product.specs : ['正常冰', '少冰', '常温', '热饮'];
+                const iceContainer = document.getElementById('posIceOptions');
+                let iceHtml = '';
+                ices.forEach((ice, index) => {
+                    const isActive = index === 0 ? 'active' : '';
+                    const isPrimary = index === 0 ? 'btn-secondary' : 'btn-outline-secondary';
+                    iceHtml += `<button type="button" class="btn ${isPrimary} pos-ice" data-value="${ice}">${ice}</button>`;
+                });
+                iceContainer.innerHTML = iceHtml;
+
+                // 渲染配料选项（从商品数据中获取）
+                const toppings = product.toppings && Array.isArray(product.toppings) ? product.toppings : [];
+                const toppingsContainer = document.getElementById('posToppingsOptions');
+                let toppingsHtml = '';
+                toppings.forEach(topping => {
+                    toppingsHtml += `
+                        <div class="col-4">
+                            <div class="form-check">
+                                <input class="form-check-input pos-topping" type="checkbox"
+                                       value="${topping.name}" data-price="${topping.price}"
+                                       id="topping_${topping.name}">
+                                <label class="form-check-label" for="topping_${topping.name}">
+                                    ${topping.name} (+¥${topping.price})
+                                </label>
+                            </div>
+                        </div>
+                    `;
+                });
+                toppingsContainer.innerHTML = toppingsHtml;
+
+                // 重置选择 - 只重置当前容器内的元素
+                sugarContainer.querySelectorAll('.pos-sugar').forEach(btn => btn.classList.remove('active'));
+                sugarContainer.querySelector('.pos-sugar')?.classList.add('active');
+                iceContainer.querySelectorAll('.pos-ice').forEach(btn => btn.classList.remove('active'));
+                iceContainer.querySelector('.pos-ice')?.classList.add('active');
+                toppingsContainer.querySelectorAll('.pos-topping').forEach(cb => cb.checked = false);
+
+                // 使用事件委托来处理糖度/冰度选择（避免重复绑定）
+                // 先移除旧的事件监听器
+                sugarContainer.onclick = null;
+                iceContainer.onclick = null;
+
+                // 糖度选择 - 使用事件委托
+                sugarContainer.addEventListener('click', function(e) {
+                    const btn = e.target.closest('.pos-sugar');
+                    if (btn) {
+                        sugarContainer.querySelectorAll('.pos-sugar').forEach(b => {
+                            b.classList.remove('btn-secondary', 'active');
+                            b.classList.add('btn-outline-secondary');
+                        });
+                        btn.classList.remove('btn-outline-secondary');
+                        btn.classList.add('btn-secondary', 'active');
+                    }
+                });
+
+                // 冰度选择 - 使用事件委托
+                iceContainer.addEventListener('click', function(e) {
+                    const btn = e.target.closest('.pos-ice');
+                    if (btn) {
+                        iceContainer.querySelectorAll('.pos-ice').forEach(b => {
+                            b.classList.remove('btn-secondary', 'active');
+                            b.classList.add('btn-outline-secondary');
+                        });
+                        btn.classList.remove('btn-outline-secondary');
+                        btn.classList.add('btn-secondary', 'active');
+                    }
+                });
+
+                // 配料选择事件
+                toppingsContainer.querySelectorAll('.pos-topping').forEach(cb => {
+                    cb.addEventListener('change', updatePosPrice);
+                });
+
+                updatePosPrice();
+
+                const modal = new bootstrap.Modal(document.getElementById('posProductModal'));
+                modal.show();
+            } catch (error) {
+                console.error('加载商品详情失败:', error);
+            }
+        }
+
+        // 选择规格
+        function selectPosSpec(btn) {
+            document.querySelectorAll('.pos-spec').forEach(b => {
+                b.classList.remove('btn-primary');
+                b.classList.add('btn-outline-primary');
+            });
+            btn.classList.add('btn-primary');
+            btn.classList.remove('btn-outline-primary');
+            currentPosSpec = btn.dataset.spec;
+            currentPosSpecPrice = parseFloat(btn.dataset.price) || 0;
+
+            // 如果有会员折扣率，重新计算折扣
+            if (currentMemberDiscountRate > 0) {
+                const actualDiscountRate = 100 - currentMemberDiscountRate;
+                currentMemberDiscount = currentPosSpecPrice * (actualDiscountRate / 100);
+            }
+
+            updatePosPrice();
+        }
+
+        // 更新数量
+        function updatePosQuantity(delta) {
+            const input = document.getElementById('posQuantity');
+            let value = parseInt(input.value) + delta;
+            if (value < 1) value = 1;
+            if (value > 99) value = 99;
+            input.value = value;
+            updatePosPrice();
+        }
+
+        // 计算商品价格
+        function updatePosPrice() {
+            if (!currentPosProduct) return;
+
+            // 使用杯型价格
+            let price = currentPosSpecPrice || parseFloat(currentPosProduct.price) || 0;
+
+            // 配料加价
+            document.querySelectorAll('.pos-topping:checked').forEach(cb => {
+                const toppingPrice = parseFloat(cb.dataset.price) || 0;
+                price += toppingPrice;
+            });
+
+            const quantity = parseInt(document.getElementById('posQuantity').value) || 1;
+            const productTotal = price * quantity;
+
+            // 更新显示
+            document.getElementById('posProductPrice').textContent = `¥${productTotal.toFixed(2)}`;
+            document.getElementById('posMemberDiscount').textContent = `-¥${currentMemberDiscount.toFixed(2)}`;
+            document.getElementById('posItemPrice').textContent = `¥${(productTotal - currentMemberDiscount).toFixed(2)}`;
+        }
+
+        // 检查会员折扣
+        async function checkMemberDiscount() {
+            const phone = document.getElementById('posMemberPhone').value;
+            const infoEl = document.getElementById('memberDiscountInfo');
+
+            if (!phone) {
+                currentMemberDiscount = 0;
+                currentMemberDiscountRate = 0;
+                infoEl.textContent = '';
+                updatePosPrice();
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/members/phone/${phone}`);
+                
+                // 检查响应状态
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        // 会员不存在
+                        currentMemberDiscount = 0;
+                        currentMemberDiscountRate = 0;
+                        infoEl.textContent = '未找到该会员';
+                        infoEl.className = 'text-warning';
+                        updatePosPrice();
+                        return;
+                    }
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+
+                // 检查返回数据是否成功
+                if (data.success === false) {
+                    currentMemberDiscount = 0;
+                    currentMemberDiscountRate = 0;
+                    infoEl.textContent = '未找到该会员';
+                    infoEl.className = 'text-warning';
+                } else if (data.member && data.member.discount > 0) {
+                    // 保存折扣率（存储的是支付百分比，如90表示九折）
+                    currentMemberDiscountRate = data.member.discount;
+
+                    // 计算实际折扣：100 - 支付百分比
+                    const actualDiscountRate = 100 - currentMemberDiscountRate;
+
+                    // 使用杯型价格计算折扣
+                    const price = currentPosSpecPrice || parseFloat(currentPosProduct.price) || 0;
+                    const discount = price * (actualDiscountRate / 100);
+                    currentMemberDiscount = discount;
+
+                    const quantity = parseInt(document.getElementById('posQuantity').value) || 1;
+                    const totalDiscount = discount * quantity;
+
+                    infoEl.textContent = `会员${currentMemberDiscountRate}折 (节省¥${totalDiscount.toFixed(2)})`;
+                    infoEl.className = 'text-success';
+                } else {
+                    currentMemberDiscount = 0;
+                    currentMemberDiscountRate = 0;
+                    infoEl.textContent = '未找到该会员';
+                    infoEl.className = 'text-warning';
+                }
+                updatePosPrice();
+            } catch (error) {
+                console.error('查询会员失败:', error);
+                currentMemberDiscount = 0;
+                currentMemberDiscountRate = 0;
+                infoEl.textContent = '查询失败';
+                infoEl.className = 'text-danger';
+                updatePosPrice();
+            }
+        }
+
+        // ==================== 点单列表功能 ====================
+
+        // 添加到点单列表
+        function addToCart() {
+            if (!currentPosProduct) return;
+
+            const sugar = document.querySelector('.pos-sugar.active')?.dataset.value || '正常糖';
+            const ice = document.querySelector('.pos-ice.active')?.dataset.value || '正常冰';
+            const toppings = [...document.querySelectorAll('.pos-topping:checked')].map(cb => ({
+                name: cb.value,
+                price: parseFloat(cb.dataset.price) || 0
+            }));
+            const quantity = parseInt(document.getElementById('posQuantity').value) || 1;
+
+            // 使用杯型价格
+            let price = currentPosSpecPrice || parseFloat(currentPosProduct.price) || 0;
+            toppings.forEach(t => {
+                price += t.price;
+            });
+
+            // 计算单件会员折扣
+            let itemDiscount = 0;
+            if (currentMemberDiscountRate > 0) {
+                const actualDiscountRate = 100 - currentMemberDiscountRate;
+                itemDiscount = price * (actualDiscountRate / 100);
+            }
+
+            const finalItemPrice = (price - itemDiscount) * quantity;
+
+            // 检查点单列表中是否已有相同配置的商品
+            const existingIndex = cartItems.findIndex(item =>
+                item.product_id === currentPosProduct.id &&
+                item.spec === currentPosSpec &&
+                item.sugar === sugar &&
+                item.ice === ice &&
+                JSON.stringify(item.toppings) === JSON.stringify(toppings)
+            );
+
+            if (existingIndex >= 0) {
+                // 更新数量
+                cartItems[existingIndex].quantity += quantity;
+                cartItems[existingIndex].price = price;
+                cartItems[existingIndex].itemDiscount = itemDiscount;
+                cartItems[existingIndex].finalPrice = (price - itemDiscount) * cartItems[existingIndex].quantity;
+            } else {
+                // 添加新商品
+                cartItems.push({
+                    product_id: currentPosProduct.id,
+                    product_name: currentPosProduct.name,
+                    price: price,
+                    quantity: quantity,
+                    spec: currentPosSpec,
+                    sugar: sugar,
+                    ice: ice,
+                    toppings: toppings,
+                    itemDiscount: itemDiscount,
+                    finalPrice: finalItemPrice
+                });
+            }
+
+            // 关闭模态框
+            bootstrap.Modal.getInstance(document.getElementById('posProductModal')).hide();
+
+            // 重置选择状态
+            resetProductSelection();
+
+            // 渲染点单列表
+            renderCart();
+        }
+
+        // 重置商品选择状态
+        function resetProductSelection() {
+            currentPosProduct = null;
+            currentPosSpec = null;
+            currentPosSpecPrice = 0;
+            currentMemberDiscount = 0;
+            currentMemberDiscountRate = 0;
+
+            // 重置表单
+            document.getElementById('posProductId').value = '';
+            document.getElementById('posProductTitle').textContent = '选择商品';
+            document.getElementById('posQuantity').value = 1;
+
+            // 重置糖度、冰度选择
+            document.querySelectorAll('.pos-sugar, .pos-ice').forEach(btn => btn.classList.remove('active'));
+            document.querySelector('.pos-sugar[data-value="正常糖"]')?.classList.add('active');
+            document.querySelector('.pos-ice[data-value="正常冰"]')?.classList.add('active');
+
+            // 重置配料选择
+            document.querySelectorAll('.pos-topping:checked').forEach(cb => cb.checked = false);
+
+            // 重置规格
+            document.getElementById('posSpecOptions').innerHTML = '';
+
+            // 重置价格显示
+            document.getElementById('posProductPrice').textContent = '¥0.00';
+            document.getElementById('posMemberDiscount').textContent = '-¥0.00';
+            document.getElementById('posItemPrice').textContent = '¥0.00';
+        }
+
+        // 从点单列表移除商品
+        function removeFromCart(index) {
+            cartItems.splice(index, 1);
+            renderCart();
+        }
+
+        // 更新点单列表商品数量
+        function updateCartQuantity(index, delta) {
+            const item = cartItems[index];
+            const newQuantity = item.quantity + delta;
+
+            if (newQuantity < 1) {
+                // 如果数量小于1，确认是否删除
+                if (confirm('确定要删除这个商品吗？')) {
+                    removeFromCart(index);
+                }
+                return;
+            }
+
+            if (newQuantity > 99) return;
+
+            item.quantity = newQuantity;
+            item.finalPrice = (item.price - item.itemDiscount) * newQuantity;
+            renderCart();
+        }
+
+        // 渲染点单列表
+        function renderCart() {
+            const container = document.getElementById('cartItems');
+            const summaryEl = document.getElementById('cartSummary');
+            const countEl = document.getElementById('cartCount');
+
+            // 更新点单列表数量
+            const totalCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+            countEl.textContent = totalCount;
+
+            if (cartItems.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-muted py-5">
+                        <i class="bi bi-list-check" style="font-size: 3rem;"></i>
+                        <p class="mt-2">点单列表是空的</p>
+                    </div>
+                `;
+                summaryEl.style.display = 'none';
+                return;
+            }
+
+            // 渲染点单列表商品列表
+            let html = '';
+            cartItems.forEach((item, index) => {
+                const toppingsText = item.toppings && item.toppings.length > 0
+                    ? item.toppings.map(t => t.name).join('、')
+                    : '';
+
+                html += `
+                    <div class="card mb-2">
+                        <div class="card-body p-2">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div style="flex: 1;">
+                                    <div class="fw-bold">${item.product_name}</div>
+                                    <small class="text-muted">
+                                        ${item.spec || '常规'} | ${item.sugar} | ${item.ice}
+                                        ${toppingsText ? ' | ' + toppingsText : ''}
+                                    </small>
+                                </div>
+                                <button class="btn btn-sm btn-outline-danger" onclick="removeFromCart(${index})">
+                                    <i class="bi bi-x"></i>
+                                </button>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <div class="input-group input-group-sm" style="width: 100px;">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="updateCartQuantity(${index}, -1)">-</button>
+                                    <input type="number" class="form-control text-center" value="${item.quantity}" min="1" max="99"
+                                           onchange="updateCartQuantity(${index}, this.value - ${item.quantity})">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="updateCartQuantity(${index}, 1)">+</button>
+                                </div>
+                                <div class="text-end">
+                                    <div class="text-muted">¥${item.price.toFixed(2)} × ${item.quantity}</div>
+                                    <div class="fw-bold text-danger">¥${item.finalPrice.toFixed(2)}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+
+            // 计算并显示点单列表合计
+            updateCartSummary();
+        }
+
+        // 更新点单列表合计
+        function updateCartSummary() {
+            const summaryEl = document.getElementById('cartSummary');
+
+            if (cartItems.length === 0) {
+                summaryEl.style.display = 'none';
+                return;
+            }
+
+            summaryEl.style.display = 'block';
+
+            // 计算商品总额和会员折扣总额
+            const productTotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const memberDiscountTotal = cartItems.reduce((sum, item) => sum + (item.itemDiscount * item.quantity), 0);
+            const finalPrice = productTotal - memberDiscountTotal;
+
+            document.getElementById('cartProductTotal').textContent = `¥${productTotal.toFixed(2)}`;
+            document.getElementById('cartMemberDiscount').textContent = `-¥${memberDiscountTotal.toFixed(2)}`;
+            document.getElementById('cartFinalPrice').textContent = `¥${finalPrice.toFixed(2)}`;
+        }
+
+        // 清空点单列表
+        function clearCart() {
+            if (cartItems.length === 0) return;
+
+            if (confirm('确定要清空点单列表吗？')) {
+                cartItems = [];
+                cartMemberDiscountRate = 0;
+                cartMemberDiscount = 0;
+                document.getElementById('posMemberPhone').value = '';
+                document.getElementById('memberDiscountInfo').textContent = '';
+                renderCart();
+            }
+        }
+
+        // 检查点单列表会员折扣
+        async function checkCartMemberDiscount() {
+            const phone = document.getElementById('posMemberPhone').value;
+            const infoEl = document.getElementById('memberDiscountInfo');
+
+            if (!phone) {
+                cartMemberDiscountRate = 0;
+                cartMemberDiscount = 0;
+                infoEl.textContent = '';
+                updateCartSummary();
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/members/phone/${phone}`);
+                
+                // 检查响应状态
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        // 会员不存在
+                        cartMemberDiscountRate = 0;
+                        infoEl.textContent = '未找到该会员';
+                        infoEl.className = 'text-warning';
+                        recalculateCartDiscounts();
+                        return;
+                    }
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+
+                // 检查返回数据是否成功
+                if (data.success === false) {
+                    cartMemberDiscountRate = 0;
+                    infoEl.textContent = '未找到该会员';
+                    infoEl.className = 'text-warning';
+                } else if (data.member && data.member.discount > 0) {
+                    cartMemberDiscountRate = data.member.discount;
+                    infoEl.textContent = `会员${cartMemberDiscountRate}折`;
+                    infoEl.className = 'text-success';
+                } else {
+                    cartMemberDiscountRate = 0;
+                    infoEl.textContent = '未找到该会员';
+                    infoEl.className = 'text-warning';
+                }
+
+                // 重新计算购物车所有商品的折扣
+                recalculateCartDiscounts();
+            } catch (error) {
+                console.error('查询会员失败:', error);
+                cartMemberDiscountRate = 0;
+                infoEl.textContent = '查询失败';
+                infoEl.className = 'text-danger';
+                recalculateCartDiscounts();
+            }
+        }
+
+        // 重新计算点单列表所有商品的折扣
+        function recalculateCartDiscounts() {
+            cartItems.forEach(item => {
+                if (cartMemberDiscountRate > 0) {
+                    const actualDiscountRate = 100 - cartMemberDiscountRate;
+                    item.itemDiscount = item.price * (actualDiscountRate / 100);
+                } else {
+                    item.itemDiscount = 0;
+                }
+                item.finalPrice = (item.price - item.itemDiscount) * item.quantity;
+            });
+            updateCartSummary();
+        }
+
+        // 提交点单列表订单
+        async function submitCartOrder() {
+            if (cartItems.length === 0) {
+                alert('点单列表是空的，请先添加商品');
+                return;
+            }
+
+            const phone = document.getElementById('posMemberPhone').value;
+            const paymentMethod = document.getElementById('posPaymentMethod').value;
+            const orderType = document.querySelector('input[name="posOrderType"]:checked').value;
+
+            // 计算总金额
+            const productTotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const memberDiscount = cartItems.reduce((sum, item) => sum + (item.itemDiscount * item.quantity), 0);
+            const finalPrice = productTotal - memberDiscount;
+
+            const orderData = {
+                store_id: 1,
+                items: cartItems.map(item => ({
+                    product_id: item.product_id,
+                    product_name: item.product_name,
+                    price: item.price,
+                    quantity: item.quantity,
+                    spec: item.spec,
+                    sugar: item.sugar,
+                    ice: item.ice,
+                    toppings: JSON.stringify(item.toppings)
+                })),
+                product_total: productTotal,
+                member_discount: memberDiscount,
+                final_price: finalPrice,
+                payment_method: paymentMethod,
+                is_pos: true,
+                order_type: orderType,
+                phone: phone
+            };
+
+            console.log('提交订单数据:', orderData);
+
+            try {
+                const response = await fetch('/api/orders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(orderData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.id) {
+                    alert('下单成功！订单号：' + result.order_no);
+
+                    // 清空点单列表
+                    cartItems = [];
+                    cartMemberDiscountRate = 0;
+                    cartMemberDiscount = 0;
+                    document.getElementById('posMemberPhone').value = '';
+                    document.getElementById('memberDiscountInfo').textContent = '';
+                    renderCart();
+
+                    // 自动打印小票和标签
+                    printOrderAndLabels(result.id);
+                } else {
+                    alert('下单失败：' + (result.error || '未知错误'));
+                }
+            } catch (error) {
+                console.error('提交订单失败:', error);
+                alert('下单失败，请重试');
+            }
+        }
+
+        // ==================== 保留的原有函数 ====================
+
+        // 提交订单（单商品模式，保留用于兼容）
+        async function submitPosOrder() {
+            if (!currentPosProduct) return;
+
+            const sugar = document.querySelector('.pos-sugar.active')?.dataset.value || '正常糖';
+            const ice = document.querySelector('.pos-ice.active')?.dataset.value || '正常冰';
+            const toppings = [...document.querySelectorAll('.pos-topping:checked')].map(cb => ({
+                name: cb.value,
+                price: parseFloat(cb.dataset.price) || 0
+            }));
+            const quantity = parseInt(document.getElementById('posQuantity').value) || 1;
+            const phone = document.getElementById('posMemberPhone').value;
+            const paymentMethod = document.getElementById('posPaymentMethod').value;
+            const orderType = document.querySelector('input[name="posOrderType"]:checked').value;
+
+            // 使用杯型价格
+            let price = currentPosSpecPrice || parseFloat(currentPosProduct.price) || 0;
+            toppings.forEach(t => {
+                price += t.price;
+            });
+
+            const productTotal = price * quantity;
+
+            // 使用已计算的会员折扣（单件折扣 * 数量）
+            const memberDiscount = currentMemberDiscount * quantity;
+            const finalPrice = productTotal - memberDiscount;
+
+            const orderData = {
+                store_id: 1,
+                items: [{
+                    product_id: currentPosProduct.id,
+                    product_name: currentPosProduct.name,
+                    price: price,
+                    quantity: quantity,
+                    spec: currentPosSpec,
+                    sugar: sugar,
+                    ice: ice,
+                    toppings: JSON.stringify(toppings)
+                }],
+                product_total: productTotal,
+                member_discount: memberDiscount,
+                final_price: finalPrice,
+                payment_method: paymentMethod,
+                is_pos: true,
+                order_type: orderType,
+                phone: phone  // 添加手机号，用于后端查找会员
+            };
+
+            try {
+                const response = await fetch('/api/orders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(orderData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.id) {
+                    alert('下单成功！订单号：' + result.order_no);
+                    bootstrap.Modal.getInstance(document.getElementById('posProductModal')).hide();
+                    // 自动打印小票和标签
+                    printOrderAndLabels(result.id);
+                } else {
+                    alert('下单失败：' + (result.error || '未知错误'));
+                }
+            } catch (error) {
+                console.error('提交订单失败:', error);
+                alert('下单失败，请重试');
+            }
+        }
+
+        // ==================== 打印模块 ====================
+        // 打印器类型：'receipt' = 小票打印机(58mm), 'label' = 标签打印机
+
+        /**
+         * 测试打印机连接（ESC-POS）
+         */
+        async function testPrinter() {
+            try {
+                const token = localStorage.getItem('adminToken');
+                const response = await fetch('/api/print/test', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': token ? `Bearer ${token}` : ''
+                    },
+                    body: JSON.stringify({ printerType: 'usb' })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('打印机连接成功！请检查打印机是否出纸');
+                } else {
+                    alert('打印机连接失败：' + result.message + '\n\n将使用浏览器打印作为备用方案');
+                }
+            } catch (error) {
+                console.error('测试打印机失败:', error);
+                alert('测试打印机失败：' + error.message + '\n\n将使用浏览器打印作为备用方案');
+            }
+        }
+
+        /**
+         * 电话号码隐私保护
+         * @param {string} phone - 原始电话号码
+         * @returns {string} 隐藏中间4位的电话号码
+         * @example
+         * maskPhoneNumber('13812345678') // '138****5678'
+         */
+        function maskPhoneNumber(phone) {
+            if (!phone || phone.length < 7) return phone;
+            // 保留前3位和后4位，中间用****替换
+            return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
+        }
+
+        /**
+         * 统一打印入口 - 根据打印机类型打印不同内容
+         * @param {string} printerType - 打印机类型: 'receipt' | 'label'
+         * @param {string} content - 打印内容HTML
+         */
+        async function printDocument(printerType, content) {
+            try {
+                // 设置打印区域ID和样式类
+                const printAreaId = printerType === 'label' ? 'labelPrintArea' : 'printArea';
+                const printArea = document.getElementById(printAreaId);
+                if (!printArea) {
+                    console.error('打印区域不存在:', printAreaId);
+                    return;
+                }
+
+                // 设置打印类型到body，用于CSS区分不同打印样式
+                document.body.dataset.printType = printerType;
+
+                // 显示打印内容
+                printArea.innerHTML = content;
+                printArea.style.display = 'block';
+
+                // 等待内容渲染并调整高度
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                // 对于标签打印，根据内容调整打印区域高度
+                if (printerType === 'label') {
+                    const contentHeight = printArea.scrollHeight;
+                    printArea.style.height = contentHeight + 'px';
+                }
+
+                // 调用浏览器打印
+                window.print();
+
+                // 打印完成后清理
+                setTimeout(() => {
+                    printArea.style.display = 'none';
+                    printArea.style.height = 'auto';
+                    document.body.dataset.printType = '';
+                }, 500);
+
+            } catch (error) {
+                console.error('打印失败:', error);
+            }
+        }
+
+        // 本地打印服务配置
+        const LOCAL_PRINT_SERVER = 'http://localhost:3001';
+
+        // WebUSB 打印机实例
+        let webusbPrinter = null;
+
+        /**
+         * 检查浏览器是否支持 WebUSB
+         */
+        function isWebUSBSupported() {
+            return 'usb' in navigator;
+        }
+
+        /**
+         * 初始化 WebUSB 打印机
+         */
+        async function initWebUSBPrinter() {
+            if (!isWebUSBSupported()) {
+                console.log('浏览器不支持 WebUSB');
+                return { success: false, message: '浏览器不支持 WebUSB' };
+            }
+
+            try {
+                webusbPrinter = new WebUSBPrinter();
+                
+                // 请求用户选择打印机
+                const result = await webusbPrinter.requestDevice();
+                if (!result.success) {
+                    return result;
+                }
+
+                // 连接打印机
+                const connectResult = await webusbPrinter.connect();
+                return connectResult;
+            } catch (error) {
+                console.error('初始化 WebUSB 打印机失败:', error);
+                return { success: false, message: error.message };
+            }
+        }
+
+        /**
+         * 使用 WebUSB 打印订单
+         */
+        async function printWithWebUSB(order) {
+            if (!webusbPrinter || !webusbPrinter.isConnected) {
+                // 尝试初始化
+                const initResult = await initWebUSBPrinter();
+                if (!initResult.success) {
+                    return initResult;
+                }
+            }
+
+            try {
+                const result = await webusbPrinter.printOrder(order);
+                return result;
+            } catch (error) {
+                console.error('WebUSB 打印失败:', error);
+                return { success: false, message: error.message };
+            }
+        }
+
+        /**
+         * 检查本地打印服务是否可用
+         */
+        async function checkLocalPrintServer() {
+            try {
+                const response = await fetch(`${LOCAL_PRINT_SERVER}/health`, {
+                    method: 'GET',
+                    mode: 'cors',
+                    cache: 'no-cache',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                return response.ok;
+            } catch (error) {
+                console.log('本地打印服务未启动:', error.message);
+                return false;
+            }
+        }
+
+        /**
+         * 使用本地打印服务打印订单
+         */
+        async function printWithLocalServer(order) {
+            try {
+                const response = await fetch(`${LOCAL_PRINT_SERVER}/print/order`, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        order: order,
+                        printerType: 'usb'
+                    })
+                });
+
+                const result = await response.json();
+                return result;
+            } catch (error) {
+                console.error('本地打印服务调用失败:', error);
+                throw error;
+            }
+        }
+
+        /**
+         * 打印订单和标签（下单后调用）
+         * 支持多种打印方式：WebUSB > 本地打印服务 > 后端ESC-POS > 浏览器打印
+         */
+        async function printOrderAndLabels(orderId) {
+            try {
+                // 获取订单详情
+                const response = await fetch(`/api/orders/${orderId}`);
+                const order = await response.json();
+
+                if (!order || !order.id) {
+                    console.error('订单不存在');
+                    return;
+                }
+
+                // 第一步：尝试使用 WebUSB 打印（安卓美团点餐机首选方案）
+                if (isWebUSBSupported()) {
+                    try {
+                        console.log('尝试使用 WebUSB 打印...');
+                        const result = await printWithWebUSB(order);
+                        if (result.success) {
+                            console.log('WebUSB 打印成功');
+                            return;
+                        } else {
+                            console.log('WebUSB 打印失败:', result.message);
+                        }
+                    } catch (webusbError) {
+                        console.log('WebUSB 打印出错:', webusbError.message);
+                    }
+                } else {
+                    console.log('浏览器不支持 WebUSB，跳过');
+                }
+
+                // 第二步：尝试使用本地打印服务（Windows 美团点餐机方案）
+                try {
+                    const isLocalServerAvailable = await checkLocalPrintServer();
+                    if (isLocalServerAvailable) {
+                        console.log('检测到本地打印服务，使用本地打印...');
+                        const result = await printWithLocalServer(order);
+                        if (result.success) {
+                            console.log('本地打印服务打印成功');
+                            return;
+                        } else {
+                            console.log('本地打印服务打印失败:', result.message);
+                        }
+                    }
+                } catch (localError) {
+                    console.log('本地打印服务不可用:', localError.message);
+                }
+
+                // 第三步：尝试使用后端ESC-POS打印
+                try {
+                    const token = localStorage.getItem('adminToken');
+                    const printResponse = await fetch(`/api/print/order/${orderId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': token ? `Bearer ${token}` : ''
+                        },
+                        body: JSON.stringify({ printerType: 'usb' })
+                    });
+
+                    if (printResponse.ok) {
+                        console.log('ESC-POS打印成功');
+                        return;
+                    } else {
+                        console.log('ESC-POS打印失败，回退到浏览器打印');
+                    }
+                } catch (escposError) {
+                    console.log('ESC-POS打印出错，回退到浏览器打印:', escposError);
+                }
+
+                // 第三步：回退到浏览器打印
+                console.log('使用浏览器打印...');
+                // 1. 打印小票
+                const receiptContent = generateReceiptContent(order);
+                await printDocument('receipt', receiptContent);
+
+                // 等待小票打印完成
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                // 2. 为每个商品打印标签（合并所有标签内容一次性打印）
+                if (order.items && order.items.length > 0) {
+                    // 计算总标签数量
+                    const totalLabels = order.items.reduce((sum, item) => sum + (item.quantity || 1), 0);
+                    let currentIndex = 0;
+                    let allLabelsContent = '';
+
+                    for (const item of order.items) {
+                        // 根据数量生成多张标签内容
+                        for (let i = 0; i < (item.quantity || 1); i++) {
+                            currentIndex++;
+                            const labelContent = generateLabelContent(order, item, currentIndex, totalLabels);
+                            allLabelsContent += labelContent;
+                        }
+                    }
+
+                    // 一次性打印所有标签
+                    if (allLabelsContent) {
+                        await printDocument('label', allLabelsContent);
+                    }
+                }
+
+            } catch (error) {
+                console.error('打印订单和标签失败:', error);
+            }
+        }
+
+        /**
+         * 单独打印小票
+         */
+        async function printReceipt(orderId) {
+            const response = await fetch(`/api/orders/${orderId}`);
+            const order = await response.json();
+            if (order && order.id) {
+                const content = generateReceiptContent(order);
+                await printDocument('receipt', content);
+            }
+        }
+
+        /**
+         * 单独打印标签
+         */
+        async function printLabel(orderId, itemId) {
+            const response = await fetch(`/api/orders/${orderId}`);
+            const order = await response.json();
+            if (order && order.id && order.items) {
+                const item = order.items.find(i => i.id === itemId);
+                if (item) {
+                    // 计算该商品在订单中的位置（用于显示序号）
+                    let itemIndex = 0;
+                    let totalLabels = 0;
+
+                    // 先计算总标签数
+                    totalLabels = order.items.reduce((sum, i) => sum + (i.quantity || 1), 0);
+
+                    // 找到当前商品的位置
+                    for (const orderItem of order.items) {
+                        if (orderItem.id === itemId) {
+                            // 找到了，序号从 itemIndex + 1 开始
+                            // 对于数量大于1的商品，这里我们只打印一张，序号显示为 [1/总数量]
+                            break;
+                        }
+                        itemIndex += (orderItem.quantity || 1);
+                    }
+
+                    const currentIndex = itemIndex + 1;
+                    const content = generateLabelContent(order, item, currentIndex, totalLabels);
+                    await printDocument('label', content);
+                }
+            }
+        }
+
+        /**
+         * 生成小票打印内容（58mm热敏打印机）
+         * 参照小程序订单的小票格式
+         */
+        function generateReceiptContent(order) {
+            const orderTime = new Date(order.createdAt || order.created_at);
+            const timeStr = `${orderTime.getFullYear()}-${String(orderTime.getMonth() + 1).padStart(2, '0')}-${String(orderTime.getDate()).padStart(2, '0')} ${String(orderTime.getHours()).padStart(2, '0')}:${String(orderTime.getMinutes()).padStart(2, '0')}`;
+
+            let itemsHtml = '';
+            if (order.items && order.items.length > 0) {
+                order.items.forEach(item => {
+                    const itemTotal = parseFloat(item.price || 0) * (item.quantity || 1);
+                    const nameSpec = item.spec ? `${item.product_name}(${item.spec})` : item.product_name;
+                    itemsHtml += `
+                        <div class="print-item">
+                            <span class="print-item-name">${nameSpec}</span>
+                            <span class="print-item-qty">x${item.quantity}</span>
+                            <span class="print-item-price">¥${itemTotal.toFixed(2)}</span>
+                        </div>
+                    `;
+                });
+            }
+
+            // 兼容snake_case和camelCase字段名
+            const memberDiscount = parseFloat(order.member_discount || order.memberDiscount || 0);
+            const couponDiscount = parseFloat(order.discount || 0);
+            const productTotal = parseFloat(order.product_total || order.productTotal || 0);
+            const deliveryFee = parseFloat(order.delivery_fee || order.deliveryFee || 0);
+            const finalPrice = parseFloat(order.final_price || order.finalPrice || 0);
+
+            // 调试日志
+            console.log('=== 小票打印调试信息 ===');
+            console.log('订单原始数据:', order);
+            console.log('会员折扣:', memberDiscount, '(来源:', order.member_discount || order.memberDiscount, ')');
+            console.log('商品金额:', productTotal);
+            console.log('最终价格:', finalPrice);
+
+            return `
+                <div class="print-header">
+                    <div class="print-store-name">半夏奶茶店</div>
+                    <div>订单小票</div>
+                </div>
+
+                <div class="print-row">
+                    <span class="print-label">订单号:</span>
+                    <span class="print-value">${order.order_no}</span>
+                </div>
+                <div class="print-row">
+                    <span class="print-label">下单时间:</span>
+                    <span class="print-value">${timeStr}</span>
+                </div>
+                <div class="print-row">
+                    <span class="print-label">支付方式:</span>
+                    <span class="print-value">${order.payment_method === 'wechat' ? '微信支付' : order.payment_method === 'wallet' ? '储值支付' : order.payment_method === 'cash' ? '现金' : '支付宝'}</span>
+                </div>
+                ${order.phone ? `
+                <div class="print-row">
+                    <span class="print-label">联系电话:</span>
+                    <span class="print-value">${order.phone}</span>
+                </div>
+                ` : ''}
+
+                <div class="print-divider"></div>
+
+                <div style="font-weight: bold; margin-bottom: 5px; font-size: 16px;">商品明细</div>
+                ${itemsHtml}
+
+                <div class="print-divider"></div>
+
+                <div class="print-row">
+                    <span class="print-label">商品金额:</span>
+                    <span class="print-value">¥${productTotal.toFixed(2)}</span>
+                </div>
+                ${deliveryFee > 0 ? `
+                <div class="print-row">
+                    <span class="print-label">配送费:</span>
+                    <span class="print-value">¥${deliveryFee.toFixed(2)}</span>
+                </div>
+                ` : ''}
+                ${memberDiscount > 0 ? `
+                <div class="print-row">
+                    <span class="print-label">会员折扣:</span>
+                    <span class="print-value">-¥${memberDiscount.toFixed(2)}</span>
+                </div>
+                ` : ''}
+                ${couponDiscount > 0 ? `
+                <div class="print-row">
+                    <span class="print-label">优惠券:</span>
+                    <span class="print-value">-¥${couponDiscount.toFixed(2)}</span>
+                </div>
+                ` : ''}
+
+                <div class="print-total">
+                    <div>合计: ¥${finalPrice.toFixed(2)}</div>
+                </div>
+
+                ${order.is_pickup ? `
+                <div class="print-pickup-info">
+                    <strong>【自取订单】</strong><br>
+                    预约取餐时间: ${order.pickup_time || '未设置'}
+                </div>
+                ` : ''}
+
+                ${order.remark ? `
+                <div class="print-row" style="margin-top: 5px;">
+                    <span class="print-label">备注:</span>
+                    <span class="print-value">${order.remark}</span>
+                </div>
+                ` : ''}
+
+                <div class="print-footer">
+                    <div>感谢您的惠顾，欢迎下次光临！</div>
+                    ${order.is_pickup ? '<div>请保留小票，凭小票取餐</div>' : ''}
+                </div>
+            `;
+        }
+
+        /**
+         * 生成标签打印内容 - 适配48mm热敏纸
+         * 格式：订单类型(左) 序号(右) / 订单号 / 商品名(规格) / 糖度冰度配料 / 完整时间
+         */
+        function generateLabelContent(order, item, currentIndex = 1, totalCount = 1) {
+            const orderTime = new Date(order.createdAt || order.created_at);
+            // 完整时间格式：2026-2-6-22:42:12
+            const timeStr = `${orderTime.getFullYear()}-${orderTime.getMonth() + 1}-${orderTime.getDate()}-${String(orderTime.getHours()).padStart(2, '0')}:${String(orderTime.getMinutes()).padStart(2, '0')}:${String(orderTime.getSeconds()).padStart(2, '0')}`;
+
+            // 订单类型显示
+            const orderTypeText = {
+                'self': '堂食',
+                'pickup': '自取',
+                'delivery': '外卖'
+            }[order.order_type] || '堂食';
+
+            // 解析配料
+            let toppingsText = '';
+            if (item.toppings) {
+                try {
+                    const toppings = typeof item.toppings === 'string' ? JSON.parse(item.toppings) : item.toppings;
+                    if (Array.isArray(toppings) && toppings.length > 0) {
+                        // 在每个配料前添加"加"字，多个配料也用"|"分隔
+                        toppingsText = toppings.map(t => `加${typeof t === 'object' ? t.name : t}`).join('|');
+                    }
+                } catch (e) {
+                    console.error('解析配料失败:', e);
+                }
+            }
+
+            // 构建糖度、冰度、配料行（用"|"分隔）
+            const specs = [];
+            if (item.sugar) specs.push(item.sugar);
+            if (item.ice) specs.push(item.ice);
+            if (toppingsText) specs.push(toppingsText);
+
+            // 商品名称加规格：烤奶茶(大杯)
+            const productDisplay = item.spec
+                ? `${item.product_name}(${item.spec})`
+                : item.product_name;
+
+            // 使用完整订单号
+            const orderNoFull = order.order_no || '';
+
+            return `
+                <div class="label-container">
+                    <div class="label-header-row">
+                        <span class="label-order-type">${orderTypeText}</span>
+                        <span class="label-sequence">[${currentIndex}/${totalCount}]</span>
+                    </div>
+                    <div class="label-order-no">订单号:${orderNoFull}</div>
+                    <div class="label-product-name">${productDisplay}</div>
+                    ${specs.length > 0 ? `<div class="label-specs">${specs.join(' | ')}</div>` : ''}
+                    <div class="label-time">${timeStr}</div>
+                </div>
+            `;
+        }
+
+        // 事件监听 - 点单列表会员手机号
+        document.getElementById('posMemberPhone')?.addEventListener('blur', checkCartMemberDiscount);
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPosProducts();
+        });
+    </script>
+
+    <!-- 打印区域 -->
+    <div id="printArea" style="display:none;"></div>
+    <div id="labelPrintArea" style="display:none;"></div>
+
+    <style>
+        /* 打印区域样式（默认隐藏）- 适配58mm热敏纸 */
+        #printArea {
+            display: none;
+            font-family: 'Courier New', 'SimSun', monospace;
+            font-size: 16pt;
+            line-height: 1.2;
+            background: white;
+            color: #000;
+            width: 52mm;
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        #printArea .print-header {
+            text-align: center;
+            border-bottom: 1px dashed #000;
+            padding-bottom: 1px;
+            margin-bottom: 1px;
+        }
+
+        #printArea .print-store-name {
+            font-size: 24pt;
+            font-weight: 900;
+            margin-bottom: 2px;
+        }
+
+        #printArea .print-divider {
+            border-top: 1px dashed #000;
+            margin: 1px 0;
+        }
+
+        #printArea .print-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 2px 0;
+            font-size: 15pt;
+            width: 100%;
+        }
+
+        #printArea .print-label {
+            color: #000;
+            white-space: nowrap;
+            flex-shrink: 0;
+            font-size: 15pt;
+        }
+
+        #printArea .print-value {
+            font-weight: bold;
+            text-align: right;
+            word-break: break-all;
+            max-width: 70%;
+            font-size: 15pt;
+        }
+
+        #printArea .print-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin: 2px 0;
+            font-size: 15pt;
+            width: 100%;
+        }
+
+        #printArea .print-item-name {
+            flex: 1;
+            padding-right: 2px;
+            word-break: break-all;
+            overflow-wrap: break-word;
+            max-width: 30mm;
+            line-height: 1.2;
+        }
+
+        #printArea .print-item-qty {
+            width: 18px;
+            text-align: center;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        #printArea .print-item-price {
+            width: 35px;
+            text-align: right;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        #printArea .print-total {
+            text-align: right;
+            font-size: 18pt;
+            font-weight: bold;
+            margin-top: 1px;
+        }
+
+        #printArea .print-footer {
+            text-align: center;
+            margin-top: 3px;
+            padding-top: 2px;
+            border-top: 1px dashed #000;
+            font-size: 13pt;
+        }
+
+        #printArea .print-pickup-info {
+            border: 1px dashed #000;
+            padding: 3px;
+            margin: 3px 0;
+            font-size: 13pt;
+        }
+
+        /* ==================== 标签打印样式 - 适配48mm宽度热敏纸 ==================== */
+        #labelPrintArea {
+            display: none;
+            font-family: 'Courier New', 'SimSun', monospace;
+            background: white;
+            color: #000;
+            width: 44mm;
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        #labelPrintArea .label-container {
+            width: 40mm;
+            padding: 1mm 1mm 1mm 4mm;
+            border: none;
+            margin: 0;
+            box-sizing: border-box;
+            page-break-inside: avoid;
+        }
+
+        #labelPrintArea .label-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1mm;
+        }
+
+        #labelPrintArea .label-order-type {
+            font-size: 8pt;
+            font-weight: bold;
+        }
+
+        #labelPrintArea .label-sequence {
+            font-size: 7pt;
+            font-weight: bold;
+        }
+
+        #labelPrintArea .label-order-no {
+            font-size: 5pt;
+            color: #333;
+            margin-bottom: 0.5mm;
+            word-wrap: break-word;
+            line-height: 1.1;
+        }
+
+        #labelPrintArea .label-product-name {
+            font-size: 9pt;
+            font-weight: bold;
+            margin: 0.5mm 0;
+            word-wrap: break-word;
+            line-height: 1.1;
+        }
+
+        #labelPrintArea .label-specs {
+            font-size: 6pt;
+            margin: 0.5mm 0;
+            color: #333;
+            word-wrap: break-word;
+            line-height: 1.1;
+        }
+
+        #labelPrintArea .label-time {
+            font-size: 5pt;
+            color: #666;
+            text-align: right;
+            margin-top: 0.5mm;
+            word-wrap: break-word;
+        }
+
+        /* ==================== 打印媒体查询 ==================== */
+        @media print {
+            /* 标签打印页面设置 - 44mm宽度，高度自适应 */
+            @page {
+                size: 44mm auto;
+                margin: 0;
+            }
+
+            /* 防止打印多余空白页 */
+            @page :blank {
+                display: none;
+            }
+
+            /* 默认隐藏所有内容 */
+            body > *:not(#printArea):not(#labelPrintArea) {
+                display: none !important;
+            }
+
+            /* 根据打印类型显示对应区域 */
+            #printArea, #labelPrintArea {
+                display: none !important;
+            }
+
+            /* 小票打印样式 */
+            body[data-print-type="receipt"] #printArea {
+                display: block !important;
+                position: absolute !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 58mm !important;
+                max-width: 58mm !important;
+                padding: 1mm 2mm !important;
+                margin: 0 !important;
+                background: white !important;
+                font-family: 'Courier New', 'SimSun', monospace !important;
+                font-size: 16px !important;
+                line-height: 1.3 !important;
+                box-sizing: border-box !important;
+                overflow: visible !important;
+            }
+
+            /* 标签打印样式 - 适配48mm宽度30x30mm标签纸 */
+            body[data-print-type="label"] #labelPrintArea {
+                display: block !important;
+                position: absolute !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 30mm !important;
+                max-width: 30mm !important;
+                height: 30mm !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                background: white !important;
+                font-family: 'Courier New', 'SimSun', monospace !important;
+                overflow: hidden !important;
+            }
+
+            body[data-print-type="label"] {
+                margin: 0 !important;
+                padding: 0 !important;
+                background: white !important;
+            }
+
+            #printArea .print-item,
+            #printArea .print-row {
+                display: flex !important;
+                justify-content: space-between !important;
+                flex-wrap: nowrap !important;
+            }
+
+            #printArea .print-item-name {
+                flex: 1 !important;
+                min-width: 0 !important;
+                word-wrap: break-word !important;
+                overflow-wrap: break-word !important;
+                font-size: 15px !important;
+            }
+
+            #printArea .print-item-qty,
+            #printArea .print-item-price,
+            #printArea .print-value {
+                flex-shrink: 0 !important;
+                white-space: nowrap !important;
+                font-size: 15px !important;
+            }
+
+            #printArea .print-header {
+                font-size: 17px !important;
+            }
+
+            #printArea .print-store-name {
+                font-size: 26px !important;
+            }
+
+            #printArea .print-label {
+                font-size: 15px !important;
+            }
+
+            #printArea .print-total {
+                font-size: 18px !important;
+            }
+
+            #printArea .print-footer {
+                font-size: 13px !important;
+            }
+
+            /* 标签打印样式 - 适配48mm宽度热敏纸 */
+            body[data-print-type="label"] {
+                width: 44mm !important;
+                height: auto !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            body[data-print-type="label"] #labelPrintArea {
+                width: 44mm !important;
+                max-width: 44mm !important;
+                height: auto !important;
+                overflow: visible !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            body[data-print-type="label"] #labelPrintArea .label-container {
+                width: 40mm !important;
+                padding: 1mm 1mm 1mm 4mm !important;
+                border: none !important;
+                margin: 0 !important;
+                box-sizing: border-box !important;
+                page-break-inside: avoid !important;
+            }
+
+            body[data-print-type="label"] #labelPrintArea .label-header-row {
+                justify-content: space-between !important;
+                margin-bottom: 0.5mm !important;
+            }
+
+            body[data-print-type="label"] #labelPrintArea .label-order-type {
+                font-size: 8pt !important;
+                font-weight: bold !important;
+            }
+
+            body[data-print-type="label"] #labelPrintArea .label-sequence {
+                font-size: 7pt !important;
+                font-weight: bold !important;
+            }
+
+            body[data-print-type="label"] #labelPrintArea .label-order-no {
+                font-size: 5pt !important;
+                margin-bottom: 0.5mm !important;
+                word-wrap: break-word !important;
+                line-height: 1.1 !important;
+            }
+
+            body[data-print-type="label"] #labelPrintArea .label-product-name {
+                font-size: 9pt !important;
+                font-weight: bold !important;
+                margin: 0.5mm 0 !important;
+                line-height: 1.1 !important;
+            }
+
+            body[data-print-type="label"] #labelPrintArea .label-specs {
+                font-size: 6pt !important;
+                margin: 0.5mm 0 !important;
+                line-height: 1.1 !important;
+            }
+
+            body[data-print-type="label"] #labelPrintArea .label-time {
+                font-size: 5pt !important;
+                text-align: right !important;
+                margin-top: 0.5mm !important;
+                word-wrap: break-word !important;
+            }
+
+            body {
+                margin: 0 !important;
+                padding: 0 !important;
+                background: white !important;
+                min-height: 0 !important;
+            }
+
+            html, body {
+                height: auto !important;
+                overflow: visible !important;
+                min-height: 0 !important;
+            }
+
+            /* 防止打印后产生空白页 */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            /* 确保打印区域不会导致额外分页 */
+            #printArea, #labelPrintArea {
+                page-break-after: avoid !important;
+            }
+
+            /* 最后一个标签后不分页 */
+            #labelPrintArea .label-container:last-child {
+                page-break-after: auto !important;
+            }
+        }
+    </style>
+</body>
+</html>
