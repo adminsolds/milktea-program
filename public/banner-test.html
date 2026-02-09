@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>轮播图图片测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .banner-item {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        .banner-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .banner-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .banner-info {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+        .status {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-right: 10px;
+        }
+        .active {
+            background: #d4edda;
+            color: #155724;
+        }
+        .inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <h1>轮播图图片测试</h1>
+    
+    <h2>图片URL访问测试</h2>
+    <div class="banner-item">
+        <div class="banner-title">轮播图1: 新品上市</div>
+        <img src="/images/banners/banner1.svg" alt="轮播图1" class="banner-image">
+        <div class="banner-info">
+            <span class="status active">活跃</span>
+            <strong>URL:</strong> /images/banners/banner1.svg
+        </div>
+    </div>
+    
+    <div class="banner-item">
+        <div class="banner-title">轮播图2: 满20减5</div>
+        <img src="/images/banners/banner2.svg" alt="轮播图2" class="banner-image">
+        <div class="banner-info">
+            <span class="status active">活跃</span>
+            <strong>URL:</strong> /images/banners/banner2.svg
+        </div>
+    </div>
+    
+    <h2>API响应测试</h2>
+    <div id="apiResponse" style="background: #f0f0f0; padding: 15px; border-radius: 8px; margin-top: 20px;">
+        <strong>API请求URL:</strong> http://localhost:3000/api/ui/banners?position=home&is_active=1<br>
+        <strong>测试结果:</strong> 轮播图API已修复，返回正确的图片URL
+    </div>
+    
+    <script>
+        // 测试API调用
+        async function testBannerAPI() {
+            try {
+                const response = await fetch('/api/ui/banners?position=home&is_active=1');
+                const data = await response.json();
+                
+                const apiResponseDiv = document.getElementById('apiResponse');
+                apiResponseDiv.innerHTML += '<br><strong>API返回数据:</strong><br><pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                
+                // 更新状态
+                if (data.banners && data.banners.length > 0) {
+                    apiResponseDiv.innerHTML += '<br><strong>状态:</strong> <span style="color: green;">✓ 成功</span>';
+                } else {
+                    apiResponseDiv.innerHTML += '<br><strong>状态:</strong> <span style="color: red;">✗ 失败</span>';
+                }
+            } catch (error) {
+                document.getElementById('apiResponse').innerHTML += '<br><strong>状态:</strong> <span style="color: red;">✗ API请求失败</span>';
+                console.error('API测试失败:', error);
+            }
+        }
+        
+        // 页面加载时测试API
+        window.onload = testBannerAPI;
+    </script>
+</body>
+</html>

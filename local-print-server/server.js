@@ -16,7 +16,7 @@ const USB = require('escpos-usb');
 const Network = require('escpos-network');
 
 const app = express();
-const PORT = 3001;
+const PORT = 3002;
 
 // 启用 CORS，允许浏览器跨域访问
 app.use(cors({

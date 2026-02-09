@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>奶茶店后台管理系统- 团购管理</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="/styles/admin-modern.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .sidebar {
+            min-height: 100vh;
+            background-color: #343a40;
+            color: white;
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+        }
+        .sidebar a:hover {
+            background-color: #495057;
+        }
+        .content {
+            padding: 20px;
+        }
+        .card {
+            margin-bottom: 20px;
+        }
+        .table th {
+            white-space: nowrap;
+        }
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status-upcoming {
+            background-color: #6c757d;
+            color: white;
+        }
+        .status-ongoing {
+            background-color: #28a745;
+            color: white;
+        }
+        .status-ended {
+            background-color: #dc3545;
+            color: white;
+        }
+        .status-cancelled {
+            background-color: #6c757d;
+            color: white;
+        }
+        .groupon-image-preview {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        .stat-card {
+            border-left: 4px solid;
+            transition: transform 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        .stat-primary { border-left-color: #007bff; }
+        .stat-success { border-left-color: #28a745; }
+        .stat-warning { border-left-color: #ffc107; }
+        .stat-danger { border-left-color: #dc3545; }
+        .image-upload-area {
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .image-upload-area:hover {
+            border-color: #007bff;
+            background-color: #f8f9fa;
+        }
+        .image-preview {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        .progress-bar-animated {
+            animation: progress-bar-stripes 1s linear infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- 侧边栏-->
+            <div class="col-md-2 sidebar">
+                <div class="p-3 bg-dark text-center">
+                    <h5>奶茶店管理系统/h5>
+                </div>
+                <ul class="nav flex-column p-3">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/dashboard">
+                            <i class="bi bi-house"></i> 首页
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/products">
+                            <i class="bi bi-box"></i> 商品管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/orders">
+                            <i class="bi bi-cart"></i> 订单管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/users">
+                            <i class="bi bi-people"></i> 用户管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/coupons">
+                            <i class="bi bi-ticket"></i> 优惠券管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/members">
+                            <i class="bi bi-crown"></i> 会员管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/stores">
+                            <i class="bi bi-building"></i> 店铺管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/recharge">
+                            <i class="bi bi-wallet2"></i> 储值管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/admin/group-buy">
+                            <i class="bi bi-people-fill"></i> 团购管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/ui">
+                            <i class="bi bi-palette-fill"></i> UI管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/delivery-platforms">
+                            <i class="bi bi-truck"></i> 外卖平台
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/stats">
+                            <i class="bi bi-bar-chart"></i> 数据统计
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-danger" href="/admin/logout">
+                            <i class="bi bi-box-arrow-right"></i> 退出登录
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 主内容区 -->
+            <div class="col-md-10 content">
+                <!-- 顶部导航栏 -->
+                <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4">
+                    <div class="container-fluid d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0"><i class="bi bi-people-fill"></i> 团购管理</h4>
+                        <span class="text-muted">欢迎，<strong>admin</strong></span>
+                    </div>
+                </nav>
+
+                <!-- 统计卡片 -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card stat-card stat-primary">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h6 class="card-subtitle mb-2 text-muted">全部团购</h6>
+                                        <h3 class="card-text mb-0" id="statTotal">0</h3>
+                                    </div>
+                                    <i class="bi bi-list-check fs-1 text-primary opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card stat-card stat-success">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h6 class="card-subtitle mb-2 text-muted">进行中/h6>
+                                        <h3 class="card-text mb-0" id="statOngoing">0</h3>
+                                    </div>
+                                    <i class="bi bi-lightning-charge fs-1 text-success opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card stat-card stat-warning">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h6 class="card-subtitle mb-2 text-muted">即将开始/h6>
+                                        <h3 class="card-text mb-0" id="statUpcoming">0</h3>
+                                    </div>
+                                    <i class="bi bi-clock fs-1 text-warning opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card stat-card stat-danger">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h6 class="card-subtitle mb-2 text-muted">总销量/h6>
+                                        <h3 class="card-text mb-0" id="statSold">0</h3>
+                                    </div>
+                                    <i class="bi bi-cart-check fs-1 text-danger opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 团购管理页面 -->
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">团购管理</h5>
+                        <div>
+                            <button class="btn btn-outline-secondary me-2" onclick="exportData()">
+                                <i class="bi bi-download"></i> 导出数据
+                            </button>
+                            <button class="btn btn-outline-primary me-2" onclick="updateAllStatus()">
+                                <i class="bi bi-arrow-clockwise"></i> 更新状态
+                            </button>
+                            <button class="btn btn-primary" onclick="openAddModal()">
+                                <i class="bi bi-plus"></i> 添加团购
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- 搜索和筛�?-->
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" id="searchInput" placeholder="搜索团购名称">
+                            </div>
+                            <div class="col-md-2">
+                                <select class="form-select" id="statusFilter">
+                                    <option value="">所有状态</option>
+                                    <option value="upcoming">即将开始/option>
+                                    <option value="ongoing">进行中/option>
+                                    <option value="ended">已结束/option>
+                                    <option value="cancelled">已取消/option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <select class="form-select" id="activeFilter">
+                                    <option value="">全部</option>
+                                    <option value="1">已激活/option>
+                                    <option value="0">已禁用/option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-primary" onclick="searchGroupBuys()">
+                                    <i class="bi bi-search"></i> 搜索
+                                </button>
+                                <button class="btn btn-secondary ms-2" onclick="resetFilters()">
+                                    <i class="bi bi-arrow-counterclockwise"></i> 重置
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 团购列表 -->
+                        <div class="table-responsive">
+                            <table class="table table-hover table-striped">
+                                <thead>
+                                    <tr>
+                                        <th><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th>
+                                        <th>ID</th>
+                                        <th>团购信息</th>
+                                        <th>价格</th>
+                                        <th>拼团人数</th>
+                                        <th>活动时间</th>
+                                        <th>状态</th>
+                                        <th>已售/排序</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="groupBuysTableBody">
+                                    <!-- 团购数据将通过JS动态加�?-->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- 批量操作 -->
+                        <div class="mt-3" id="batchActions" style="display: none;">
+                            <div class="d-flex align-items-center">
+                                <span class="me-3">已选择 <strong id="selectedCount">0</strong> 项/span>
+                                <button class="btn btn-sm btn-success me-2" onclick="batchUpdateStatus('ongoing')">
+                                    <i class="bi bi-play"></i> 设为进行中
+                                </button>
+                                <button class="btn btn-sm btn-warning me-2" onclick="batchUpdateStatus('ended')">
+                                    <i class="bi bi-stop"></i> 设为已结束
+                                </button>
+                                <button class="btn btn-sm btn-secondary me-2" onclick="batchToggleActive()">
+                                    <i class="bi bi-eye"></i> 切换激活状态
+                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="batchDelete()">
+                                    <i class="bi bi-trash"></i> 批量删除
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 分页 -->
+                        <nav aria-label="Page navigation" class="mt-3">
+                            <ul class="pagination justify-content-center" id="pagination">
+                                <!-- 分页将通过JS动态生成-->
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加/编辑团购模态框 -->
+    <div class="modal fade" id="groupBuyModal" tabindex="-1" aria-labelledby="groupBuyModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="groupBuyModalLabel">添加团购</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="groupBuyForm">
+                        <input type="hidden" id="groupBuyId">
+
+                        <!-- 基本信息 -->
+                        <h6 class="border-bottom pb-2 mb-3">基本信息</h6>
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                <label for="groupBuyName" class="form-label">团购名称 <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="groupBuyName" required placeholder="请输入团购名�?>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="sortOrder" class="form-label">排序</label>
+                                <input type="number" class="form-control" id="sortOrder" value="0" placeholder="数字越小越靠�?>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="groupBuyDesc" class="form-label">团购描述</label>
+                            <textarea class="form-control" id="groupBuyDesc" rows="2" placeholder="请输入团购描述（支持持换行�?></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">活动图片</label>
+                            <div class="image-upload-area" onclick="document.getElementById('imageFileInput').click()">
+                                <input type="file" id="imageFileInput" accept="image/*" style="display: none" onchange="handleImageUpload(event)">
+                                <i class="bi bi-cloud-upload fs-1 text-muted"></i>
+                                <p class="mb-0 text-muted">点击上传图片或拖拽图片到此处</p>
+                                <input type="hidden" id="groupBuyImage">
+                            </div>
+                            <div id="imagePreviewContainer"></div>
+                        </div>
+
+                        <!-- 价格设置 -->
+                        <h6 class="border-bottom pb-2 mb-3 mt-4">价格设置</h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="originalPrice" class="form-label">原价 <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">¥</span>
+                                    <input type="number" class="form-control" id="originalPrice" step="0.01" min="0" required placeholder="请输入原�?>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="grouponPrice" class="form-label">团购价<span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">¥</span>
+                                    <input type="number" class="form-control" id="grouponPrice" step="0.01" min="0" required placeholder="请输入团购价">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="alert alert-info" id="discountInfo" style="display: none;">
+                            <i class="bi bi-info-circle"></i> 折扣：span id="discountValue"></span>
+                        </div>
+
+                        <!-- 拼团设置 -->
+                        <h6 class="border-bottom pb-2 mb-3 mt-4">拼团设置</h6>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="minParticipants" class="form-label">最少人数<span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="minParticipants" min="2" required placeholder="最少参团人�?>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="maxParticipants" class="form-label">最多人数/label>
+                                <input type="number" class="form-control" id="maxParticipants" min="1" placeholder="留空表示不限�?>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="maxPurchase" class="form-label">限购数量</label>
+                                <input type="number" class="form-control" id="maxPurchase" min="1" value="3" placeholder="每人限购">
+                            </div>
+                        </div>
+
+                        <!-- 时间设置 -->
+                        <h6 class="border-bottom pb-2 mb-3 mt-4">活动时间</h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="startTime" class="form-label">开始时间<span class="text-danger">*</span></label>
+                                <input type="datetime-local" class="form-control" id="startTime" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="endTime" class="form-label">结束时间 <span class="text-danger">*</span></label>
+                                <input type="datetime-local" class="form-control" id="endTime" required>
+                            </div>
+                        </div>
+
+                        <!-- 状态设置-->
+                        <h6 class="border-bottom pb-2 mb-3 mt-4">状态设置/h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="status" class="form-label">活动状态</label>
+                                <select class="form-select" id="status" required>
+                                    <option value="upcoming">即将开始/option>
+                                    <option value="ongoing">进行中/option>
+                                    <option value="ended">已结束/option>
+                                    <option value="cancelled">已取消/option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">&nbsp;</label>
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" id="isActive" checked>
+                                    <label class="form-check-label" for="isActive">激活状态（启用后用户可见）</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 活动规则 -->
+                        <h6 class="border-bottom pb-2 mb-3 mt-4">活动规则</h6>
+                        <div class="mb-3">
+                            <label for="rules" class="form-label">规则说明（每行一条）</label>
+                            <textarea class="form-control" id="rules" rows="4" placeholder="例如：#10;活动时间：即日起至团购结�?#10;拼团成功：达到最低拼团人数自动成�?#10;使用方式：成团后到店出示核销码即�?></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="saveGroupBuy()">
+                        <i class="bi bi-save"></i> 保存
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 查看参团人员模态框 -->
+    <div class="modal fade" id="participantsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">参团人员列表</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="participantsContent">
+                        <!-- 参团人员列表将通过JS动态加载-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
+    <script>
+        // 全局变量
+        let groupBuys = [];
+        let selectedIds = [];
+        let currentPage = 1;
+        let pageSize = 10;
+        let totalPages = 1;
+        let groupBuyModal;
+        let participantsModal;
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            groupBuyModal = new bootstrap.Modal(document.getElementById('groupBuyModal'));
+            participantsModal = new bootstrap.Modal(document.getElementById('participantsModal'));
+            loadGroupBuys();
+            loadStatistics();
+
+            // 价格变化时计算折扣
+            document.getElementById('grouponPrice').addEventListener('input', updateDiscount);
+            document.getElementById('originalPrice').addEventListener('input', updateDiscount);
+        });
+
+        // 更新折扣显示
+        function updateDiscount() {
+            const originalPrice = parseFloat(document.getElementById('originalPrice').value);
+            const grouponPrice = parseFloat(document.getElementById('grouponPrice').value);
+            const discountInfo = document.getElementById('discountInfo');
+            const discountValue = document.getElementById('discountValue');
+
+            if (originalPrice > 0 && grouponPrice > 0) {
+                const discount = Math.round((grouponPrice / originalPrice) * 10) / 10;
+                const discountPercent = Math.round((grouponPrice / originalPrice) * 100);
+                discountValue.textContent = `${discount}�?(${discountPercent}% OFF)`;
+                discountInfo.style.display = 'block';
+            } else {
+                discountInfo.style.display = 'none';
+            }
+        }
+
+        // 加载团购列表
+        async function loadGroupBuys(page = 1) {
+            try {
+                const filters = {};
+                const status = document.getElementById('statusFilter').value;
+                const isActive = document.getElementById('activeFilter').value;
+                const search = document.getElementById('searchInput').value;
+
+                if (status) filters.status = status;
+                if (isActive) filters.is_active = isActive;
+                if (search) filters.search = search;
+
+                const response = await axios.get('/api/group-buys', {
+                    params: { ...filters, page, limit: pageSize }
+                });
+
+                if (response.data.groupBuys) {
+                    groupBuys = response.data.groupBuys;
+                    currentPage = response.data.page || 1;
+                    totalPages = Math.ceil((response.data.total || 0) / pageSize);
+                    renderGroupBuys();
+                    renderPagination();
+                }
+            } catch (error) {
+                console.error('加载团购失败:', error);
+                showToast('加载团购失败，请稍后重试', 'error');
+            }
+        }
+
+        // 加载统计数据
+        async function loadStatistics() {
+            try {
+                const [totalRes, ongoingRes, upcomingRes] = await Promise.all([
+                    axios.get('/api/group-buys'),
+                    axios.get('/api/group-buys?status=ongoing'),
+                    axios.get('/api/group-buys?status=upcoming')
+                ]);
+
+                const allGroupBuys = totalRes.data.groupBuys || [];
+                const ongoing = (ongoingRes.data.groupBuys || []).length;
+                const upcoming = (upcomingRes.data.groupBuys || []).length;
+                const totalSold = allGroupBuys.reduce((sum, item) => sum + (item.sold || 0), 0);
+
+                document.getElementById('statTotal').textContent = allGroupBuys.length;
+                document.getElementById('statOngoing').textContent = ongoing;
+                document.getElementById('statUpcoming').textContent = upcoming;
+                document.getElementById('statSold').textContent = totalSold;
+            } catch (error) {
+                console.error('加载统计数据失败:', error);
+            }
+        }
+
+        // 渲染团购列表
+        function renderGroupBuys() {
+            const tbody = document.getElementById('groupBuysTableBody');
+            tbody.innerHTML = '';
+
+            if (groupBuys.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center">暂无数据</td></tr>';
+                return;
+            }
+
+            groupBuys.forEach(groupBuy => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><input type="checkbox" class="row-checkbox" value="${groupBuy.id}" onchange="updateSelected()"></td>
+                    <td>${groupBuy.id}</td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            ${groupBuy.image ? `<img src="${groupBuy.image}" class="groupon-image-preview me-2">` : '<div class="groupon-image-preview bg-secondary d-flex align-items-center justify-content-center me-2"><i class="bi bi-image text-white"></i></div>'}
+                            <div>
+                                <strong>${groupBuy.name}</strong>
+                                ${groupBuy.desc ? `<br><small class="text-muted">${groupBuy.desc.substring(0, 50)}${groupBuy.desc.length > 50 ? '...' : ''}</small>` : ''}
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="text-danger">¥${groupBuy.groupon_price}</span>
+                        <br><small class="text-muted"><del>¥${groupBuy.original_price}</del></small>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <span>${groupBuy.current_participants || 0}/${groupBuy.min_participants}�?/span>
+                            ${groupBuy.max_participants ? `<span class="badge bg-secondary ms-1">最多${groupBuy.max_participants}�?/span>` : ''}
+                        </div>
+                        ${groupBuy.max_participants ? `
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar ${groupBuy.current_participants >= groupBuy.min_participants ? 'bg-success' : 'bg-warning'}" style="width: ${Math.min(groupBuy.current_participants / groupBuy.max_participants * 100, 100)}%"></div>
+                        </div>
+                        ` : ''}
+                    </td>
+                    <td>
+                        <small>${formatDateTime(groupBuy.start_time)}</small>
+                        <br><br>
+                        <small>${formatDateTime(groupBuy.end_time)}</small>
+                    </td>
+                    <td>
+                        <span class="status-badge status-${groupBuy.status}">
+                            ${getStatusText(groupBuy.status)}
+                        </span>
+                        <br>
+                        <small class="${groupBuy.is_active ? 'text-success' : 'text-danger'}">
+                            ${groupBuy.is_active ? '已激活 : '已禁用}
+                        </small>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-bag-check text-success"></i>
+                            <span class="ms-1">${groupBuy.sold || 0}</span>
+                        </div>
+                        <small class="text-muted">排序: ${groupBuy.sort_order}</small>
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button class="btn btn-outline-info" onclick="viewParticipants(${groupBuy.id})" title="查看参团人员">
+                                <i class="bi bi-people"></i>
+                            </button>
+                            <button class="btn btn-outline-primary" onclick="editGroupBuy(${groupBuy.id})" title="编辑">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-outline-danger" onclick="deleteGroupBuy(${groupBuy.id})" title="删除">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 渲染分页
+        function renderPagination() {
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = '';
+
+            // 上一页
+            const prevLi = document.createElement('li');
+            prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+            prevLi.innerHTML = '<a class="page-link" href="#" onclick="loadGroupBuys(' + (currentPage - 1) + '); return false;">&laquo;</a>';
+            pagination.appendChild(prevLi);
+
+            // 页码
+            for (let i = 1; i <= totalPages; i++) {
+                const li = document.createElement('li');
+                li.className = `page-item ${i === currentPage ? 'active' : ''}`;
+                li.innerHTML = `<a class="page-link" href="#" onclick="loadGroupBuys(${i}); return false;">${i}</a>`;
+                pagination.appendChild(li);
+            }
+
+            // 下一页
+            const nextLi = document.createElement('li');
+            nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+            nextLi.innerHTML = '<a class="page-link" href="#" onclick="loadGroupBuys(' + (currentPage + 1) + '); return false;">&raquo;</a>';
+            pagination.appendChild(nextLi);
+        }
+
+        // 格式化日期时间
+        function formatDateTime(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            return date.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // 获取状态文本
+        function getStatusText(status) {
+            const statusMap = {
+                'upcoming': '即将开始,
+                'ongoing': '进行中,
+                'ended': '已结束,
+                'cancelled': '已取消
+            };
+            return statusMap[status] || status;
+        }
+
+        // 全部取消全部
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('selectAll').checked;
+            document.querySelectorAll('.row-checkbox').forEach(checkbox => {
+                checkbox.checked = selectAll;
+            });
+            updateSelected();
+        }
+
+        // 更新选中的
+        function updateSelected() {
+            selectedIds = Array.from(document.querySelectorAll('.row-checkbox:checked')).map(cb => parseInt(cb.value));
+            document.getElementById('selectedCount').textContent = selectedIds.length;
+            document.getElementById('batchActions').style.display = selectedIds.length > 0 ? 'block' : 'none';
+        }
+
+        // 批量更新状态
+        async function batchUpdateStatus(status) {
+            if (selectedIds.length === 0) return;
+
+            if (!confirm(`确定要将选中的${selectedIds.length} 个团购状态更改为"${getStatusText(status)}"吗？`)) {
+                return;
+            }
+
+            try {
+                const promises = selectedIds.map(id =>
+                    axios.put(`/api/group-buys/${id}`, { status })
+                );
+                await Promise.all(promises);
+                showToast('批量更新成功', 'success');
+                loadGroupBuys();
+                loadStatistics();
+                clearSelection();
+            } catch (error) {
+                console.error('批量更新失败:', error);
+                showToast('批量更新失败', 'error');
+            }
+        }
+
+        // 批量切换激活状态
+        async function batchToggleActive() {
+            if (selectedIds.length === 0) return;
+
+            try {
+                const promises = selectedIds.map(id => {
+                    const groupBuy = groupBuys.find(gb => gb.id === id);
+                    return axios.put(`/api/group-buys/${id}`, { is_active: groupBuy.is_active ? 0 : 1 });
+                });
+                await Promise.all(promises);
+                showToast('批量切换成功', 'success');
+                loadGroupBuys();
+                clearSelection();
+            } catch (error) {
+                console.error('批量切换失败:', error);
+                showToast('批量切换失败', 'error');
+            }
+        }
+
+        // 批量删除
+        async function batchDelete() {
+            if (selectedIds.length === 0) return;
+
+            if (!confirm(`确定要删除选中的${selectedIds.length} 个团购吗？此操作不可恢复！`)) {
+                return;
+            }
+
+            try {
+                const promises = selectedIds.map(id =>
+                    axios.delete(`/api/group-buys/${id}`)
+                );
+                await Promise.all(promises);
+                showToast('批量删除成功', 'success');
+                loadGroupBuys();
+                loadStatistics();
+                clearSelection();
+            } catch (error) {
+                console.error('批量删除失败:', error);
+                showToast('批量删除失败', 'error');
+            }
+        }
+
+        // 清除选择
+        function clearSelection() {
+            selectedIds = [];
+            document.getElementById('selectAll').checked = false;
+            document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = false);
+            document.getElementById('batchActions').style.display = 'none';
+        }
+
+        // 图片上传处理
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // 验证文件类型
+            if (!file.type.startsWith('image/')) {
+                showToast('请选择图片文件', 'error');
+                return;
+            }
+
+            // 验证文件大小 (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showToast('图片大小不能超过5MB', 'error');
+                return;
+            }
+
+            // 预览图片
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const previewContainer = document.getElementById('imagePreviewContainer');
+                previewContainer.innerHTML = `
+                    <div class="position-relative d-inline-block">
+                        <img src="${e.target.result}" class="image-preview" id="currentImagePreview">
+                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1" onclick="removeImage()">
+                            <i class="bi bi-x"></i>
+                        </button>
+                    </div>
+                `;
+                // 这里可以添加上传到服务器的逻辑
+                document.getElementById('groupBuyImage').value = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // 移除图片
+        function removeImage() {
+            document.getElementById('imagePreviewContainer').innerHTML = '';
+            document.getElementById('groupBuyImage').value = '';
+            document.getElementById('imageFileInput').value = '';
+        }
+
+        // 打开添加模态框
+        function openAddModal() {
+            document.getElementById('groupBuyForm').reset();
+            document.getElementById('groupBuyId').value = '';
+            document.getElementById('groupBuyModalLabel').innerHTML = '<i class="bi bi-plus-circle"></i> 添加团购';
+            document.getElementById('isActive').checked = true;
+            document.getElementById('sortOrder').value = 0;
+            document.getElementById('imagePreviewContainer').innerHTML = '';
+            document.getElementById('discountInfo').style.display = 'none';
+            groupBuyModal.show();
+        }
+
+        // 编辑团购
+        function editGroupBuy(id) {
+            const groupBuy = groupBuys.find(gb => gb.id === id);
+            if (!groupBuy) return;
+
+            document.getElementById('groupBuyId').value = groupBuy.id;
+            document.getElementById('groupBuyName').value = groupBuy.name || '';
+            document.getElementById('groupBuyDesc').value = groupBuy.desc || '';
+            document.getElementById('groupBuyImage').value = groupBuy.image || '';
+            document.getElementById('originalPrice').value = groupBuy.original_price || '';
+            document.getElementById('grouponPrice').value = groupBuy.groupon_price || '';
+            document.getElementById('minParticipants').value = groupBuy.min_participants || '';
+            document.getElementById('maxParticipants').value = groupBuy.max_participants || '';
+            document.getElementById('maxPurchase').value = groupBuy.max_purchase || 3;
+            document.getElementById('startTime').value = formatDateTimeForInput(groupBuy.start_time);
+            document.getElementById('endTime').value = formatDateTimeForInput(groupBuy.end_time);
+            document.getElementById('status').value = groupBuy.status || 'upcoming';
+            document.getElementById('sortOrder').value = groupBuy.sort_order || 0;
+            document.getElementById('isActive').checked = groupBuy.is_active === 1;
+
+            // 显示图片预览
+            if (groupBuy.image) {
+                document.getElementById('imagePreviewContainer').innerHTML = `
+                    <div class="position-relative d-inline-block">
+                        <img src="${groupBuy.image}" class="image-preview" id="currentImagePreview">
+                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1" onclick="removeImage()">
+                            <i class="bi bi-x"></i>
+                        </button>
+                    </div>
+                `;
+            }
+
+            // 规则
+            if (groupBuy.rules && Array.isArray(groupBuy.rules)) {
+                document.getElementById('rules').value = groupBuy.rules.join('\n');
+            } else {
+                document.getElementById('rules').value = '';
+            }
+
+            updateDiscount();
+            document.getElementById('groupBuyModalLabel').innerHTML = '<i class="bi bi-pencil"></i> 编辑团购';
+            groupBuyModal.show();
+        }
+
+        // 格式化日期时间用于input
+        function formatDateTimeForInput(dateStr) {
+            if (!dateStr) return '';
+            const date = new Date(dateStr);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
+
+        // 保存团购
+        async function saveGroupBuy() {
+            const id = document.getElementById('groupBuyId').value;
+            const rules = document.getElementById('rules').value.split('\n').filter(r => r.trim());
+
+            const groupBuyData = {
+                name: document.getElementById('groupBuyName').value,
+                desc: document.getElementById('groupBuyDesc').value,
+                image: document.getElementById('groupBuyImage').value,
+                original_price: parseFloat(document.getElementById('originalPrice').value),
+                groupon_price: parseFloat(document.getElementById('grouponPrice').value),
+                min_participants: parseInt(document.getElementById('minParticipants').value),
+                max_participants: document.getElementById('maxParticipants').value ? parseInt(document.getElementById('maxParticipants').value) : null,
+                max_purchase: parseInt(document.getElementById('maxPurchase').value),
+                start_time: document.getElementById('startTime').value,
+                end_time: document.getElementById('endTime').value,
+                status: document.getElementById('status').value,
+                sort_order: parseInt(document.getElementById('sortOrder').value),
+                is_active: document.getElementById('isActive').checked ? 1 : 0,
+                rules: rules.length > 0 ? rules : null
+            };
+
+            // 验证
+            if (!groupBuyData.name || !groupBuyData.original_price || !groupBuyData.groupon_price ||
+                !groupBuyData.min_participants || !groupBuyData.start_time || !groupBuyData.end_time) {
+                showToast('请填写所有必填项', 'error');
+                return;
+            }
+
+            if (groupBuyData.groupon_price >= groupBuyData.original_price) {
+                showToast('团购价必须小于原价, 'error');
+                return;
+            }
+
+            if (new Date(groupBuyData.start_time) >= new Date(groupBuyData.end_time)) {
+                showToast('结束时间必须晚于开始时间, 'error');
+                return;
+            }
+
+            try {
+                const url = id ? `/api/group-buys/${id}` : '/api/group-buys';
+                const method = id ? 'put' : 'post';
+
+                const response = await axios({
+                    method: method,
+                    url: url,
+                    data: groupBuyData
+                });
+
+                showToast(id ? '更新成功' : '添加成功', 'success');
+                groupBuyModal.hide();
+                loadGroupBuys();
+                loadStatistics();
+            } catch (error) {
+                console.error('保存团购失败:', error);
+                showToast(error.response?.data?.error || '保存团购失败，请稍后重试', 'error');
+            }
+        }
+
+        // 删除团购
+        async function deleteGroupBuy(id) {
+            if (!confirm('确定要删除这个团购吗？此操作不可恢复！)) return;
+
+            try {
+                await axios.delete(`/api/group-buys/${id}`);
+                showToast('删除成功', 'success');
+                loadGroupBuys();
+                loadStatistics();
+            } catch (error) {
+                console.error('删除团购失败:', error);
+                showToast('删除团购失败，请稍后重试', 'error');
+            }
+        }
+
+        // 查看参团人员
+        async function viewParticipants(id) {
+            try {
+                const response = await axios.get(`/api/group-buys/${id}/participants`);
+                const participants = response.data.participants || [];
+                const groupBuy = groupBuys.find(gb => gb.id === id);
+
+                let html = `
+                    <div class="mb-3">
+                        <h6>${groupBuy?.name || ''}</h6>
+                        <p class="text-muted mb-0">当前参团人数：{groupBuy?.current_participants || 0} / ${groupBuy?.min_participants || 0}</p>
+                    </div>
+                `;
+
+                if (participants.length === 0) {
+                    html += '<p class="text-center text-muted">暂无参团人员</p>';
+                } else {
+                    html += '<div class="list-group">';
+                    participants.forEach((p, index) => {
+                        html += `
+                            <div class="list-group-item d-flex align-items-center">
+                                <span class="badge bg-primary me-3">${index + 1}</span>
+                                <img src="${p.user?.avatar_url || '/images/static/avatars/default-avatar.png'}" class="rounded-circle me-3" width="40" height="40">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-0">${p.user?.nickname || '未知用户'}</h6>
+                                    <small class="text-muted">购买数量：{p.quantity} | 参团时间：{formatDateTime(p.join_time)}</small>
+                                </div>
+                                ${p.is_leader ? '<span class="badge bg-warning">团长</span>' : ''}
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                }
+
+                document.getElementById('participantsContent').innerHTML = html;
+                participantsModal.show();
+            } catch (error) {
+                console.error('加载参团人员失败:', error);
+                showToast('加载参团人员失败', 'error');
+            }
+        }
+
+        // 更新所有团购状态
+        async function updateAllStatus() {
+            try {
+                await axios.get('/api/group-buys/update-status');
+                showToast('状态更新成功, 'success');
+                loadGroupBuys();
+                loadStatistics();
+            } catch (error) {
+                console.error('更新状态失败', error);
+                showToast('更新状态失败, 'error');
+            }
+        }
+
+        // 导出数据
+        function exportData() {
+            if (groupBuys.length === 0) {
+                showToast('暂无数据可导出, 'error');
+                return;
+            }
+
+            // 创建CSV内容
+            let csv = '\uFEFF'; // UTF-8 BOM
+            csv += 'ID,团购名称,原价,团购价最少人数当前人数,最多人数开始时间结束时间,状�?已售数量,排序\n';
+
+            groupBuys.forEach(item => {
+                csv += `${item.id},"${item.name}",${item.original_price},${item.groupon_price},${item.min_participants},${item.current_participants || 0},${item.max_participants || ''},${formatDateTime(item.start_time)},${formatDateTime(item.end_time)},${getStatusText(item.status)},${item.sold || 0},${item.sort_order}\n`;
+            });
+
+            // 创建下载链接
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `团购数据_${new Date().toISOString().slice(0, 10)}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showToast('导出成功', 'success');
+        }
+
+        // 搜索团购
+        function searchGroupBuys() {
+            loadGroupBuys(1);
+        }
+
+        // 重置筛选
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('activeFilter').value = '';
+            loadGroupBuys(1);
+        }
+
+        // 显示提示消息
+        function showToast(message, type = 'info') {
+            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+            const toast = document.createElement('div');
+            toast.className = `toast align-items-center text-white bg-${type === 'error' ? 'danger' : type} border-0`;
+            toast.setAttribute('role', 'alert');
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            `;
+            toastContainer.appendChild(toast);
+
+            const bsToast = new bootstrap.Toast(toast, { delay: 3000 });
+            bsToast.show();
+
+            toast.addEventListener('hidden.bs.toast', () => {
+                toast.remove();
+            });
+        }
+
+        // 创建提示容器
+        function createToastContainer() {
+            const container = document.createElement('div');
+            container.id = 'toastContainer';
+            container.className = 'toast-container position-fixed top-0 end-0 p-3';
+            container.style.zIndex = 9999;
+            document.body.appendChild(container);
+            return container;
+        }
+    </script>
+</body>
+</html>

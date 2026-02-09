@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>奶茶店后台管理系统- 储值管理</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="/styles/admin-modern.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .sidebar {
+            min-height: 100vh;
+            background-color: #343a40;
+            color: white;
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+        }
+        .sidebar a:hover {
+            background-color: #495057;
+        }
+        .content {
+            padding: 20px;
+        }
+        .card {
+            margin-bottom: 20px;
+        }
+        .table th {
+            white-space: nowrap;
+        }
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .tab-content {
+            margin-top: 20px;
+        }
+        .status-toggle {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- 侧边栏-->
+            <div class="col-md-2 sidebar">
+                <div class="p-3 bg-dark text-center">
+                    <h5>奶茶店管理系统</h5>
+                </div>
+                <ul class="nav flex-column p-3">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/dashboard">
+                            <i class="bi bi-house"></i> 首页
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/pos">
+                            <i class="bi bi-shop"></i> 现场点单
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/products">
+                            <i class="bi bi-box"></i> 商品管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/orders">
+                            <i class="bi bi-phone"></i> 小程序订单
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/all-orders">
+                            <i class="bi bi-cart"></i> 订单管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/users">
+                            <i class="bi bi-people-fill"></i> 用户管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/members">
+                            <i class="bi bi-people"></i> 会员管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/coupons">
+                            <i class="bi bi-ticket"></i> 优惠券管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/admin/recharge">
+                            <i class="bi bi-wallet2"></i> 储值管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/group-buy">
+                            <i class="bi bi-people-fill"></i> 团购管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/ui">
+                            <i class="bi bi-palette-fill"></i> UI管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/delivery-platforms">
+                            <i class="bi bi-truck"></i> 外卖平台
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/stores">
+                            <i class="bi bi-building"></i> 店铺管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/stats">
+                            <i class="bi bi-bar-chart"></i> 数据统计
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-danger" href="/admin/logout">
+                            <i class="bi bi-box-arrow-right"></i> 退出登录
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- 主内容区 -->
+            <div class="col-md-10 content">
+                <!-- 顶部导航栏 -->
+                <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4">
+                    <div class="container-fluid d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0"><i class="bi bi-wallet2"></i> 储值管理</h4>
+                        <span class="text-muted">欢迎，<strong>admin</strong></span>
+                    </div>
+                </nav>
+                
+                <!-- 储值管理页面-->
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">储值管理</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- 选项卡-->
+                        <ul class="nav nav-tabs" id="rechargeTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="plans-tab" data-bs-toggle="tab" data-bs-target="#plans" type="button" role="tab" aria-controls="plans" aria-selected="true">储值方案</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="records-tab" data-bs-toggle="tab" data-bs-target="#records" type="button" role="tab" aria-controls="records" aria-selected="false">储值记录</button>
+                            </li>
+                        </ul>
+                        
+                        <!-- 选项卡内容-->
+                        <div class="tab-content" id="rechargeTabsContent">
+                            <!-- 储值方案管理-->
+                            <div class="tab-pane fade show active" id="plans" role="tabpanel" aria-labelledby="plans-tab">
+                                <div class="d-flex justify-content-between align-items-center mt-3 mb-3">
+                                    <h6>储值方案管理</h6>
+                                    <div>
+                                        <button class="btn btn-primary btn-sm" onclick="openAddPlanModal()">
+                                            <i class="bi bi-plus"></i> 添加储值方案
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- 储值方案列表-->
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>名称</th>
+                                                <th>储值金额</th>
+                                                <th>赠送金额</th>
+                                                <th>赠送积分</th>
+                                                <th>总金额</th>
+                                                <th>排序</th>
+                                                <th>状态</th>
+                                                <th>操作</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="plansTableBody">
+                                            <!-- 动态加载储值方案列表-->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <!-- 储值记录管理-->
+                            <div class="tab-pane fade" id="records" role="tabpanel" aria-labelledby="records-tab">
+                                <div class="d-flex justify-content-between align-items-center mt-3 mb-3">
+                                    <h6>储值记录管理</h6>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-success btn-sm" onclick="openCustomRechargeModal()">
+                                            <i class="bi bi-gear"></i> 自定义储值
+                                        </button>
+                                        <button class="btn btn-primary btn-sm" onclick="openAdminRechargeModal()">
+                                            <i class="bi bi-plus"></i> 手动储值
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- 储值记录列表-->
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>用户</th>
+                                                <th>储值金额</th>
+                                                <th>赠送金额</th>
+                                                <th>总金额</th>
+                                                <th>储值方案</th>
+                                                <th>状态</th>
+                                                <th>备注</th>
+                                                <th>时间</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="recordsTableBody">
+                                            <!-- 动态加载储值记录列表-->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 添加/编辑储值方案模态框 -->
+    <div class="modal fade" id="planModal" tabindex="-1" aria-labelledby="planModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="planModalLabel">添加储值方案</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="planForm">
+                        <input type="hidden" id="planId">
+                        
+                        <div class="mb-3">
+                            <label for="planName" class="form-label">方案名称 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="planName" required placeholder="请输入储值方案名称">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="planAmount" class="form-label">储值金额<span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text">¥</span>
+                                <input type="number" class="form-control" id="planAmount" required placeholder="请输入储值金额" step="0.01" min="0">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="planBonusAmount" class="form-label">赠送金额</label>
+                            <div class="input-group">
+                                <span class="input-group-text">¥</span>
+                                <input type="number" class="form-control" id="planBonusAmount" placeholder="请输入赠送金额" step="0.01" min="0">
+                            </div>
+                            <div class="form-text">设置为0则不赠送金额</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="planBonusPoints" class="form-label">赠送积分</label>
+                            <input type="number" class="form-control" id="planBonusPoints" placeholder="请输入赠送积分" min="0">
+                            <div class="form-text">设置为0则不赠送积分</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="planSortOrder" class="form-label">排序</label>
+                            <input type="number" class="form-control" id="planSortOrder" placeholder="请输入排序" min="0" value="0">
+                            <div class="form-text">数字越小越靠前显示</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">状态</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="planStatus" id="planActive" value="1" checked>
+                                <label class="form-check-label" for="planActive">激活</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="planStatus" id="planInactive" value="0">
+                                <label class="form-check-label" for="planInactive">禁用</label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="savePlan()">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 管理员手动储值模态框 -->
+    <div class="modal fade" id="adminRechargeModal" tabindex="-1" aria-labelledby="adminRechargeModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="adminRechargeModalLabel">管理员手动储值</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="adminRechargeForm">
+                        <div class="mb-3">
+                            <label for="userId" class="form-label">用户ID <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="userId" required placeholder="请输入用户ID">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="rechargeAmount" class="form-label">储值金额<span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text">¥</span>
+                                <input type="number" class="form-control" id="rechargeAmount" required placeholder="请输入储值金额" step="0.01" min="0">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="bonusAmount" class="form-label">赠送金额</label>
+                            <div class="input-group">
+                                <span class="input-group-text">¥</span>
+                                <input type="number" class="form-control" id="bonusAmount" placeholder="请输入赠送金额" step="0.01" min="0">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="rechargeRemark" class="form-label">备注</label>
+                            <textarea class="form-control" id="rechargeRemark" rows="3" placeholder="请输入备注信息"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="saveAdminRecharge()">确认储值</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 自定义储值模态框 -->
+    <div class="modal fade" id="customRechargeModal" tabindex="-1" aria-labelledby="customRechargeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="customRechargeModalLabel">
+                        <i class="bi bi-gear-fill"></i> 自定义储值
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="customRechargeForm">
+                        <!-- 用户选择 -->
+                        <div class="mb-3">
+                            <label for="customUserId" class="form-label fw-bold">用户ID <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="customUserId" required placeholder="请输入用户ID" min="1">
+                                <button class="btn btn-outline-secondary" type="button" onclick="searchUserById()">
+                                    <i class="bi bi-search"></i> 查询
+                                </button>
+                            </div>
+                            <div id="userInfoDisplay" class="mt-2" style="display: none;">
+                                <div class="card card-body bg-light">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <strong>昵称:</strong> <span id="userInfoNickname">-</span>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <strong>会员等级:</strong> <span id="userInfoLevel">-</span>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <strong>当前余额:</strong> <span id="userInfoBalance">-</span>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-md-4">
+                                            <strong>积分:</strong> <span id="userInfoPoints">-</span>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <strong>成长值:</strong> <span id="userInfoGrowth">-</span>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <strong>手机号:</strong> <span id="userInfoPhone">-</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 快捷金额 -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">快捷金额</label>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <button type="button" class="btn btn-outline-primary" onclick="setCustomAmount(10)">¥10</button>
+                                <button type="button" class="btn btn-outline-primary" onclick="setCustomAmount(20)">¥20</button>
+                                <button type="button" class="btn btn-outline-primary" onclick="setCustomAmount(50)">¥50</button>
+                                <button type="button" class="btn btn-outline-primary" onclick="setCustomAmount(100)">¥100</button>
+                                <button type="button" class="btn btn-outline-primary" onclick="setCustomAmount(200)">¥200</button>
+                                <button type="button" class="btn btn-outline-primary" onclick="setCustomAmount(500)">¥500</button>
+                                <button type="button" class="btn btn-outline-primary" onclick="setCustomAmount(1000)">¥1000</button>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <!-- 储值金额 -->
+                            <div class="col-md-6 mb-3">
+                                <label for="customRechargeAmount" class="form-label fw-bold">储值金额 <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">¥</span>
+                                    <input type="number" class="form-control" id="customRechargeAmount" required placeholder="请输入储值金额" step="0.01" min="0.01">
+                                </div>
+                            </div>
+
+                            <!-- 赠送金额 -->
+                            <div class="col-md-6 mb-3">
+                                <label for="customBonusAmount" class="form-label">赠送金额</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">¥</span>
+                                    <input type="number" class="form-control" id="customBonusAmount" placeholder="可选" step="0.01" min="0" value="0">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 直接设置积分和成长值 -->
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="directSetPointsToggle" onchange="toggleDirectSetPoints()">
+                                    <label class="form-check-label fw-bold" for="directSetPointsToggle">
+                                        直接设置积分和成长值
+                                    </label>
+                                </div>
+                                <small class="text-muted">启用后将直接设置用户的积分和成长值，而不是根据充值金额计算</small>
+                            </div>
+                            <div class="card-body" id="directSetPointsSection" style="display: none;">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="directSetPoints" class="form-label">直接设置积分</label>
+                                        <input type="number" class="form-control" id="directSetPoints" placeholder="输入要设置的积分值" min="0">
+                                        <small class="text-muted">这将直接覆盖用户当前的积分</small>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="directSetGrowth" class="form-label">直接设置成长值</label>
+                                        <input type="number" class="form-control" id="directSetGrowth" placeholder="输入要设置的成长值" min="0">
+                                        <small class="text-muted">这将直接覆盖用户当前的成长值</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 备注和类型 -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="customRechargeType" class="form-label">储值类型</label>
+                                <select class="form-select" id="customRechargeType">
+                                    <option value="admin">管理员充值</option>
+                                    <option value="promotion">活动赠送</option>
+                                    <option value="refund">退款补偿</option>
+                                    <option value="adjustment">账目调整</option>
+                                    <option value="other">其他</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="customRechargeRemark" class="form-label">备注</label>
+                                <textarea class="form-control" id="customRechargeRemark" rows="1" placeholder="请输入备注信息"></textarea>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- 预计结果 -->
+                    <div id="customRechargePreview" class="alert alert-info" style="display: none;">
+                        <strong><i class="bi bi-info-circle"></i> 预计结果:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>增加余额: <span id="previewBalance">-</span></li>
+                            <li>获得积分: <span id="previewPoints">-</span></li>
+                            <li>增加成长值: <span id="previewGrowth">-</span></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-success" onclick="saveCustomRecharge()">
+                        <i class="bi bi-check-circle"></i> 确认自定义储值
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 全局变量
+        let rechargePlans = [];
+        let rechargeRecords = [];
+        
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            loadRechargePlans();
+            loadRechargeRecords();
+        });
+        
+        // 加载储值方案列表
+        async function loadRechargePlans() {
+            try {
+                const response = await fetch('/api/recharge/plans');
+                const data = await response.json();
+                if (data.success) {
+                    rechargePlans = data.plans;
+                    renderPlans();
+                } else {
+                    showToast('加载储值方案失败', 'error');
+                }
+            } catch (error) {
+                console.error('加载储值方案失败', error);
+                showToast('加载储值方案失败', 'error');
+            }
+        }
+        
+        // 渲染储值方案列表
+        function renderPlans() {
+            const tbody = document.getElementById('plansTableBody');
+            tbody.innerHTML = '';
+            
+            if (rechargePlans.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center">暂无储值方案数据</td></tr>';
+                return;
+            }
+            
+            rechargePlans.forEach(plan => {
+                const totalAmount = (parseFloat(plan.amount) + parseFloat(plan.bonus_amount)).toFixed(2);
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${plan.id}</td>
+                    <td><strong>${plan.name}</strong></td>
+                    <td>¥${plan.amount}</td>
+                    <td>¥${plan.bonus_amount}</td>
+                    <td>${plan.bonus_points}</td>
+                    <td>¥${totalAmount}</td>
+                    <td><span class="badge bg-secondary">${plan.sort_order}</span></td>
+                    <td>
+                        <span class="badge ${plan.is_active ? 'bg-success' : 'bg-danger'} status-toggle" onclick="togglePlanStatus(${plan.id})">
+                            ${plan.is_active ? '激活' : '禁用'}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary" onclick="openEditPlanModalById(${plan.id})">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-outline-${plan.is_active ? 'warning' : 'success'}" onclick="togglePlanStatus(${plan.id})">
+                                <i class="bi bi-${plan.is_active ? 'pause' : 'play'}"></i>
+                            </button>
+                            <button class="btn btn-outline-danger" onclick="deletePlan(${plan.id})">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // 打开添加储值方案模态框
+        function openAddPlanModal() {
+            document.getElementById('planModalLabel').innerHTML = '<i class="bi bi-plus-circle"></i> 添加储值方案';
+            document.getElementById('planForm').reset();
+            document.getElementById('planId').value = '';
+            new bootstrap.Modal(document.getElementById('planModal')).show();
+        }
+
+        // 通过ID打开编辑储值方案模态框
+        function openEditPlanModalById(planId) {
+            const plan = rechargePlans.find(p => p.id === planId);
+            if (plan) {
+                openEditPlanModal(plan);
+            }
+        }
+
+        // 打开编辑储值方案模态框
+        function openEditPlanModal(plan) {
+            document.getElementById('planModalLabel').innerHTML = '<i class="bi bi-pencil-square"></i> 编辑储值方案';
+            document.getElementById('planId').value = plan.id;
+            document.getElementById('planName').value = plan.name;
+            document.getElementById('planAmount').value = plan.amount;
+            document.getElementById('planBonusAmount').value = plan.bonus_amount;
+            document.getElementById('planBonusPoints').value = plan.bonus_points;
+            document.getElementById('planSortOrder').value = plan.sort_order;
+            document.getElementById(plan.is_active ? 'planActive' : 'planInactive').checked = true;
+            new bootstrap.Modal(document.getElementById('planModal')).show();
+        }
+        
+        // 保存储值方案
+        async function savePlan() {
+            const form = document.getElementById('planForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            
+            const planId = document.getElementById('planId').value;
+            const planData = {
+                name: document.getElementById('planName').value,
+                amount: document.getElementById('planAmount').value,
+                bonus_amount: document.getElementById('planBonusAmount').value || 0,
+                bonus_points: document.getElementById('planBonusPoints').value || 0,
+                sort_order: document.getElementById('planSortOrder').value || 0,
+                is_active: document.querySelector('input[name="planStatus"]:checked').value
+            };
+            
+            try {
+                let response;
+                let successMessage;
+                if (planId) {
+                    response = await fetch(`/api/recharge/plans/${planId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(planData)
+                    });
+                    successMessage = '储值方案更新成功！';
+                } else {
+                    response = await fetch('/api/recharge/plans', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(planData)
+                    });
+                    successMessage = '储值方案添加成功！';
+                }
+                
+                const data = await response.json();
+                if (data.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('planModal')).hide();
+                    loadRechargePlans();
+                    showToast(successMessage, 'success');
+                } else {
+                    showToast(data.error || '操作失败', 'error');
+                }
+            } catch (error) {
+                console.error('保存储值方案失败', error);
+                showToast('保存储值方案失败', 'error');
+            }
+        }
+        
+        // 切换储值方案状态
+        async function togglePlanStatus(planId) {
+            const plan = rechargePlans.find(p => p.id === planId);
+            if (!plan) return;
+            
+            const newStatus = plan.is_active === 1 ? 0 : 1;
+            const actionText = newStatus ? '激活' : '禁用';
+            
+            if (!confirm(`确定要${actionText}该储值方案吗？`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/recharge/plans/${planId}/toggle`, {
+                    method: 'PATCH'
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    loadRechargePlans();
+                    showToast(`储值方案已${actionText}`, 'success');
+                } else {
+                    showToast(data.error || '操作失败', 'error');
+                }
+            } catch (error) {
+                console.error('切换储值方案状态失败', error);
+                showToast('切换储值方案状态失败', 'error');
+            }
+        }
+        
+        // 删除储值方案
+        async function deletePlan(planId) {
+            if (!confirm('确定要删除该储值方案吗？')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/recharge/plans/${planId}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    loadRechargePlans();
+                    showToast('储值方案删除成功', 'success');
+                } else {
+                    showToast(data.error || '删除失败', 'error');
+                }
+            } catch (error) {
+                console.error('删除储值方案失败', error);
+                showToast('删除储值方案失败', 'error');
+            }
+        }
+        
+        // 加载储值记录列表
+        async function loadRechargeRecords() {
+            try {
+                const response = await fetch('/api/recharge/records');
+                const data = await response.json();
+                if (data.success) {
+                    rechargeRecords = data.records;
+                    renderRecords();
+                } else {
+                    showToast('加载储值记录失败', 'error');
+                }
+            } catch (error) {
+                console.error('加载储值记录失败', error);
+                showToast('加载储值记录失败', 'error');
+            }
+        }
+        
+        // 渲染储值记录列表
+        function renderRecords() {
+            const tbody = document.getElementById('recordsTableBody');
+            tbody.innerHTML = '';
+            
+            if (rechargeRecords.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center">暂无储值记录数据</td></tr>';
+                return;
+            }
+            
+            rechargeRecords.forEach(record => {
+                const rechargeTypeText = {
+                    'wxpay': '微信支付',
+                    'alipay': '支付宝',
+                    'admin': '管理员操作'
+                }[record.recharge_type] || record.recharge_type;
+                
+                const statusText = {
+                    'pending': '<span class="text-warning">待处理</span>',
+                    'completed': '<span class="text-success">已完成</span>',
+                    'failed': '<span class="text-danger">失败</span>'
+                }[record.status] || record.status;
+                
+                const createdTime = new Date(record.created_at).toLocaleString('zh-CN');
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${record.id}</td>
+                    <td>
+                        <div>
+                            <strong>ID: ${record.user_id}</strong><br>
+                            <small>${record.user?.nickname || '未知用户'}</small><br>
+                            <small>${record.user?.phone || ''}</small>
+                        </div>
+                    </td>
+                    <td>¥${record.amount}</td>
+                    <td>¥${record.bonus_amount}</td>
+                    <td>¥${record.total_amount}</td>
+                    <td>${rechargeTypeText}</td>
+                    <td>${statusText}</td>
+                    <td>${record.remark || '-'}</td>
+                    <td>${createdTime}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // 打开管理员手动储值模态框
+        function openAdminRechargeModal() {
+            document.getElementById('adminRechargeForm').reset();
+            new bootstrap.Modal(document.getElementById('adminRechargeModal')).show();
+        }
+        
+        // 保存管理员手动储值
+        async function saveAdminRecharge() {
+            const form = document.getElementById('adminRechargeForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            
+            const rechargeData = {
+                user_id: document.getElementById('userId').value,
+                amount: document.getElementById('rechargeAmount').value,
+                bonus_amount: document.getElementById('bonusAmount').value || 0,
+                remark: document.getElementById('rechargeRemark').value
+            };
+            
+            try {
+                const response = await fetch('/api/recharge/admin-recharge', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(rechargeData)
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('adminRechargeModal')).hide();
+                    loadRechargeRecords();
+                    showToast('储值成功', 'success');
+                } else {
+                    showToast(data.error || '储值失败', 'error');
+                }
+            } catch (error) {
+                console.error('管理员储值失败', error);
+                showToast('管理员储值失败', 'error');
+            }
+        }
+
+        // ========== 自定义储值功能 ==========
+
+        // 存储查询到的用户信息
+        let currentUserInfo = null;
+
+        // 打开自定义储值模态框
+        function openCustomRechargeModal() {
+            document.getElementById('customRechargeForm').reset();
+            document.getElementById('userInfoDisplay').style.display = 'none';
+            document.getElementById('directSetPointsSection').style.display = 'none';
+            document.getElementById('customRechargePreview').style.display = 'none';
+            document.getElementById('directSetPointsToggle').checked = false;
+            currentUserInfo = null;
+            new bootstrap.Modal(document.getElementById('customRechargeModal')).show();
+        }
+
+        // 根据用户ID查询用户信息
+        async function searchUserById() {
+            const userId = document.getElementById('customUserId').value;
+            if (!userId) {
+                showToast('请输入用户ID', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/users/${userId}`);
+                const data = await response.json();
+
+                if (data.success && data.user) {
+                    currentUserInfo = data.user;
+                    displayUserInfo(data.user);
+                    updatePreview();
+                } else {
+                    showToast('用户不存在', 'error');
+                    document.getElementById('userInfoDisplay').style.display = 'none';
+                    currentUserInfo = null;
+                }
+            } catch (error) {
+                console.error('查询用户失败', error);
+                showToast('查询用户失败', 'error');
+            }
+        }
+
+        // 显示用户信息
+        function displayUserInfo(user) {
+            document.getElementById('userInfoNickname').textContent = user.nickName || user.nickname || '-';
+            document.getElementById('userInfoLevel').textContent = user.level || user.member_level || '-';
+            document.getElementById('userInfoBalance').textContent = `¥${user.balance || '0.00'}`;
+            document.getElementById('userInfoPoints').textContent = user.points || 0;
+            document.getElementById('userInfoGrowth').textContent = user.growth_value || 0;
+            document.getElementById('userInfoPhone').textContent = user.phone || '-';
+            document.getElementById('userInfoDisplay').style.display = 'block';
+        }
+
+        // 设置快捷金额
+        function setCustomAmount(amount) {
+            document.getElementById('customRechargeAmount').value = amount;
+            updatePreview();
+        }
+
+        // 切换直接设置积分开关
+        function toggleDirectSetPoints() {
+            const toggle = document.getElementById('directSetPointsToggle').checked;
+            const section = document.getElementById('directSetPointsSection');
+
+            if (toggle) {
+                section.style.display = 'block';
+                // 如果有用户信息，预设当前值
+                if (currentUserInfo) {
+                    document.getElementById('directSetPoints').value = currentUserInfo.points || 0;
+                    document.getElementById('directSetGrowth').value = currentUserInfo.growth_value || 0;
+                }
+            } else {
+                section.style.display = 'none';
+            }
+            updatePreview();
+        }
+
+        // 更新预计结果
+        function updatePreview() {
+            const previewDiv = document.getElementById('customRechargePreview');
+            const isDirectSet = document.getElementById('directSetPointsToggle').checked;
+            const amount = parseFloat(document.getElementById('customRechargeAmount').value) || 0;
+            const bonusAmount = parseFloat(document.getElementById('customBonusAmount').value) || 0;
+
+            if (!currentUserInfo) {
+                previewDiv.style.display = 'none';
+                return;
+            }
+
+            previewDiv.style.display = 'block';
+
+            if (isDirectSet) {
+                // 直接设置模式
+                const newPoints = parseInt(document.getElementById('directSetPoints').value) || 0;
+                const newGrowth = parseInt(document.getElementById('directSetGrowth').value) || 0;
+
+                const pointsDiff = newPoints - (currentUserInfo.points || 0);
+                const growthDiff = newGrowth - (currentUserInfo.growth_value || 0);
+
+                document.getElementById('previewBalance').textContent = `¥${(amount + bonusAmount).toFixed(2)}`;
+                document.getElementById('previewPoints').textContent = pointsDiff > 0 ? `+${pointsDiff}` : pointsDiff;
+                document.getElementById('previewGrowth').textContent = growthDiff > 0 ? `+${growthDiff}` : growthDiff;
+            } else {
+                // 正常充值模式
+                document.getElementById('previewBalance').textContent = `¥${(amount + bonusAmount).toFixed(2)}`;
+                document.getElementById('previewPoints').textContent = `+${Math.floor(amount)}`;
+                document.getElementById('previewGrowth').textContent = `+${Math.floor(amount)}`;
+            }
+        }
+
+        // 监听输入变化，自动更新预览
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = ['customRechargeAmount', 'customBonusAmount', 'directSetPoints', 'directSetGrowth'];
+            inputs.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('input', updatePreview);
+                }
+            });
+
+            // 监听用户ID输入框变化
+            const userIdInput = document.getElementById('customUserId');
+            if (userIdInput) {
+                let debounceTimer;
+                userIdInput.addEventListener('input', function() {
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(() => {
+                        if (this.value) {
+                            searchUserById();
+                        }
+                    }, 500);
+                });
+            }
+        });
+
+        // 保存自定义储值
+        async function saveCustomRecharge() {
+            const form = document.getElementById('customRechargeForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const userId = document.getElementById('customUserId').value;
+            if (!currentUserInfo) {
+                showToast('请先查询用户信息', 'error');
+                return;
+            }
+
+            const isDirectSet = document.getElementById('directSetPointsToggle').checked;
+            const amount = parseFloat(document.getElementById('customRechargeAmount').value) || 0;
+            const bonusAmount = parseFloat(document.getElementById('customBonusAmount').value) || 0;
+            const rechargeType = document.getElementById('customRechargeType').value;
+            const remark = document.getElementById('customRechargeRemark').value;
+
+            if (amount <= 0 && !isDirectSet) {
+                showToast('储值金额必须大于0', 'error');
+                return;
+            }
+
+            // 确认提示
+            let confirmMessage = `确认为用户 ${currentUserInfo.nickName || currentUserInfo.nickname} 进行自定义储值吗？\n\n`;
+            if (isDirectSet) {
+                const newPoints = parseInt(document.getElementById('directSetPoints').value) || 0;
+                const newGrowth = parseInt(document.getElementById('directSetGrowth').value) || 0;
+                confirmMessage += `将直接设置:\n积分: ${currentUserInfo.points} → ${newPoints}\n成长值: ${currentUserInfo.growth_value} → ${newGrowth}`;
+            } else {
+                confirmMessage += `储值金额: ¥${amount.toFixed(2)}\n赠送金额: ¥${bonusAmount.toFixed(2)}\n获得积分: +${Math.floor(amount)}\n增加成长值: +${Math.floor(amount)}`;
+            }
+
+            if (!confirm(confirmMessage)) {
+                return;
+            }
+
+            const rechargeData = {
+                user_id: userId,
+                amount: amount,
+                bonus_amount: bonusAmount,
+                remark: `[${rechargeType}] ${remark}`.trim(),
+                recharge_type: rechargeType
+            };
+
+            // 如果是直接设置模式，添加额外参数
+            if (isDirectSet) {
+                rechargeData.direct_set_points = parseInt(document.getElementById('directSetPoints').value) || 0;
+                rechargeData.direct_set_growth = parseInt(document.getElementById('directSetGrowth').value) || 0;
+            }
+
+            try {
+                const response = await fetch('/api/recharge/custom-recharge', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(rechargeData)
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('customRechargeModal')).hide();
+                    loadRechargeRecords();
+                    showToast(`自定义储值成功！${data.message || ''}`, 'success');
+                } else {
+                    showToast(data.error || '储值失败', 'error');
+                }
+            } catch (error) {
+                console.error('自定义储值失败', error);
+                showToast('自定义储值失败', 'error');
+            }
+        }
+
+        // 显示提示消息
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `alert alert-${type === 'error' ? 'danger' : type} position-fixed top-0 end-0 m-3`;
+            toast.style.zIndex = '9999';
+            toast.innerHTML = `
+                <i class="bi bi-${type === 'success' ? 'check-circle' : type === 'error' ? 'x-circle' : 'info-circle'}"></i>
+                ${message}
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+    </script>
+</body>
+</html>

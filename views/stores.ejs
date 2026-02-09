@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>奶茶店后台管理系统- 店铺管理</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="/styles/admin-modern.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .sidebar {
+            min-height: 100vh;
+            background-color: #343a40;
+            color: white;
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+        }
+        .sidebar a:hover {
+            background-color: #495057;
+        }
+        .content {
+            padding: 20px;
+        }
+        .card {
+            margin-bottom: 20px;
+        }
+        .table th {
+            white-space: nowrap;
+        }
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .address-column {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- 侧边栏-->
+            <div class="col-md-2 sidebar">
+                <div class="p-3 bg-dark text-center">
+                    <h5>奶茶店管理系统</h5>
+                </div>
+                <ul class="nav flex-column p-3">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/dashboard">
+                            <i class="bi bi-house"></i> 首页
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/products">
+                            <i class="bi bi-box"></i> 商品管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/orders">
+                            <i class="bi bi-phone"></i> 小程序订单
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/all-orders">
+                            <i class="bi bi-cart"></i> 订单管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/users">
+                            <i class="bi bi-people-fill"></i> 用户管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/members">
+                            <i class="bi bi-people"></i> 会员管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/coupons">
+                            <i class="bi bi-ticket"></i> 优惠券管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/recharge">
+                            <i class="bi bi-wallet2"></i> 储值管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/admin/stores">
+                            <i class="bi bi-building"></i> 店铺管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/group-buy">
+                            <i class="bi bi-people-fill"></i> 团购管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/ui">
+                            <i class="bi bi-palette-fill"></i> UI管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/delivery-platforms">
+                            <i class="bi bi-truck"></i> 外卖平台
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/admin/stores">
+                            <i class="bi bi-building"></i> 店铺管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/stats">
+                            <i class="bi bi-bar-chart"></i> 数据统计
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-danger" href="/admin/logout">
+                            <i class="bi bi-box-arrow-right"></i> 退出登录
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- 主内容区 -->
+            <div class="col-md-10 content">
+                <!-- 顶部导航栏 -->
+                <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4">
+                    <div class="container-fluid d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0"><i class="bi bi-building"></i> 店铺管理</h4>
+                        <span class="text-muted">欢迎，<strong>admin</strong></span>
+                    </div>
+                </nav>
+                
+                <!-- 营业时间设置卡片 -->
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0"><i class="bi bi-clock"></i> 营业时间设置</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="businessHoursSettings">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">当前状态：</label>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <span id="currentStatusBadge" class="badge fs-6">加载中...</span>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="storeOpenToggle" style="width: 3em; height: 1.5em;">
+                                            <label class="form-check-label ms-2" for="storeOpenToggle">营业开关</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label for="openTime" class="form-label">开店时间</label>
+                                    <input type="time" class="form-control" id="openTime" format="HH:mm">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="closeTime" class="form-label">闭店时间</label>
+                                    <input type="time" class="form-control" id="closeTime" format="HH:mm">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="closedMessage" class="form-label">闭店提示信息</label>
+                                    <input type="text" class="form-control" id="closedMessage" placeholder="店铺已打烊，请明天再来">
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <button class="btn btn-success" onclick="saveBusinessHours()">
+                                        <i class="bi bi-check-circle"></i> 保存营业设置
+                                    </button>
+                                    <button class="btn btn-secondary ms-2" onclick="loadBusinessHours()">
+                                        <i class="bi bi-arrow-counterclockwise"></i> 重新加载
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 店铺管理页面 -->
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">店铺管理</h5>
+                        <button class="btn btn-primary" onclick="openAddModal()">
+                            <i class="bi bi-plus"></i> 添加店铺
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <!-- 搜索和筛�?-->
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" id="searchInput" placeholder="搜索店铺名称或地址">
+                            </div>
+                            <div class="col-md-2">
+                                <select class="form-select" id="statusFilter">
+                                    <option value="">所有状态</option>
+                                    <option value="1">已激活</option>
+                                    <option value="0">已禁用</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2 d-flex gap-2">
+                                <button class="btn btn-primary" onclick="searchStores()">
+                                    <i class="bi bi-search"></i> 搜索
+                                </button>
+                                <button class="btn btn-secondary" onclick="resetFilters()">
+                                    <i class="bi bi-arrow-counterclockwise"></i> 重置
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- 店铺列表 -->
+                        <div class="table-responsive">
+                            <table class="table table-hover table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>店铺名称</th>
+                                        <th>地址</th>
+                                        <th>联系电话</th>
+                                        <th>状态</th>
+                                        <th>创建时间</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="storesTableBody">
+                                    <!-- 店铺数据将通过JS动态加载-->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 添加/编辑店铺模态框 -->
+    <div class="modal fade" id="storeModal" tabindex="-1" aria-labelledby="storeModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="storeModalLabel">添加店铺</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="storeForm">
+                        <input type="hidden" id="storeId">
+                        
+                        <div class="mb-3">
+                            <label for="storeName" class="form-label">店铺名称</label>
+                            <input type="text" class="form-control" id="storeName" required placeholder="请输入店铺名称">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="storeAddress" class="form-label">地址</label>
+                            <textarea class="form-control" id="storeAddress" rows="2" required placeholder="请输入店铺地址"></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="storePhone" class="form-label">联系电话</label>
+                            <input type="tel" class="form-control" id="storePhone" required placeholder="请输入联系电话">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">状态</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="storeStatus" id="storeActive" value="1" checked>
+                                <label class="form-check-label" for="storeActive">激活</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="storeStatus" id="storeInactive" value="0">
+                                <label class="form-check-label" for="storeInactive">禁用</label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="saveStore()">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 全局变量
+        let stores = [];
+        let currentStoreId = null;
+
+        // 加载营业时间设置
+        async function loadBusinessHours() {
+            try {
+                // 获取第一个店铺（通常只有一个店铺）
+                const response = await fetch('/api/stores');
+                const data = await response.json();
+
+                if (data.stores && data.stores.length > 0) {
+                    const store = data.stores[0];
+                    currentStoreId = store.id;
+
+                    // 更新营业状态显示
+                    updateStatusDisplay(store.is_open, store.open_time, store.close_time);
+
+                    // 填充表单
+                    document.getElementById('openTime').value = store.open_time || '';
+                    document.getElementById('closeTime').value = store.close_time || '';
+                    document.getElementById('closedMessage').value = store.closed_message || '店铺已打烊，请明天再来';
+                    document.getElementById('storeOpenToggle').checked = store.is_open;
+                }
+            } catch (error) {
+                console.error('加载营业时间设置失败:', error);
+                alert('加载营业时间设置失败，请稍后重试');
+            }
+        }
+
+        // 更新状态显示
+        function updateStatusDisplay(isOpen, openTime, closeTime) {
+            const statusBadge = document.getElementById('currentStatusBadge');
+
+            if (isOpen) {
+                statusBadge.className = 'badge fs-6 bg-success';
+                statusBadge.innerHTML = '<i class="bi bi-check-circle"></i> 营业中';
+            } else {
+                statusBadge.className = 'badge fs-6 bg-danger';
+                statusBadge.innerHTML = '<i class="bi bi-x-circle"></i> 已打烊';
+            }
+        }
+
+        // 保存营业时间设置
+        async function saveBusinessHours() {
+            if (!currentStoreId) {
+                alert('请先选择店铺');
+                return;
+            }
+
+            const openTime = document.getElementById('openTime').value;
+            const closeTime = document.getElementById('closeTime').value;
+            const closedMessage = document.getElementById('closedMessage').value;
+            const isOpen = document.getElementById('storeOpenToggle').checked;
+
+            // 跨天营业提示（如 12:00 开店，03:00 闭店）
+            if (openTime && closeTime) {
+                const openMinutes = timeToMinutes(openTime);
+                const closeMinutes = timeToMinutes(closeTime);
+
+                if (openMinutes >= closeMinutes) {
+                    // 闭店时间小于开店时间，表示跨天营业
+                    const confirmMsg = `检测到跨天营业时间：${openTime} 开店，次日 ${closeTime} 闭店。\n\n请确认这是正确的设置。`;
+                    if (!confirm(confirmMsg)) {
+                        return;
+                    }
+                }
+            }
+
+            try {
+                // 保存营业状态
+                await fetch(`/api/stores/${currentStoreId}/status`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ is_open: isOpen })
+                });
+
+                // 保存营业时间
+                const response = await fetch(`/api/stores/${currentStoreId}/hours`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        open_time: openTime,
+                        close_time: closeTime,
+                        closed_message: closedMessage
+                    })
+                });
+
+                if (response.ok) {
+                    updateStatusDisplay(isOpen, openTime, closeTime);
+                    alert('营业时间设置保存成功！');
+                } else {
+                    const errorData = await response.json();
+                    alert('保存失败：' + (errorData.error || '未知错误'));
+                }
+            } catch (error) {
+                console.error('保存营业时间设置失败:', error);
+                alert('保存营业时间设置失败，请稍后重试');
+            }
+        }
+
+        // 将时间字符串转换为分钟数
+        function timeToMinutes(timeStr) {
+            const [hours, minutes] = timeStr.split(':').map(Number);
+            return hours * 60 + minutes;
+        }
+        
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStores();
+            loadBusinessHours();
+        });
+        
+        // 加载店铺列表
+        async function loadStores() {
+            try {
+                const response = await fetch('/api/stores');
+                const data = await response.json();
+                if (data.stores) {
+                    stores = data.stores;
+                    renderStores();
+                }
+            } catch (error) {
+                console.error('加载店铺失败:', error);
+                alert('加载店铺失败，请稍后重试');
+            }
+        }
+        
+        // 渲染店铺列表
+        function renderStores() {
+            const tbody = document.getElementById('storesTableBody');
+            tbody.innerHTML = '';
+            
+            // 应用搜索和筛选
+            let filteredStores = [...stores];
+            
+            const searchText = document.getElementById('searchInput').value.toLowerCase();
+            if (searchText) {
+                filteredStores = filteredStores.filter(store => 
+                    store.name.toLowerCase().includes(searchText) ||
+                    store.address.toLowerCase().includes(searchText)
+                );
+            }
+            
+            const statusFilter = document.getElementById('statusFilter').value;
+            if (statusFilter !== '') {
+                filteredStores = filteredStores.filter(store => store.is_active === parseInt(statusFilter));
+            }
+            
+            if (filteredStores.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center">暂无店铺数据</td></tr>';
+                return;
+            }
+            
+            filteredStores.forEach(store => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${store.id}</td>
+                    <td>${store.name}</td>
+                    <td class="address-column" title="${store.address}">${store.address}</td>
+                    <td>${store.phone}</td>
+                    <td><span class="badge ${store.is_active ? 'bg-success' : 'bg-danger'}">${store.is_active ? '激活' : '禁用'}</span></td>
+                    <td>${new Date(store.createdAt).toLocaleString()}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="openEditModalById(${store.id})"><i class="bi bi-pencil"></i></button>
+                        <button class="btn btn-sm btn-outline-danger ms-1" onclick="deleteStore(${store.id})"><i class="bi bi-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // 打开添加店铺模态框
+        function openAddModal() {
+            document.getElementById('storeModalLabel').textContent = '添加店铺';
+            document.getElementById('storeForm').reset();
+            document.getElementById('storeId').value = '';
+            new bootstrap.Modal(document.getElementById('storeModal')).show();
+        }
+        
+        // 打开编辑店铺模态框
+        function openEditModal(store) {
+            document.getElementById('storeModalLabel').textContent = '编辑店铺';
+            document.getElementById('storeId').value = store.id;
+            document.getElementById('storeName').value = store.name;
+            document.getElementById('storeAddress').value = store.address;
+            document.getElementById('storePhone').value = store.phone;
+            document.getElementById(store.is_active ? 'storeActive' : 'storeInactive').checked = true;
+            new bootstrap.Modal(document.getElementById('storeModal')).show();
+        }
+
+        // 通过ID打开编辑店铺模态框
+        function openEditModalById(storeId) {
+            const store = stores.find(s => s.id === storeId);
+            if (store) {
+                openEditModal(store);
+            }
+        }
+        
+        // 保存店铺
+        async function saveStore() {
+            const form = document.getElementById('storeForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            
+            const storeId = document.getElementById('storeId').value;
+            const storeData = {
+                name: document.getElementById('storeName').value,
+                address: document.getElementById('storeAddress').value,
+                phone: document.getElementById('storePhone').value,
+                is_active: document.querySelector('input[name="storeStatus"]:checked').value
+            };
+            
+            try {
+                let response;
+                if (storeId) {
+                    // 更新店铺
+                    response = await fetch(`/api/stores/${storeId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(storeData)
+                    });
+                } else {
+                    // 添加店铺
+                    response = await fetch('/api/stores', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(storeData)
+                    });
+                }
+                
+                if (response.ok) {
+                    // 关闭模态框
+                    bootstrap.Modal.getInstance(document.getElementById('storeModal')).hide();
+                    // 重新加载店铺列表
+                    loadStores();
+                    alert('店铺保存成功！');
+                } else {
+                    const errorData = await response.json();
+                    alert('保存失败：' + (errorData.error || '未知错误'));
+                }
+            } catch (error) {
+                console.error('保存店铺失败:', error);
+                alert('保存店铺失败，请稍后重试');
+            }
+        }
+        
+        // 删除店铺
+        async function deleteStore(storeId) {
+            if (!confirm('确定要删除该店铺吗？')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/stores/${storeId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    // 重新加载店铺列表
+                    loadStores();
+                    alert('店铺删除成功！');
+                } else {
+                    const errorData = await response.json();
+                    alert('删除失败：' + (errorData.error || '未知错误'));
+                }
+            } catch (error) {
+                console.error('删除店铺失败:', error);
+                alert('删除店铺失败，请稍后重试');
+            }
+        }
+        
+        // 搜索店铺
+        function searchStores() {
+            renderStores();
+        }
+        
+        // 重置筛选
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('statusFilter').value = '';
+            renderStores();
+        }
+        
+        // 回车键搜索
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchStores();
+            }
+        });
+    </script>
+</body>
+</html>

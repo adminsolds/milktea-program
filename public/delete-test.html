@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>删除轮播图测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        .button-group {
+            margin: 15px 0;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        .result {
+            margin: 15px 0;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            background: #f0f0f0;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <h1>删除轮播图测试</h1>
+    
+    <div class="test-section">
+        <h2>测试步骤</h2>
+        <ol>
+            <li>点击"获取轮播图列表"查看当前轮播图</li>
+            <li>在输入框中输入要删除的轮播图ID</li>
+            <li>点击"删除轮播图"按钮</li>
+            <li>再次点击"获取轮播图列表"确认删除成功</li>
+        </ol>
+    </div>
+    
+    <div class="test-section">
+        <h2>操作区</h2>
+        <div class="button-group">
+            <button class="btn-primary" onclick="getBanners()">获取轮播图列表</button>
+            <input type="number" id="bannerId" placeholder="输入轮播图ID" style="padding: 10px; margin: 5px;">
+            <button class="btn-danger" onclick="testDeleteBanner()">删除轮播图</button>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>测试结果</h2>
+        <div id="result" class="result"></div>
+    </div>
+    
+    <script>
+        // 获取轮播图列表
+        async function getBanners() {
+            try {
+                const response = await fetch('/api/ui/banners?position=home&is_active=1');
+                const data = await response.json();
+                
+                let result = '<div class="info">获取轮播图列表成功:</div>';
+                result += '<pre>';
+                data.banners.forEach(banner => {
+                    result += `ID: ${banner.id}, 标题: ${banner.title}, 图片: ${banner.image}, 状态: ${banner.is_active ? '活跃' : '不活跃'}\n`;
+                });
+                result += '</pre>';
+                
+                document.getElementById('result').innerHTML = result;
+            } catch (error) {
+                document.getElementById('result').innerHTML = `<div class="error">获取轮播图列表失败: ${error.message}</div>`;
+                console.error('获取轮播图列表失败:', error);
+            }
+        }
+        
+        // 测试删除轮播图
+        async function testDeleteBanner() {
+            const bannerId = document.getElementById('bannerId').value;
+            if (!bannerId) {
+                document.getElementById('result').innerHTML = '<div class="error">请输入轮播图ID</div>';
+                return;
+            }
+            
+            try {
+                document.getElementById('result').innerHTML = '<div class="info">正在删除轮播图...</div>';
+                
+                const response = await fetch(`/api/ui/banners/${bannerId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('result').innerHTML = `<div class="success">删除轮播图成功: ${data.message}</div>`;
+                    // 自动刷新轮播图列表
+                    setTimeout(getBanners, 1000);
+                } else {
+                    const errorData = await response.json();
+                    document.getElementById('result').innerHTML = `<div class="error">删除失败: ${errorData.error || '未知错误'}</div>`;
+                }
+            } catch (error) {
+                document.getElementById('result').innerHTML = `<div class="error">删除轮播图失败: ${error.message}</div>`;
+                console.error('删除轮播图失败:', error);
+            }
+        }
+        
+        // 页面加载时自动获取轮播图列表
+        window.onload = getBanners;
+    </script>
+</body>
+</html>

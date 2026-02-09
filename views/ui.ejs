@@ -1,0 +1,3646 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>奶茶店后台管理系统 - UI管理</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="/styles/admin-modern.css">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --sidebar-bg: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%);
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --hover-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+            --border-radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .sidebar {
+            min-height: 100vh;
+            background: var(--sidebar-bg);
+            color: white;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1"/></svg>') repeat;
+            pointer-events: none;
+        }
+
+        .sidebar .p-3 {
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        .sidebar h5 {
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .sidebar .nav {
+            position: relative;
+            z-index: 1;
+            padding: 10px 0;
+        }
+
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.85);
+            padding: 12px 20px;
+            margin: 4px 10px;
+            border-radius: 12px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+        }
+
+        .sidebar .nav-link i {
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .sidebar .nav-link:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .sidebar .nav-link.active {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .card {
+            margin-bottom: 25px;
+            border: none;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            background: white;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            box-shadow: var(--hover-shadow);
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 18px 25px;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .card-body {
+            padding: 25px;
+        }
+
+        .table {
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .table thead th {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 15px;
+            font-weight: 600;
+            white-space: nowrap;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        .table tbody tr {
+            transition: var(--transition);
+        }
+
+        .table tbody tr:hover {
+            background: linear-gradient(90deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+            transform: scale(1.01);
+        }
+
+        .table td {
+            padding: 15px;
+            vertical-align: middle;
+            border-color: #f0f0f0;
+        }
+
+        .btn {
+            border-radius: 10px;
+            padding: 10px 24px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: var(--transition);
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: var(--transition);
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .btn-success {
+            background: var(--success-gradient);
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        .btn-danger {
+            background: var(--secondary-gradient);
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+        }
+
+        .btn-outline-primary {
+            border: 2px solid #667eea;
+            color: #667eea;
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--primary-gradient);
+            border-color: transparent;
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 6px 16px;
+            font-size: 0.85rem;
+        }
+
+        .modal-content {
+            border-radius: var(--border-radius);
+            border: none;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 20px 25px;
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 12px 16px;
+            transition: var(--transition);
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
+        }
+
+        .nav-tabs .nav-link {
+            border-radius: 10px 10px 0 0;
+            padding: 12px 24px;
+            font-weight: 600;
+            color: #6c757d;
+            border: none;
+            transition: var(--transition);
+        }
+
+        .nav-tabs .nav-link:hover {
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .nav-tabs .nav-link.active {
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        .badge {
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .bg-success {
+            background: var(--success-gradient) !important;
+        }
+
+        .bg-danger {
+            background: var(--secondary-gradient) !important;
+        }
+
+        .image-preview {
+            max-width: 200px;
+            max-height: 150px;
+            margin: 10px 0;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: var(--transition);
+        }
+
+        .image-preview:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .function-icon {
+            width: 45px;
+            height: 45px;
+            margin-right: 10px;
+            border-radius: 10px;
+            padding: 8px;
+            background: var(--primary-gradient);
+        }
+
+        .banner-preview-container {
+            background: var(--primary-gradient);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .banner-preview-item {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: var(--transition);
+        }
+
+        .banner-preview-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .banner-preview-item img {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+        }
+
+        .banner-preview-item .card-body {
+            padding: 15px;
+        }
+
+        .upload-area {
+            border: 3px dashed #dee2e6;
+            border-radius: var(--border-radius);
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-area::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .upload-area:hover::before {
+            opacity: 1;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e8edff 100%);
+            transform: scale(1.02);
+        }
+
+        .upload-area.dragover {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #e8edff 0%, #dce5ff 100%);
+            transform: scale(1.05);
+        }
+
+        .upload-area i {
+            font-size: 56px;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            transition: var(--transition);
+        }
+
+        .upload-area:hover i {
+            transform: scale(1.1);
+        }
+        /* TabBar 小型上传区域 */
+        #tabBarIconNormalUploadArea,
+        #tabBarIconSelectedUploadArea {
+            padding: 15px;
+        }
+        #tabBarIconNormalUploadArea i,
+        #tabBarIconSelectedUploadArea i {
+            font-size: 32px;
+        }
+        #tabBarIconNormalUploadArea p,
+        #tabBarIconSelectedUploadArea p {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        .image-gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .image-gallery-item {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            border-radius: 4px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        .image-gallery-item:hover {
+            border-color: #667eea;
+        }
+        .image-gallery-item.selected {
+            border-color: #667eea;
+        }
+        .image-gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .image-gallery-item .delete-btn {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: rgba(255, 0, 0, 0.8);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            display: none;
+        }
+        .image-gallery-item:hover .delete-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .banner-list-item {
+            transition: all 0.2s;
+        }
+        .banner-list-item:hover {
+            background-color: #f8f9fa;
+        }
+        .banner-list-item img {
+            width: 100px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        .status-toggle {
+            cursor: pointer;
+        }
+        .position-badge {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        .position-home { background: #e3f2fd; color: #1976d2; }
+        .position-category { background: #f3e5f5; color: #7b1fa2; }
+        .position-product { background: #e8f5e9; color: #388e3c; }
+        .position-recharge { background: #fff3e0; color: #f57c00; }
+        .tab-icon-preview {
+            font-size: 48px;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 导航栏样式 */
+        .navbar {
+            background: white !important;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            padding: 15px 25px;
+            margin-bottom: 30px !important;
+            border: none;
+        }
+
+        .navbar .nav-link {
+            color: #6c757d;
+            font-weight: 500;
+            padding: 10px 20px;
+            border-radius: 10px;
+            transition: var(--transition);
+        }
+
+        .navbar .nav-link:hover {
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .navbar strong {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* 图片库样式 */
+        .image-gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .image-gallery-item {
+            position: relative;
+            width: 90px;
+            height: 90px;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: var(--transition);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .image-gallery-item:hover {
+            border-color: #667eea;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .image-gallery-item.selected {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        .image-gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-gallery-item .delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: var(--secondary-gradient);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            font-size: 12px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .image-gallery-item:hover .delete-btn {
+            display: flex;
+        }
+
+        /* 列表项样式 */
+        .banner-list-item {
+            transition: var(--transition);
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .banner-list-item:hover {
+            background: linear-gradient(90deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+            transform: translateX(5px);
+        }
+
+        .banner-list-item img {
+            width: 110px;
+            height: 55px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 状态切换 */
+        .status-toggle {
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .status-toggle:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        /* 位置徽章 */
+        .position-badge {
+            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .position-home {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            color: #1976d2;
+        }
+
+        .position-category {
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+            color: #7b1fa2;
+        }
+
+        .position-product {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            color: #388e3c;
+        }
+
+        .position-recharge {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            color: #f57c00;
+        }
+
+        /* Toast 消息样式 */
+        .toast {
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border: none;
+        }
+
+        .toast-header {
+            background: var(--primary-gradient);
+            color: white;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .toast-success .toast-header {
+            background: var(--success-gradient);
+        }
+
+        .toast-error .toast-header {
+            background: var(--secondary-gradient);
+        }
+
+        /* 分页样式 */
+        .pagination .page-link {
+            border-radius: 10px;
+            margin: 0 3px;
+            border: 2px solid #e9ecef;
+            color: #6c757d;
+            transition: var(--transition);
+        }
+
+        .pagination .page-link:hover {
+            background: var(--primary-gradient);
+            border-color: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .pagination .page-item.active .page-link {
+            background: var(--primary-gradient);
+            border-color: #667eea;
+        }
+
+        /* 动画效果 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card, .banner-preview-item {
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        /* 响应式优化 */
+        @media (max-width: 768px) {
+            .sidebar {
+                min-height: auto;
+            }
+
+            .content {
+                padding: 15px;
+            }
+
+            .card-header {
+                padding: 15px 20px;
+            }
+
+            .card-body {
+                padding: 20px;
+            }
+        }
+
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-gradient);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #5568d3 0%, #6a3f8f 100%);
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- 侧边栏 -->
+            <div class="col-md-2 sidebar">
+                <div class="p-3 text-center" style="background-color: #212529;">
+                    <h5 class="mb-0">奶茶店管理系统</h5>
+                </div>
+                <ul class="nav flex-column p-3">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/dashboard">
+                            <i class="bi bi-house"></i> 首页
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/pos">
+                            <i class="bi bi-shop"></i> 现场点单
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/products">
+                            <i class="bi bi-box"></i> 商品管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/orders">
+                            <i class="bi bi-phone"></i> 小程序订单
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/all-orders">
+                            <i class="bi bi-cart"></i> 订单管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/users">
+                            <i class="bi bi-people-fill"></i> 用户管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/members">
+                            <i class="bi bi-people"></i> 会员管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/coupons">
+                            <i class="bi bi-ticket"></i> 优惠券管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/recharge">
+                            <i class="bi bi-wallet2"></i> 储值管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/group-buy">
+                            <i class="bi bi-people-fill"></i> 团购管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/admin/ui">
+                            <i class="bi bi-palette-fill"></i> UI管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/delivery-platforms">
+                            <i class="bi bi-truck"></i> 外卖平台
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/stores">
+                            <i class="bi bi-building"></i> 店铺管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/stats">
+                            <i class="bi bi-bar-chart"></i> 数据统计
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-danger" href="/admin/logout">
+                            <i class="bi bi-box-arrow-right"></i> 退出登录
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- 主内容区 -->
+            <div class="col-md-10 content">
+                <!-- 顶部导航栏 -->
+                <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4">
+                    <div class="container-fluid d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0"><i class="bi bi-palette-fill"></i> UI管理</h4>
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="text-muted" id="welcomeMessage">欢迎，<strong>游客</strong></span>
+                            <button class="btn btn-primary btn-sm" id="loginItem" onclick="showLoginModal()">管理员登录</button>
+                            <button class="btn btn-outline-danger btn-sm" id="logoutItem" style="display: none;" onclick="logout()">退出登录</button>
+                        </div>
+                    </div>
+                </nav>
+                
+                <!-- UI管理页面 -->
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">UI管理</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- 选项卡 -->
+                        <ul class="nav nav-tabs" id="uiTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="banners-tab" data-bs-toggle="tab" data-bs-target="#banners" type="button" role="tab" aria-controls="banners" aria-selected="true">轮播图</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="function-entries-tab" data-bs-toggle="tab" data-bs-target="#function-entries" type="button" role="tab" aria-controls="function-entries" aria-selected="false">功能入口</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="tabbar-tab" data-bs-toggle="tab" data-bs-target="#tabbar" type="button" role="tab" aria-controls="tabbar" aria-selected="false">底部导航</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="recharge-tab" data-bs-toggle="tab" data-bs-target="#recharge" type="button" role="tab" aria-controls="recharge" aria-selected="false">储值页</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="new-products-tab" data-bs-toggle="tab" data-bs-target="#new-products" type="button" role="tab" aria-controls="new-products" aria-selected="false">新品推荐</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="user-page-tab" data-bs-toggle="tab" data-bs-target="#user-page" type="button" role="tab" aria-controls="user-page" aria-selected="false">我的页面</button>
+                            </li>
+                        </ul>
+                        
+                        <!-- 选项卡内容 -->
+                        <div class="tab-content" id="uiTabsContent">
+                            <!-- 轮播图管理 -->
+                            <div class="tab-pane fade show active" id="banners" role="tabpanel" aria-labelledby="banners-tab">
+                                <div class="d-flex justify-content-between align-items-center mt-3 mb-3">
+                                    <h6>轮播图管理</h6>
+                                    <div>
+                                        <button class="btn btn-outline-secondary btn-sm me-2" onclick="togglePreview()">
+                                            <i class="bi bi-eye"></i> <span id="previewBtnText">显示预览</span>
+                                        </button>
+                                        <button class="btn btn-primary btn-sm" onclick="openAddBannerModal()">
+                                            <i class="bi bi-plus"></i> 添加轮播图
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- 轮播图预览区域 -->
+                                <div id="bannerPreviewContainer" class="banner-preview-container" style="display: none;">
+                                    <h6 class="text-white mb-3"><i class="bi bi-sliders"></i> 轮播图预览</h6>
+                                    <div id="bannerPreviewContent" class="d-flex gap-3 overflow-auto">
+                                        <!-- 动态生成预览内容 -->
+                                    </div>
+                                </div>
+                                
+                                <!-- 轮播图列表 -->
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>标题</th>
+                                                <th>图片</th>
+                                                <th>位置</th>
+                                                <th>链接</th>
+                                                <th>排序</th>
+                                                <th>状态</th>
+                                                <th>操作</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="bannersTableBody">
+                                            <!-- 动态加载轮播图列表 -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <!-- 功能入口管理 -->
+                            <div class="tab-pane fade" id="function-entries" role="tabpanel" aria-labelledby="function-entries-tab">
+                                <div class="d-flex justify-content-between align-items-center mt-3 mb-3">
+                                    <h6>功能入口管理</h6>
+                                    <button class="btn btn-primary btn-sm" onclick="openAddFunctionEntryModal()">
+                                        <i class="bi bi-plus"></i> 添加功能入口
+                                    </button>
+                                </div>
+                                <!-- 功能入口列表 -->
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>名称</th>
+                                                <th>类型</th>
+                                                <th>图标</th>
+                                                <th>链接</th>
+                                                <th>排序</th>
+                                                <th>状态</th>
+                                                <th>操作</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="functionEntriesTableBody">
+                                            <!-- 动态加载功能入口列表 -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <!-- 储值页管理 -->
+                            <div class="tab-pane fade" id="recharge" role="tabpanel" aria-labelledby="recharge-tab">
+                                <div class="d-flex justify-content-between align-items-center mt-3 mb-3">
+                                    <h6>储值页管理</h6>
+                                    <div>
+                                        <button class="btn btn-primary btn-sm" onclick="openAddBannerModalForRecharge()">
+                                            <i class="bi bi-plus"></i> 添加储值页轮播图
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- 储值页轮播图列表 -->
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>标题</th>
+                                                <th>图片</th>
+                                                <th>链接</th>
+                                                <th>排序</th>
+                                                <th>状态</th>
+                                                <th>操作</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="rechargeBannerTableBody">
+                                            <!-- 动态加载储值页轮播图列表 -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <!-- 新品推荐管理 -->
+                            <div class="tab-pane fade" id="new-products" role="tabpanel" aria-labelledby="new-products-tab">
+                                <div class="d-flex justify-content-between align-items-center mt-3 mb-3">
+                                    <h6>新品推荐管理</h6>
+                                    <button class="btn btn-primary btn-sm" onclick="openAddNewProductModal()">
+                                        <i class="bi bi-plus"></i> 添加新品推荐
+                                    </button>
+                                </div>
+
+                                <!-- 新品推荐预览区域 -->
+                                <div class="row mb-3" id="newProductsPreview">
+                                    <!-- 动态加载新品推荐预览 -->
+                                </div>
+
+                                <!-- 新品推荐列表 -->
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>预览</th>
+                                                <th>商品名称</th>
+                                                <th>描述</th>
+                                                <th>价格</th>
+                                                <th>排序</th>
+                                                <th>状态</th>
+                                                <th>操作</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="newProductsTableBody">
+                                            <!-- 动态加载新品推荐列表 -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- 我的页面管理 -->
+                            <div class="tab-pane fade" id="user-page" role="tabpanel" aria-labelledby="user-page-tab">
+                                <div class="d-flex justify-content-between align-items-center mt-3 mb-3">
+                                    <h6>我的页面配置</h6>
+                                </div>
+
+                                <!-- 全局主题背景配置 -->
+                                <div class="card mb-3">
+                                    <div class="card-header">
+                                        <i class="bi bi-palette"></i> 全局主题背景配置
+                                    </div>
+                                    <div class="card-body">
+                                        <form id="themeConfigForm">
+                                            <!-- 背景颜色选择 -->
+                                            <div class="mb-3">
+                                                <label for="themeBgColor" class="form-label">全局背景颜色</label>
+                                                <div class="input-group">
+                                                    <input type="color" class="form-control form-control-color" id="themeBgColorPicker" value="#FFF9E6" style="max-width: 80px;">
+                                                    <input type="text" class="form-control" id="themeBgColor" value="#FFF9E6" placeholder="#FFF9E6">
+                                                </div>
+                                                <div class="form-text">选择小程序全局背景颜色（淡黄色：#FFF9E6）</div>
+                                            </div>
+
+                                            <!-- 快速预设 -->
+                                            <div class="mb-3">
+                                                <label class="form-label">快速预设</label>
+                                                <div class="d-flex gap-2">
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setThemeColor('#FFF9E6')">
+                                                        <span class="color-preview d-inline-block me-1" style="width: 20px; height: 20px; background: #FFF9E6; border: 1px solid #ddd; border-radius: 3px;"></span>
+                                                        淡黄色
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setThemeColor('#F5F5F5')">
+                                                        <span class="color-preview d-inline-block me-1" style="width: 20px; height: 20px; background: #F5F5F5; border: 1px solid #ddd; border-radius: 3px;"></span>
+                                                        浅灰色
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setThemeColor('#F5F9F7')">
+                                                        <span class="color-preview d-inline-block me-1" style="width: 20px; height: 20px; background: #F5F9F7; border: 1px solid #ddd; border-radius: 3px;"></span>
+                                                        薄荷绿
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setThemeColor('#FFF0F5')">
+                                                        <span class="color-preview d-inline-block me-1" style="width: 20px; height: 20px; background: #FFF0F5; border: 1px solid #ddd; border-radius: 3px;"></span>
+                                                        淡粉色
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setThemeColor('#E3F2FD')">
+                                                        <span class="color-preview d-inline-block me-1" style="width: 20px; height: 20px; background: #E3F2FD; border: 1px solid #ddd; border-radius: 3px;"></span>
+                                                        淡蓝色
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <!-- 背景预览 -->
+                                            <div class="mb-3">
+                                                <label class="form-label">背景预览</label>
+                                                <div id="themeBgPreview" class="border rounded" style="height: 120px; background: #FFF9E6; position: relative; overflow: hidden; transition: background-color 0.3s;">
+                                                    <div class="d-flex align-items-center justify-content-center h-100">
+                                                        <small class="text-muted">预览区域</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <button type="button" class="btn btn-primary" onclick="saveThemeConfig()">
+                                                <i class="bi bi-save"></i> 保存主题配置
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <!-- 头部背景配置 -->
+                                <div class="card mb-3">
+                                    <div class="card-header">
+                                        <i class="bi bi-image"></i> 头部背景配置
+                                    </div>
+                                    <div class="card-body">
+                                        <form id="userPageConfigForm">
+                                            <!-- 背景图片 -->
+                                            <div class="mb-3">
+                                                <label for="userPageBgImage" class="form-label">背景图片 URL</label>
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control" id="userPageBgImage" placeholder="输入图片 URL，如 https://example.com/image.jpg">
+                                                    <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('userPageBgImageInput').click()">
+                                                        <i class="bi bi-upload"></i> 上传
+                                                    </button>
+                                                    <input type="file" id="userPageBgImageInput" accept="image/*" style="display: none;" onchange="uploadUserPageBgImage(this)">
+                                                </div>
+                                                <div class="form-text">留空则使用默认渐变背景</div>
+                                            </div>
+
+                                            <!-- 背景预览 -->
+                                            <div class="mb-3">
+                                                <label class="form-label">背景预览</label>
+                                                <div id="userPageBgPreview" class="border rounded" style="height: 200px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); position: relative; overflow: hidden;">
+                                                    <img id="userPageBgPreviewImg" src="" alt="" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; display: none;">
+                                                </div>
+                                            </div>
+
+                                            <!-- 背景渐变色（备用） -->
+                                            <div class="mb-3">
+                                                <label for="userPageBgGradient" class="form-label">背景渐变（备用）</label>
+                                                <input type="text" class="form-control" id="userPageBgGradient" value="linear-gradient(135deg, #667eea 0%, #764ba2 100%)">
+                                                <div class="form-text">当没有设置背景图片时使用</div>
+                                            </div>
+
+                                            <button type="button" class="btn btn-primary" onclick="saveUserPageConfig()">
+                                                <i class="bi bi-save"></i> 保存配置
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- TabBar 管理管理 -->
+                            <div class="tab-pane fade" id="tabbar" role="tabpanel" aria-labelledby="tabbar-tab">
+                                <div class="d-flex justify-content-between align-items-center mt-3 mb-3">
+                                    <h6>底部导航图标管理</h6>
+                                    <button class="btn btn-primary btn-sm" onclick="openAddTabBarModal()">
+                                        <i class="bi bi-plus"></i> 添加底部导航
+                                    </button>
+                                </div>
+                                <!-- TabBar 列表 -->
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>文字</th>
+                                                <th>页面路径</th>
+                                                <th>未选中图标</th>
+                                                <th>选中图标</th>
+                                                <th>排序</th>
+                                                <th>状态</th>
+                                                <th>操作</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tabBarTableBody">
+                                            <!-- 动态加载 TabBar 列表 -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 轮播图模态框 -->
+    <div class="modal fade" id="bannerModal" tabindex="-1" aria-labelledby="bannerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="bannerModalLabel">添加轮播图</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="bannerForm">
+                        <input type="hidden" id="bannerId">
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="bannerTitle" class="form-label">标题 <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="bannerTitle" required placeholder="请输入轮播图标题">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="bannerPosition" class="form-label">位置</label>
+                                    <select class="form-select" id="bannerPosition">
+                                        <option value="home">首页</option>
+                                        <option value="detail">点餐页</option>
+                                        <option value="category">分类页</option>
+                                        <option value="product">商品页</option>
+                                        <option value="recharge">储值页</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="bannerLink" class="form-label">链接地址</label>
+                                    <input type="text" class="form-control" id="bannerLink" placeholder="请输入链接地址">
+                                    <div class="form-text">点击轮播图后跳转的页面链接</div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="bannerSortOrder" class="form-label">排序</label>
+                                    <input type="number" class="form-control" id="bannerSortOrder" min="0" placeholder="请输入排序值">
+                                    <div class="form-text">数字越小越靠前显示</div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">状态</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="bannerStatus" id="bannerActive" value="1" checked>
+                                        <label class="form-check-label" for="bannerActive">激活</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="bannerStatus" id="bannerInactive" value="0">
+                                        <label class="form-check-label" for="bannerInactive">禁用</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">轮播图图片</label>
+                                    
+                                    <!-- 图片上传区域 -->
+                                    <div id="bannerUploadArea" class="upload-area">
+                                        <i class="bi bi-cloud-upload"></i>
+                                        <p class="mb-2">点击上传或拖拽图片到此处</p>
+                                        <p class="text-muted small">支持 JPG、PNG、GIF 格式，建议尺寸 750x300</p>
+                                        <input type="file" id="bannerImageFile" accept="image/*" style="display: none;">
+                                    </div>
+                                    
+                                    <!-- 图片URL输入 -->
+                                    <div class="input-group mt-3">
+                                        <input type="text" class="form-control" id="bannerImage" placeholder="或输入图片URL地址">
+                                        <button class="btn btn-outline-secondary" type="button" onclick="previewImageUrl()">预览</button>
+                                    </div>
+                                    
+                                    <!-- 图片预览 -->
+                                    <div id="bannerImagePreviewContainer" class="mt-3" style="display: none;">
+                                        <img id="bannerImagePreview" src="" alt="图片预览" class="image-preview">
+                                        <div class="d-flex mt-2">
+                                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearBannerImage()">
+                                                <i class="bi bi-trash"></i> 删除图片
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="saveBanner()">
+                        <i class="bi bi-check"></i> 保存
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 功能入口模态框 -->
+    <div class="modal fade" id="functionEntryModal" tabindex="-1" aria-labelledby="functionEntryModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="functionEntryModalLabel">添加功能入口</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="functionEntryForm">
+                        <input type="hidden" id="functionEntryId">
+                        
+                        <div class="mb-3">
+                            <label for="functionEntryName" class="form-label">名称</label>
+                            <input type="text" class="form-control" id="functionEntryName" required placeholder="请输入功能入口名称">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="functionEntryDesc" class="form-label">描述</label>
+                            <input type="text" class="form-control" id="functionEntryDesc" placeholder="请输入功能入口描述">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="functionEntryType" class="form-label">类型</label>
+                            <select class="form-select" id="functionEntryType" required>
+                                <option value="takeout">到店自取</option>
+                                <option value="recharge">储值有礼</option>
+                                <option value="member">会员中心</option>
+                                <option value="points">积分商城</option>
+                                <option value="groupon">团购优惠</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">图标</label>
+                            
+                            <!-- 图片上传区域 -->
+                            <div id="functionEntryUploadArea" class="upload-area">
+                                <i class="bi bi-cloud-upload"></i>
+                                <p class="mb-2">点击上传或拖拽图标到此处</p>
+                                <p class="text-muted small">支持 JPG、PNG、GIF 格式，建议尺寸 100x100</p>
+                                <input type="file" id="functionEntryIconFile" accept="image/*" style="display: none;">
+                            </div>
+                            
+                            <!-- 图片URL输入 -->
+                            <div class="input-group mt-3">
+                                <input type="text" class="form-control" id="functionEntryIcon" required placeholder="或输入图标URL地址">
+                                <button class="btn btn-outline-secondary" type="button" onclick="previewFunctionEntryIconUrl()">预览</button>
+                            </div>
+                            
+                            <!-- 图片预览 -->
+                            <div id="functionEntryIconPreviewContainer" class="mt-3" style="display: none;">
+                                <img id="functionEntryIconPreview" src="" alt="图标预览" class="function-icon">
+                                <div class="d-flex mt-2">
+                                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearFunctionEntryIcon()">
+                                        <i class="bi bi-trash"></i> 删除图标
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="functionEntryLink" class="form-label">链接</label>
+                            <input type="text" class="form-control" id="functionEntryLink" placeholder="请输入链接地址">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="functionEntrySortOrder" class="form-label">排序</label>
+                            <input type="number" class="form-control" id="functionEntrySortOrder" min="0" placeholder="请输入排序值">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">状态</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="functionEntryStatus" id="functionEntryActive" value="1" checked>
+                                <label class="form-check-label" for="functionEntryActive">激活</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="functionEntryStatus" id="functionEntryInactive" value="0">
+                                <label class="form-check-label" for="functionEntryInactive">禁用</label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="saveFunctionEntry()">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 新品推荐模态框 -->
+    <div class="modal fade" id="newProductModal" tabindex="-1" aria-labelledby="newProductModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="newProductModalLabel">添加新品推荐</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="newProductForm">
+                        <input type="hidden" id="newProductId">
+
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label for="productSelect" class="form-label">选择商品</label>
+                                    <select class="form-select" id="productSelect" required onchange="previewSelectedProduct()">
+                                        <option value="">请选择商品</option>
+                                        <!-- 动态加载商品列表 -->
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="newProductSortOrder" class="form-label">排序</label>
+                                    <input type="number" class="form-control" id="newProductSortOrder" min="0" placeholder="请输入排序值，数字越小越靠前">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">状态</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="newProductStatus" id="newProductActive" value="1" checked>
+                                        <label class="form-check-label" for="newProductActive">激活</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="newProductStatus" id="newProductInactive" value="0">
+                                        <label class="form-check-label" for="newProductInactive">禁用</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">商品预览</label>
+                                <div class="card">
+                                    <img id="selectedProductPreview" src="" alt="商品预览" class="card-img-top" style="height: 200px; object-fit: cover; display: none;">
+                                    <div class="card-body">
+                                        <h6 id="selectedProductName" class="card-title">未选择商品</h6>
+                                        <p id="selectedProductDesc" class="card-text text-muted small">请从左侧选择一个商品</p>
+                                        <p id="selectedProductPrice" class="card-text text-primary fw-bold"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="saveNewProduct()">
+                        <i class="bi bi-save"></i> 保存
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 管理员登录模态框 -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalLabel">管理员登录</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label for="adminUsername" class="form-label">用户名</label>
+                            <input type="text" class="form-control" id="adminUsername" required placeholder="请输入管理员用户名">
+                        </div>
+                        <div class="mb-3">
+                            <label for="adminPassword" class="form-label">密码</label>
+                            <input type="password" class="form-control" id="adminPassword" required placeholder="请输入管理员密码">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="performLogin()">
+                        <i class="bi bi-box-arrow-in-right"></i> 登录
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TabBar 模态框 -->
+    <div class="modal fade" id="tabBarModal" tabindex="-1" aria-labelledby="tabBarModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="tabBarModalLabel">添加底部导航</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="tabBarForm">
+                        <input type="hidden" id="tabBarId">
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="tabBarText" class="form-label">文字 <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="tabBarText" required placeholder="请输入导航文字，如：首页">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="tabBarPagePath" class="form-label">页面路径 <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="tabBarPagePath" required>
+                                        <option value="">请选择页面路径</option>
+                                        <option value="pages/index/index">首页 (pages/index/index)</option>
+                                        <option value="pages/detail/detail">点餐 (pages/detail/detail)</option>
+                                        <option value="pages/order/order">订单 (pages/order/order)</option>
+                                        <option value="pages/user/user">我的 (pages/user/user)</option>
+                                    </select>
+                                    <div class="form-text">选择对应的页面路径</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="tabBarSortOrder" class="form-label">排序</label>
+                                    <input type="number" class="form-control" id="tabBarSortOrder" min="0" placeholder="请输入排序值">
+                                    <div class="form-text">数字越小越靠前显示</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">状态</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="tabBarStatus" id="tabBarActive" value="1" checked>
+                                        <label class="form-check-label" for="tabBarActive">激活</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="tabBarStatus" id="tabBarInactive" value="0">
+                                        <label class="form-check-label" for="tabBarInactive">禁用</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">图标选择 <span class="text-muted">(推荐使用 Emoji 图标)</span></label>
+
+                                    <!-- 快速选择 Emoji -->
+                                    <div class="card mb-3">
+                                        <div class="card-header py-2">
+                                            <small class="text-muted mb-0">快速选择 Emoji 图标</small>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row g-2">
+                                                <div class="col-3">
+                                                    <button type="button" class="btn btn-outline-secondary btn-sm w-100 emoji-option"
+                                                            data-normal="🏠" data-selected="🏡" onclick="selectEmoji(this)">
+                                                        🏠 / 🏡
+                                                    </button>
+                                                </div>
+                                                <div class="col-3">
+                                                    <button type="button" class="btn btn-outline-secondary btn-sm w-100 emoji-option"
+                                                            data-normal="🍵" data-selected="🧋" onclick="selectEmoji(this)">
+                                                        🍵 / 🧋
+                                                    </button>
+                                                </div>
+                                                <div class="col-3">
+                                                    <button type="button" class="btn btn-outline-secondary btn-sm w-100 emoji-option"
+                                                            data-normal="📋" data-selected="📝" onclick="selectEmoji(this)">
+                                                        📋 / 📝
+                                                    </button>
+                                                </div>
+                                                <div class="col-3">
+                                                    <button type="button" class="btn btn-outline-secondary btn-sm w-100 emoji-option"
+                                                            data-normal="👤" data-selected="👤" onclick="selectEmoji(this)">
+                                                        👤 / 👤
+                                                    </button>
+                                                </div>
+                                                <div class="col-3">
+                                                    <button type="button" class="btn btn-outline-secondary btn-sm w-100 emoji-option"
+                                                            data-normal="🏠" data-selected="🏡" onclick="selectEmoji(this)">
+                                                        🏠 / 🏡
+                                                    </button>
+                                                </div>
+                                                <div class="col-3">
+                                                    <button type="button" class="btn btn-outline-secondary btn-sm w-100 emoji-option"
+                                                            data-normal="🍹" data-selected="🥤" onclick="selectEmoji(this)">
+                                                        🍹 / 🥤
+                                                    </button>
+                                                </div>
+                                                <div class="col-3">
+                                                    <button type="button" class="btn btn-outline-secondary btn-sm w-100 emoji-option"
+                                                            data-normal="🛒" data-selected="🛒" onclick="selectEmoji(this)">
+                                                        🛒 / 🛒
+                                                    </button>
+                                                </div>
+                                                <div class="col-3">
+                                                    <button type="button" class="btn btn-outline-secondary btn-sm w-100 emoji-option"
+                                                            data-normal="⭐" data-selected="⭐" onclick="selectEmoji(this)">
+                                                        ⭐ / ⭐
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 或自定义图标 -->
+                                    <div class="mb-3">
+                                        <label class="form-label text-muted">或自定义图标</label>
+
+                                        <!-- 未选中图标 -->
+                                        <div class="mb-3">
+                                            <label class="form-label small">未选中状态图标</label>
+
+                                            <!-- 上传区域 -->
+                                            <div id="tabBarIconNormalUploadArea" class="upload-area mb-2">
+                                                <input type="file" id="tabBarIconNormalFile" accept="image/*" style="display: none;">
+                                                <i class="bi bi-cloud-upload"></i>
+                                                <p class="mb-0">点击或拖拽上传未选中图标</p>
+                                                <small class="text-muted">支持 PNG、JPG、GIF，最大 2MB</small>
+                                            </div>
+
+                                            <div class="input-group mb-2">
+                                                <input type="text" class="form-control" id="tabBarIconNormal" placeholder="输入 Emoji 或图片URL">
+                                                <button class="btn btn-outline-secondary" type="button" onclick="previewTabBarIconNormalUrl()">预览</button>
+                                            </div>
+
+                                            <!-- 图片预览 -->
+                                            <div id="tabBarIconNormalPreviewContainer" class="mt-2" style="display: none;">
+                                                <img id="tabBarIconNormalPreview" src="" alt="图标预览" class="function-icon">
+                                                <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="clearTabBarIconNormal()">
+                                                    <i class="bi bi-trash"></i> 删除
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <!-- 选中图标 -->
+                                        <div>
+                                            <label class="form-label small">选中状态图标</label>
+
+                                            <!-- 上传区域 -->
+                                            <div id="tabBarIconSelectedUploadArea" class="upload-area mb-2">
+                                                <input type="file" id="tabBarIconSelectedFile" accept="image/*" style="display: none;">
+                                                <i class="bi bi-cloud-upload"></i>
+                                                <p class="mb-0">点击或拖拽上传选中图标</p>
+                                                <small class="text-muted">支持 PNG、JPG、GIF，最大 2MB</small>
+                                            </div>
+
+                                            <div class="input-group mb-2">
+                                                <input type="text" class="form-control" id="tabBarIconSelected" placeholder="输入 Emoji 或图片URL">
+                                                <button class="btn btn-outline-secondary" type="button" onclick="previewTabBarIconSelectedUrl()">预览</button>
+                                            </div>
+
+                                            <!-- 图片预览 -->
+                                            <div id="tabBarIconSelectedPreviewContainer" class="mt-2" style="display: none;">
+                                                <img id="tabBarIconSelectedPreview" src="" alt="图标预览" class="function-icon">
+                                                <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="clearTabBarIconSelected()">
+                                                    <i class="bi bi-trash"></i> 删除
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 实时预览 -->
+                        <div class="mt-4 p-3 border rounded bg-light">
+                            <h6 class="mb-3">实时预览</h6>
+                            <div class="d-flex justify-content-around">
+                                <div class="text-center">
+                                    <div id="previewNormal" class="tab-icon-preview mb-2">🏠</div>
+                                    <small class="text-muted">未选中</small>
+                                </div>
+                                <div class="text-center">
+                                    <div id="previewSelected" class="tab-icon-preview mb-2">🏡</div>
+                                    <small class="text-muted">已选中</small>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="saveTabBar()">
+                        <i class="bi bi-check"></i> 保存
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 全局变量
+        let banners = [];
+        let functionEntries = [];
+        let newProducts = [];
+        let products = [];
+        let tabBars = [];
+        let isPreviewVisible = false;
+
+        // 构建完整的图片URL
+        function getImageUrl(url) {
+            if (!url) return '';
+            // 如果已经是完整URL（http/https），直接返回
+            if (url.startsWith('http://') || url.startsWith('https://')) {
+                return url;
+            }
+            // 如果是相对路径，使用当前页面的协议和主机名
+            if (url.startsWith('/')) {
+                return window.location.origin + url;
+            }
+            // 其他情况，直接返回
+            return url;
+        }
+
+        // 安全地从 localStorage 读取数据
+        let adminToken = null;
+        let adminInfo = null;
+        try {
+            adminToken = localStorage.getItem('adminToken');
+            const storedAdminInfo = localStorage.getItem('adminInfo');
+            if (storedAdminInfo && storedAdminInfo !== 'undefined') {
+                adminInfo = JSON.parse(storedAdminInfo);
+            }
+        } catch (error) {
+            console.error('读取localStorage失败:', error);
+            // 清除损坏的数据
+            localStorage.removeItem('adminToken');
+            localStorage.removeItem('adminInfo');
+        }
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('页面初始化开始');
+            console.log('localStorage中的token:', adminToken ? '存在' : '不存在');
+            console.log('localStorage中的adminInfo:', adminInfo);
+
+            // 更新登录状态
+            updateLoginStatus();
+            loadBanners();
+            loadRechargeBanners();
+            loadFunctionEntries();
+            loadNewProducts();
+            loadProducts();
+            loadTabBars();
+            loadUserPageConfig();
+            initBannerUpload();
+            initFunctionEntryUpload();
+            initTabBarUpload();
+
+            console.log('页面初始化完成');
+            console.log('当前登录状态:', { token: adminToken ? '存在' : '不存在', adminInfo });
+        });
+
+        // ========== 管理员认证相关函数 ==========
+
+        // 显示登录模态框
+        function showLoginModal() {
+            new bootstrap.Modal(document.getElementById('loginModal')).show();
+        }
+
+        // 执行登录
+        async function performLogin() {
+            const username = document.getElementById('adminUsername').value.trim();
+            const password = document.getElementById('adminPassword').value.trim();
+
+            if (!username || !password) {
+                showToast('请输入用户名和密码', 'warning');
+                return;
+            }
+
+            console.log('开始登录...', { username, password: '***' });
+
+            try {
+                const response = await fetch('/api/admin/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                console.log('登录响应状态:', response.status);
+
+                const result = await response.json();
+                console.log('登录响应数据:', result);
+
+                if (response.ok && result.status === 'success') {
+                    // API返回的数据结构是 { status, message, data: { token, admin } }
+                    adminToken = result.data.token;
+                    adminInfo = result.data.admin;
+
+                    console.log('Token已保存:', adminToken ? 'Yes' : 'No');
+                    console.log('管理员信息:', adminInfo);
+
+                    // 保存到localStorage
+                    localStorage.setItem('adminToken', adminToken);
+                    localStorage.setItem('adminInfo', JSON.stringify(adminInfo));
+
+                    // 关闭模态框
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+                    if (modal) {
+                        modal.hide();
+                    }
+
+                    // 清空表单
+                    document.getElementById('loginForm').reset();
+
+                    // 更新UI状态
+                    updateLoginStatus();
+
+                    showToast('登录成功！', 'success');
+                } else {
+                    console.error('登录失败:', result);
+                    showToast(result.message || '登录失败', 'error');
+                }
+            } catch (error) {
+                console.error('登录异常:', error);
+                showToast('登录失败，请稍后重试', 'error');
+            }
+        }
+
+        // 退出登录
+        function logout() {
+            if (confirm('确定要退出登录吗？')) {
+                adminToken = null;
+                adminInfo = null;
+                localStorage.removeItem('adminToken');
+                localStorage.removeItem('adminInfo');
+                updateLoginStatus();
+                showToast('已退出登录', 'info');
+            }
+        }
+
+        // 更新登录状态UI
+        function updateLoginStatus() {
+            console.log('updateLoginStatus 被调用');
+            console.log('当前状态:', { adminToken: adminToken ? '存在' : '不存在', adminInfo });
+
+            const loginItem = document.getElementById('loginItem');
+            const logoutItem = document.getElementById('logoutItem');
+            const welcomeMessage = document.getElementById('welcomeMessage');
+
+            console.log('DOM元素:', {
+                loginItem: loginItem ? '存在' : '不存在',
+                logoutItem: logoutItem ? '存在' : '不存在',
+                welcomeMessage: welcomeMessage ? '存在' : '不存在'
+            });
+
+            if (adminToken) {
+                // 已登录（有 token 就认为已登录）
+                console.log('设置为已登录状态');
+                loginItem.style.display = 'none';
+                logoutItem.style.display = 'block';
+                const username = adminInfo ? adminInfo.username : '管理员';
+                welcomeMessage.innerHTML = `欢迎，<strong>${username}</strong>`;
+            } else {
+                // 未登录
+                console.log('设置为未登录状态');
+                loginItem.style.display = 'block';
+                logoutItem.style.display = 'none';
+                welcomeMessage.innerHTML = '欢迎，<strong>游客</strong>';
+            }
+        }
+
+        // 获取认证请求头
+        function getAuthHeaders() {
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+
+            if (adminToken) {
+                headers['Authorization'] = `Bearer ${adminToken}`;
+            }
+
+            return headers;
+        }
+
+        // 初始化轮播图上传功能
+        function initBannerUpload() {
+            const uploadArea = document.getElementById('bannerUploadArea');
+            const fileInput = document.getElementById('bannerImageFile');
+            const imageUrlInput = document.getElementById('bannerImage');
+            
+            if (!uploadArea || !fileInput) return;
+            
+            uploadArea.addEventListener('click', () => fileInput.click());
+            
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleBannerImageUpload(files[0]);
+                }
+            });
+            
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleBannerImageUpload(e.target.files[0]);
+                }
+            });
+            
+            // 添加URL输入框实时预览
+            if (imageUrlInput) {
+                imageUrlInput.addEventListener('input', () => {
+                    const url = imageUrlInput.value.trim();
+                    if (url) {
+                        showBannerImagePreview(url);
+                    } else {
+                        document.getElementById('bannerImagePreviewContainer').style.display = 'none';
+                    }
+                });
+            }
+        }
+        
+        // 初始化功能入口图标上传功能
+        function initFunctionEntryUpload() {
+            const uploadArea = document.getElementById('functionEntryUploadArea');
+            const fileInput = document.getElementById('functionEntryIconFile');
+            const imageUrlInput = document.getElementById('functionEntryIcon');
+            
+            if (!uploadArea || !fileInput) return;
+            
+            uploadArea.addEventListener('click', () => fileInput.click());
+            
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFunctionEntryIconUpload(files[0]);
+                }
+            });
+            
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFunctionEntryIconUpload(e.target.files[0]);
+                }
+            });
+            
+            // 添加URL输入框实时预览
+            if (imageUrlInput) {
+                imageUrlInput.addEventListener('input', () => {
+                    const url = imageUrlInput.value.trim();
+                    if (url) {
+                        showFunctionEntryIconPreview(url);
+                    } else {
+                        document.getElementById('functionEntryIconPreviewContainer').style.display = 'none';
+                    }
+                });
+            }
+        }
+        
+        // 处理轮播图图片上传
+        async function handleBannerImageUpload(file) {
+            if (!file.type.startsWith('image/')) {
+                showToast('请上传图片文件', 'error');
+                return;
+            }
+            
+            if (file.size > 5 * 1024 * 1024) {
+                showToast('图片大小不能超过5MB', 'error');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('image', file);
+            
+            try {
+                showToast('图片上传中...', 'info');
+                const response = await fetch('/api/upload/image', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('bannerImage').value = data.url;
+                    showBannerImagePreview(data.url);
+                    showToast('图片上传成功', 'success');
+                } else {
+                    const errorData = await response.json();
+                    showToast(errorData.error || '图片上传失败', 'error');
+                }
+            } catch (error) {
+                console.error('图片上传失败:', error);
+                showToast('图片上传失败，请稍后重试', 'error');
+            }
+        }
+        
+        // 处理功能入口图标上传
+        async function handleFunctionEntryIconUpload(file) {
+            if (!file.type.startsWith('image/')) {
+                showToast('请上传图片文件', 'error');
+                return;
+            }
+            
+            if (file.size > 2 * 1024 * 1024) {
+                showToast('图标大小不能超过2MB', 'error');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('image', file);
+            
+            try {
+                showToast('图标上传中...', 'info');
+                const response = await fetch('/api/upload/image', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('functionEntryIcon').value = data.url;
+                    showFunctionEntryIconPreview(data.url);
+                    showToast('图标上传成功', 'success');
+                } else {
+                    const errorData = await response.json();
+                    showToast(errorData.error || '图标上传失败', 'error');
+                }
+            } catch (error) {
+                console.error('图标上传失败:', error);
+                showToast('图标上传失败，请稍后重试', 'error');
+            }
+        }
+        
+        // 预览图片URL
+        function previewImageUrl() {
+            const url = document.getElementById('bannerImage').value.trim();
+            if (url) {
+                showBannerImagePreview(url);
+                showToast('图片预览成功', 'success');
+            } else {
+                showToast('请输入图片URL', 'warning');
+            }
+        }
+        
+        // 预览功能入口图标URL
+        function previewFunctionEntryIconUrl() {
+            const url = document.getElementById('functionEntryIcon').value.trim();
+            if (url) {
+                showFunctionEntryIconPreview(url);
+                showToast('图标预览成功', 'success');
+            } else {
+                showToast('请输入图标URL', 'warning');
+            }
+        }
+        
+        // 显示轮播图图片预览
+        function showBannerImagePreview(url) {
+            const previewContainer = document.getElementById('bannerImagePreviewContainer');
+            const preview = document.getElementById('bannerImagePreview');
+
+            if (url) {
+                preview.src = getImageUrl(url);
+                preview.style.display = 'block';
+                previewContainer.style.display = 'block';
+                
+                // 图片加载成功处理
+                preview.onload = () => {
+                    console.log('图片加载成功:', url);
+                };
+                
+                // 图片加载失败处理
+                preview.onerror = () => {
+                    console.error('图片加载失败:', url);
+                    // 显示默认占位图
+                    preview.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="150"><rect fill="#f0f0f0" width="200" height="150"/><text fill="#666" x="50%" y="50%" text-anchor="middle">图片加载失败</text></svg>';
+                };
+            } else {
+                previewContainer.style.display = 'none';
+            }
+        }
+        
+        // 显示功能入口图标预览
+        function showFunctionEntryIconPreview(url) {
+            const previewContainer = document.getElementById('functionEntryIconPreviewContainer');
+            const preview = document.getElementById('functionEntryIconPreview');
+
+            if (url) {
+                preview.src = getImageUrl(url);
+                preview.style.display = 'block';
+                previewContainer.style.display = 'block';
+                
+                // 图标加载成功处理
+                preview.onload = () => {
+                    console.log('图标加载成功:', url);
+                };
+                
+                // 图标加载失败处理
+                preview.onerror = () => {
+                    console.error('图标加载失败:', url);
+                    // 显示默认占位图
+                    preview.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><rect fill="#f0f0f0" width="40" height="40"/><text fill="#666" x="50%" y="50%" text-anchor="middle" dominant-baseline="middle">图标</text></svg>';
+                };
+            } else {
+                previewContainer.style.display = 'none';
+            }
+        }
+        
+        // 清除轮播图图片
+        function clearBannerImage() {
+            document.getElementById('bannerImage').value = '';
+            document.getElementById('bannerImagePreviewContainer').style.display = 'none';
+        }
+        
+        // 清除功能入口图标
+        function clearFunctionEntryIcon() {
+            document.getElementById('functionEntryIcon').value = '';
+            document.getElementById('functionEntryIconPreviewContainer').style.display = 'none';
+        }
+        
+        // 切换预览显示
+        function togglePreview() {
+            const previewContainer = document.getElementById('bannerPreviewContainer');
+            const previewBtnText = document.getElementById('previewBtnText');
+            isPreviewVisible = !isPreviewVisible;
+            
+            if (isPreviewVisible) {
+                previewContainer.style.display = 'block';
+                previewBtnText.textContent = '隐藏预览';
+                renderBannerPreview();
+            } else {
+                previewContainer.style.display = 'none';
+                previewBtnText.textContent = '显示预览';
+            }
+        }
+        
+        // 渲染轮播图预览
+        function renderBannerPreview() {
+            const container = document.getElementById('bannerPreviewContent');
+            container.innerHTML = '';
+            
+            const activeBanners = banners.filter(b => b.is_active);
+            
+            if (activeBanners.length === 0) {
+                container.innerHTML = '<p class="text-white">暂无激活的轮播图</p>';
+                return;
+            }
+            
+            activeBanners.forEach(banner => {
+                const item = document.createElement('div');
+                item.className = 'banner-preview-item';
+                item.style.minWidth = '200px';
+                item.innerHTML = `
+                    <img src="${getImageUrl(banner.image)}" alt="${banner.title}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22120%22><rect fill=%22%23f0f0f0%22 width=%22200%22 height=%22120%22/><text fill=%22%23666%22 x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22>图片加载失败</text></svg>'">
+                    <div class="card-body">
+                        <h6 class="card-title mb-1">${banner.title}</h6>
+                        <small class="text-muted">${banner.link || '无链接'}</small>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+        
+        // 显示提示消息
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `alert alert-${type === 'error' ? 'danger' : type} position-fixed top-0 end-0 m-3`;
+            toast.style.zIndex = '9999';
+            toast.innerHTML = `
+                <i class="bi bi-${type === 'success' ? 'check-circle' : type === 'error' ? 'x-circle' : 'info-circle'}"></i>
+                ${message}
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
+        // 轮播图管理相关函数
+        
+        // 加载轮播图列表
+        async function loadBanners() {
+            try {
+                const response = await fetch('/api/ui/banners');
+                const data = await response.json();
+                if (data.banners) {
+                    banners = data.banners;
+                    renderBanners();
+                }
+            } catch (error) {
+                console.error('加载轮播图失败:', error);
+            }
+        }
+        
+        // 加载储值页轮播图列表
+        async function loadRechargeBanners() {
+            try {
+                const response = await fetch('/api/ui/banners?position=recharge');
+                const data = await response.json();
+                if (data.banners) {
+                    const rechargeBanners = data.banners;
+                    renderRechargeBanners(rechargeBanners);
+                }
+            } catch (error) {
+                console.error('加载储值页轮播图失败:', error);
+            }
+        }
+        
+        // 渲染储值页轮播图列表
+        function renderRechargeBanners(rechargeBanners) {
+            const tbody = document.getElementById('rechargeBannerTableBody');
+            tbody.innerHTML = '';
+            
+            if (rechargeBanners.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center">暂无储值页轮播图数据</td></tr>';
+                return;
+            }
+            
+            rechargeBanners.forEach(banner => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${banner.id}</td>
+                    <td><strong>${banner.title}</strong></td>
+                    <td>
+                        <img src="${getImageUrl(banner.image)}" alt="${banner.title}" 
+                             onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%2250%22><rect fill=%22%23f0f0f0%22 width=%22100%22 height=%2250%22/><text fill=%22%23666%22 x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22>图片</text></svg>'" 
+                             style="width: 100px; height: 50px; object-fit: cover; border-radius: 4px;">
+                    </td>
+                    <td>
+                        ${banner.link ? `<a href="${banner.link}" target="_blank" class="text-truncate d-inline-block" style="max-width: 150px;">${banner.link}</a>` : '<span class="text-muted">-</span>'}
+                    </td>
+                    <td><span class="badge bg-secondary">${banner.sort_order}</span></td>
+                    <td>
+                        <span class="badge ${banner.is_active ? 'bg-success' : 'bg-danger'} status-toggle" onclick="toggleBannerStatus(${banner.id})">
+                            ${banner.is_active ? '激活' : '禁用'}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary" onclick="openEditBannerModalById(${banner.id})" title="编辑">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-outline-${banner.is_active ? 'warning' : 'success'}" onclick="toggleBannerStatus(${banner.id})" title="${banner.is_active ? '禁用' : '激活'}">
+                                <i class="bi bi-${banner.is_active ? 'pause' : 'play'}"></i>
+                            </button>
+                            <button class="btn btn-outline-danger" onclick="deleteBanner(${banner.id})" title="删除">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // 打开添加储值页轮播图模态框
+        function openAddBannerModalForRecharge() {
+            document.getElementById('bannerModalLabel').innerHTML = '<i class="bi bi-plus-circle"></i> 添加储值页轮播图';
+            document.getElementById('bannerForm').reset();
+            document.getElementById('bannerId').value = '';
+            document.getElementById('bannerImagePreviewContainer').style.display = 'none';
+            // 设置默认位置为储值页
+            document.getElementById('bannerPosition').value = 'recharge';
+            new bootstrap.Modal(document.getElementById('bannerModal')).show();
+        }
+        
+        // 渲染轮播图列表
+        function renderBanners() {
+            const tbody = document.getElementById('bannersTableBody');
+            tbody.innerHTML = '';
+            
+            if (banners.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center">暂无轮播图数据</td></tr>';
+                return;
+            }
+            
+            banners.forEach(banner => {
+                const positionClass = `position-${banner.position}`;
+                const positionText = {
+                    'home': '首页',
+                    'category': '分类页',
+                    'product': '商品页',
+                    'recharge': '储值页'
+                }[banner.position] || banner.position;
+                
+                const row = document.createElement('tr');
+                row.className = 'banner-list-item';
+                row.innerHTML = `
+                    <td><strong>${banner.id}</strong></td>
+                    <td><strong>${banner.title}</strong></td>
+                    <td>
+                        <img src="${getImageUrl(banner.image)}" alt="${banner.title}" 
+                             onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%2250%22><rect fill=%22%23f0f0f0%22 width=%22100%22 height=%2250%22/><text fill=%22%23666%22 x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22>图片</text></svg>'">
+                    </td>
+                    <td><span class="badge ${positionClass}">${positionText}</span></td>
+                    <td>
+                        ${banner.link ? `<a href="${banner.link}" target="_blank" class="text-truncate d-inline-block" style="max-width: 150px;">${banner.link}</a>` : '<span class="text-muted">-</span>'}
+                    </td>
+                    <td>
+                        <span class="badge bg-secondary">${banner.sort_order}</span>
+                    </td>
+                    <td>
+                        <span class="badge ${banner.is_active ? 'bg-success' : 'bg-danger'} status-toggle" onclick="toggleBannerStatus(${banner.id})">
+                            ${banner.is_active ? '激活' : '禁用'}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary" onclick="openEditBannerModalById(${banner.id})" title="编辑">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-outline-${banner.is_active ? 'warning' : 'success'}" onclick="toggleBannerStatus(${banner.id})" title="${banner.is_active ? '禁用' : '激活'}">
+                                <i class="bi bi-${banner.is_active ? 'pause' : 'play'}"></i>
+                            </button>
+                            <button class="btn btn-outline-danger" onclick="deleteBanner(${banner.id})" title="删除">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // 切换轮播图状态
+        async function toggleBannerStatus(bannerId) {
+            const banner = banners.find(b => b.id === bannerId);
+            if (!banner) return;
+            
+            const newStatus = banner.is_active ? 0 : 1;
+            const actionText = newStatus ? '激活' : '禁用';
+            
+            if (!confirm(`确定要${actionText}该轮播图吗？`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/ui/banners/${bannerId}`, {
+                    method: 'PUT',
+                    headers: getAuthHeaders(), // 使用getAuthHeaders函数
+                    body: JSON.stringify({ is_active: newStatus })
+                });
+                
+                if (response.ok) {
+                    loadBanners();
+                    loadRechargeBanners(); // 刷新储值页轮播图列表
+                    if (isPreviewVisible) {
+                        renderBannerPreview();
+                    }
+                    showToast(`轮播图已${actionText}`, 'success');
+                } else {
+                    const errorData = await response.json();
+                    showToast(errorData.error || '操作失败', 'error');
+                }
+            } catch (error) {
+                console.error('切换轮播图状态失败:', error);
+                showToast('操作失败，请稍后重试', 'error');
+            }
+        }
+        
+        // 打开添加轮播图模态框
+        function openAddBannerModal() {
+            document.getElementById('bannerModalLabel').innerHTML = '<i class="bi bi-plus-circle"></i> 添加轮播图';
+            document.getElementById('bannerForm').reset();
+            document.getElementById('bannerId').value = '';
+            document.getElementById('bannerImagePreviewContainer').style.display = 'none';
+            new bootstrap.Modal(document.getElementById('bannerModal')).show();
+        }
+        
+        // 打开编辑轮播图模态框
+        function openEditBannerModal(banner) {
+            document.getElementById('bannerModalLabel').innerHTML = '<i class="bi bi-pencil-square"></i> 编辑轮播图';
+            document.getElementById('bannerId').value = banner.id;
+            document.getElementById('bannerTitle').value = banner.title;
+            document.getElementById('bannerImage').value = banner.image;
+            document.getElementById('bannerPosition').value = banner.position;
+            document.getElementById('bannerLink').value = banner.link || '';
+            document.getElementById('bannerSortOrder').value = banner.sort_order;
+            document.getElementById(banner.is_active ? 'bannerActive' : 'bannerInactive').checked = true;
+            
+            if (banner.image) {
+                showBannerImagePreview(banner.image);
+            } else {
+                document.getElementById('bannerImagePreviewContainer').style.display = 'none';
+            }
+
+            new bootstrap.Modal(document.getElementById('bannerModal')).show();
+        }
+
+        // 通过ID打开编辑轮播图模态框
+        function openEditBannerModalById(bannerId) {
+            const banner = banners.find(b => b.id === bannerId);
+            if (banner) {
+                openEditBannerModal(banner);
+            }
+        }
+        
+        // 保存轮播图
+        async function saveBanner() {
+            const form = document.getElementById('bannerForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            
+            const bannerId = document.getElementById('bannerId').value;
+            const bannerData = {
+                title: document.getElementById('bannerTitle').value,
+                image: document.getElementById('bannerImage').value,
+                position: document.getElementById('bannerPosition').value,
+                link: document.getElementById('bannerLink').value,
+                sort_order: parseInt(document.getElementById('bannerSortOrder').value) || 0,
+                is_active: document.querySelector('input[name="bannerStatus"]:checked').value
+            };
+            
+            if (!bannerData.image) {
+                showToast('请上传或输入轮播图图片', 'warning');
+                return;
+            }
+            
+            try {
+                let response;
+                let successMessage;
+                const headers = getAuthHeaders(); // 获取认证头
+                
+                if (bannerId) {
+                    response = await fetch(`/api/ui/banners/${bannerId}`, {
+                        method: 'PUT',
+                        headers: headers,
+                        body: JSON.stringify(bannerData)
+                    });
+                    successMessage = '轮播图更新成功！';
+                } else {
+                    response = await fetch('/api/ui/banners', {
+                        method: 'POST',
+                        headers: headers,
+                        body: JSON.stringify(bannerData)
+                    });
+                    successMessage = '轮播图添加成功！';
+                }
+                
+                if (response.ok) {
+                    bootstrap.Modal.getInstance(document.getElementById('bannerModal')).hide();
+                    loadBanners();
+                    loadRechargeBanners(); // 刷新储值页轮播图列表
+                    if (isPreviewVisible) {
+                        renderBannerPreview();
+                    }
+                    showToast(successMessage, 'success');
+                } else {
+                    const errorData = await response.json();
+                    showToast(errorData.error || '保存失败', 'error');
+                }
+            } catch (error) {
+                console.error('保存轮播图失败:', error);
+                showToast('保存失败，请稍后重试', 'error');
+            }
+        }
+        
+        // 删除轮播图
+        async function deleteBanner(bannerId) {
+            if (!confirm('确定要删除该轮播图吗？此操作不可恢复！')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/ui/banners/${bannerId}`, {
+                    method: 'DELETE',
+                    headers: getAuthHeaders() // 添加认证头
+                });
+                
+                if (response.ok) {
+                    loadBanners();
+                    loadRechargeBanners(); // 刷新储值页轮播图列表
+                    if (isPreviewVisible) {
+                        renderBannerPreview();
+                    }
+                    showToast('轮播图删除成功！', 'success');
+                } else {
+                    const errorData = await response.json();
+                    showToast(errorData.error || '删除失败', 'error');
+                }
+            } catch (error) {
+                console.error('删除轮播图失败:', error);
+                showToast('删除失败，请稍后重试', 'error');
+            }
+        }
+        
+        // 功能入口管理相关函数
+        
+        // 加载功能入口列表
+        async function loadFunctionEntries() {
+            try {
+                const response = await fetch('/api/ui/function-entries');
+                const data = await response.json();
+                if (data.functionEntries) {
+                    functionEntries = data.functionEntries;
+                    renderFunctionEntries();
+                }
+            } catch (error) {
+                console.error('加载功能入口失败:', error);
+            }
+        }
+        
+        // 渲染功能入口列表
+        function renderFunctionEntries() {
+            const tbody = document.getElementById('functionEntriesTableBody');
+            tbody.innerHTML = '';
+            
+            if (functionEntries.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center">暂无功能入口数据</td></tr>';
+                return;
+            }
+            
+            functionEntries.forEach(entry => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${entry.id}</td>
+                    <td>${entry.name}</td>
+                    <td>${entry.type}</td>
+                    <td><img src="${getImageUrl(entry.icon)}" alt="图标" style="width: 40px; height: 40px;"></td>
+                    <td>${entry.link || '-'}</td>
+                    <td>${entry.sort_order}</td>
+                    <td><span class="badge ${entry.is_active ? 'bg-success' : 'bg-danger'}">${entry.is_active ? '激活' : '禁用'}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="openEditFunctionEntryModalById(${entry.id})"><i class="bi bi-pencil"></i></button>
+                        <button class="btn btn-sm btn-outline-danger ms-1" onclick="deleteFunctionEntry(${entry.id})"><i class="bi bi-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // 打开添加功能入口模态框
+        function openAddFunctionEntryModal() {
+            document.getElementById('functionEntryModalLabel').textContent = '添加功能入口';
+            document.getElementById('functionEntryForm').reset();
+            document.getElementById('functionEntryId').value = '';
+            clearFunctionEntryIcon(); // 使用clearFunctionEntryIcon函数清除图标预览
+            new bootstrap.Modal(document.getElementById('functionEntryModal')).show();
+        }
+        
+        // 打开编辑功能入口模态框
+        function openEditFunctionEntryModal(entry) {
+            document.getElementById('functionEntryModalLabel').textContent = '编辑功能入口';
+            document.getElementById('functionEntryId').value = entry.id;
+            document.getElementById('functionEntryName').value = entry.name;
+            document.getElementById('functionEntryDesc').value = entry.desc || '';
+            document.getElementById('functionEntryType').value = entry.type;
+            document.getElementById('functionEntryIcon').value = entry.icon;
+            showFunctionEntryIconPreview(entry.icon); // 使用showFunctionEntryIconPreview函数显示图标预览
+            document.getElementById('functionEntryLink').value = entry.link || '';
+            document.getElementById('functionEntrySortOrder').value = entry.sort_order;
+            document.getElementById(entry.is_active ? 'functionEntryActive' : 'functionEntryInactive').checked = true;
+            new bootstrap.Modal(document.getElementById('functionEntryModal')).show();
+        }
+
+        // 通过ID打开编辑功能入口模态框
+        function openEditFunctionEntryModalById(entryId) {
+            const entry = functionEntries.find(e => e.id === entryId);
+            if (entry) {
+                openEditFunctionEntryModal(entry);
+            }
+        }
+        
+        // 保存功能入口
+        async function saveFunctionEntry() {
+            const form = document.getElementById('functionEntryForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            
+            const entryId = document.getElementById('functionEntryId').value;
+            const entryData = {
+                name: document.getElementById('functionEntryName').value,
+                desc: document.getElementById('functionEntryDesc').value,
+                type: document.getElementById('functionEntryType').value,
+                icon: document.getElementById('functionEntryIcon').value,
+                link: document.getElementById('functionEntryLink').value,
+                sort_order: parseInt(document.getElementById('functionEntrySortOrder').value) || 0,
+                is_active: document.querySelector('input[name="functionEntryStatus"]:checked').value
+            };
+            
+            try {
+                let response;
+                const headers = getAuthHeaders(); // 获取认证头
+                
+                if (entryId) {
+                    // 更新功能入口
+                    response = await fetch(`/api/ui/function-entries/${entryId}`, {
+                        method: 'PUT',
+                        headers: headers,
+                        body: JSON.stringify(entryData)
+                    });
+                } else {
+                    // 添加功能入口
+                    response = await fetch('/api/ui/function-entries', {
+                        method: 'POST',
+                        headers: headers,
+                        body: JSON.stringify(entryData)
+                    });
+                }
+                
+                if (response.ok) {
+                    bootstrap.Modal.getInstance(document.getElementById('functionEntryModal')).hide();
+                    loadFunctionEntries();
+                    showToast('功能入口保存成功！', 'success');
+                } else {
+                    const errorData = await response.json();
+                    showToast('保存失败：' + (errorData.error || '未知错误'), 'error');
+                }
+            } catch (error) {
+                console.error('保存功能入口失败:', error);
+                showToast('保存功能入口失败，请稍后重试', 'error');
+            }
+        }
+        
+        // 删除功能入口
+        async function deleteFunctionEntry(entryId) {
+            if (!confirm('确定要删除该功能入口吗？')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/ui/function-entries/${entryId}`, {
+                    method: 'DELETE',
+                    headers: getAuthHeaders() // 添加认证头
+                });
+                
+                if (response.ok) {
+                    loadFunctionEntries();
+                    showToast('功能入口删除成功！', 'success');
+                } else {
+                    const errorData = await response.json();
+                    showToast('删除失败：' + (errorData.error || '未知错误'), 'error');
+                }
+            } catch (error) {
+                console.error('删除功能入口失败:', error);
+                showToast('删除功能入口失败，请稍后重试', 'error');
+            }
+        }
+        
+        // 新品推荐管理相关函数
+        
+        // 加载新品推荐列表
+        async function loadNewProducts() {
+            try {
+                const response = await fetch('/api/ui/new-products');
+                const data = await response.json();
+                if (data.newProducts) {
+                    newProducts = data.newProducts;
+                    renderNewProducts();
+                }
+            } catch (error) {
+                console.error('加载新品推荐失败:', error);
+            }
+        }
+        
+        // 渲染新品推荐列表
+        function renderNewProducts() {
+            const tbody = document.getElementById('newProductsTableBody');
+            const preview = document.getElementById('newProductsPreview');
+            tbody.innerHTML = '';
+            preview.innerHTML = '';
+
+            if (newProducts.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center">暂无新品推荐数据</td></tr>';
+                preview.innerHTML = '<div class="col-12"><div class="alert alert-info">点击上方"添加新品推荐"按钮添加商品到新品推荐</div></div>';
+                return;
+            }
+
+            // 按排序值排序
+            const sortedNewProducts = [...newProducts].sort((a, b) => a.sort_order - b.sort_order);
+
+            // 渲染预览区域
+            sortedNewProducts.forEach(newProduct => {
+                if (newProduct.is_active && newProduct.product) {
+                    const previewCard = document.createElement('div');
+                    previewCard.className = 'col-md-3 col-sm-6 mb-2';
+                    previewCard.innerHTML = `
+                        <div class="card h-100">
+                            <img src="${newProduct.product.image ? getImageUrl(newProduct.product.image) : '/images/no-image.png'}"
+                                 class="card-img-top"
+                                 style="height: 150px; object-fit: cover;"
+                                 alt="${newProduct.product.name}"
+                                 onerror="this.src='/images/no-image.png'">
+                            <div class="card-body p-2">
+                                <h6 class="card-title small mb-1">${newProduct.product.name}</h6>
+                                <p class="card-text text-primary small fw-bold mb-0">¥${newProduct.product.price}</p>
+                            </div>
+                        </div>
+                    `;
+                    preview.appendChild(previewCard);
+                }
+            });
+
+            // 渲染表格
+            sortedNewProducts.forEach(newProduct => {
+                const row = document.createElement('tr');
+                const imageUrl = newProduct.product?.image || '/images/no-image.png';
+                row.innerHTML = `
+                    <td>
+                        <img src="${imageUrl}"
+                             alt="商品图片"
+                             style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;"
+                             onerror="this.src='/images/no-image.png'">
+                    </td>
+                    <td>${newProduct.product?.name || '-'}</td>
+                    <td class="text-muted small">${newProduct.product?.desc || '-'}</td>
+                    <td class="text-primary fw-bold">¥${newProduct.product?.price || '0.00'}</td>
+                    <td>${newProduct.sort_order}</td>
+                    <td><span class="badge ${newProduct.is_active ? 'bg-success' : 'bg-danger'}">${newProduct.is_active ? '激活' : '禁用'}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="openEditNewProductModalById(${newProduct.id})" title="编辑"><i class="bi bi-pencil"></i></button>
+                        <button class="btn btn-sm btn-outline-danger ms-1" onclick="deleteNewProduct(${newProduct.id})" title="删除"><i class="bi bi-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // 加载商品列表
+        async function loadProducts() {
+            try {
+                const response = await fetch('/api/products');
+                const data = await response.json();
+                if (data.products) {
+                    products = data.products;
+                    populateProductSelect();
+                }
+            } catch (error) {
+                console.error('加载商品列表失败:', error);
+            }
+        }
+        
+        // 填充商品选择下拉框
+        function populateProductSelect() {
+            const select = document.getElementById('productSelect');
+            // 清空现有选项（保留第一个）
+            select.innerHTML = '<option value="">请选择商品</option>';
+
+            products.forEach(product => {
+                const option = document.createElement('option');
+                option.value = product.id;
+                option.textContent = `${product.name} (¥${product.price})`;
+                option.dataset.image = product.image || '';
+                option.dataset.desc = product.desc || '';
+                select.appendChild(option);
+            });
+        }
+
+        // 预览选中的商品
+        function previewSelectedProduct() {
+            const select = document.getElementById('productSelect');
+            const selectedOption = select.options[select.selectedIndex];
+            const productId = select.value;
+
+            const previewImg = document.getElementById('selectedProductPreview');
+            const nameEl = document.getElementById('selectedProductName');
+            const descEl = document.getElementById('selectedProductDesc');
+            const priceEl = document.getElementById('selectedProductPrice');
+
+            if (!productId) {
+                previewImg.style.display = 'none';
+                nameEl.textContent = '未选择商品';
+                descEl.textContent = '请从左侧选择一个商品';
+                priceEl.textContent = '';
+                return;
+            }
+
+            const product = products.find(p => p.id == productId);
+            if (product) {
+                if (product.image) {
+                    previewImg.src = getImageUrl(product.image);
+                    previewImg.style.display = 'block';
+                } else {
+                    previewImg.style.display = 'none';
+                }
+                nameEl.textContent = product.name;
+                descEl.textContent = product.desc || '暂无描述';
+                priceEl.textContent = '¥' + product.price;
+            }
+        }
+
+        // 打开添加新品推荐模态框
+        function openAddNewProductModal() {
+            document.getElementById('newProductModalLabel').textContent = '添加新品推荐';
+            document.getElementById('newProductForm').reset();
+            document.getElementById('newProductId').value = '';
+            // 重置预览
+            document.getElementById('selectedProductPreview').style.display = 'none';
+            document.getElementById('selectedProductName').textContent = '未选择商品';
+            document.getElementById('selectedProductDesc').textContent = '请从左侧选择一个商品';
+            document.getElementById('selectedProductPrice').textContent = '';
+            new bootstrap.Modal(document.getElementById('newProductModal')).show();
+        }
+
+        // 打开编辑新品推荐模态框
+        function openEditNewProductModal(newProduct) {
+            document.getElementById('newProductModalLabel').textContent = '编辑新品推荐';
+            document.getElementById('newProductId').value = newProduct.id;
+            document.getElementById('productSelect').value = newProduct.product_id;
+            document.getElementById('newProductSortOrder').value = newProduct.sort_order;
+            document.getElementById(newProduct.is_active ? 'newProductActive' : 'newProductInactive').checked = true;
+
+            // 触发预览
+            setTimeout(() => previewSelectedProduct(), 100);
+
+            new bootstrap.Modal(document.getElementById('newProductModal')).show();
+        }
+
+        // 通过ID打开编辑新品推荐模态框
+        function openEditNewProductModalById(newProductId) {
+            const newProduct = newProducts.find(p => p.id === newProductId);
+            if (newProduct) {
+                openEditNewProductModal(newProduct);
+            }
+        }
+        
+        // 保存新品推荐
+        async function saveNewProduct() {
+            const form = document.getElementById('newProductForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            
+            const newProductId = document.getElementById('newProductId').value;
+            const newProductData = {
+                product_id: document.getElementById('productSelect').value,
+                sort_order: parseInt(document.getElementById('newProductSortOrder').value) || 0,
+                is_active: document.querySelector('input[name="newProductStatus"]:checked').value
+            };
+            
+            try {
+                let response;
+                const headers = getAuthHeaders(); // 获取认证头
+                
+                if (newProductId) {
+                    // 更新新品推荐
+                    response = await fetch(`/api/ui/new-products/${newProductId}`, {
+                        method: 'PUT',
+                        headers: headers,
+                        body: JSON.stringify(newProductData)
+                    });
+                } else {
+                    // 添加新品推荐
+                    response = await fetch('/api/ui/new-products', {
+                        method: 'POST',
+                        headers: headers,
+                        body: JSON.stringify(newProductData)
+                    });
+                }
+                
+                if (response.ok) {
+                    bootstrap.Modal.getInstance(document.getElementById('newProductModal')).hide();
+                    loadNewProducts();
+                    showToast('新品推荐保存成功！', 'success');
+                } else {
+                    const errorData = await response.json();
+                    showToast('保存失败：' + (errorData.error || '未知错误'), 'error');
+                }
+            } catch (error) {
+                console.error('保存新品推荐失败:', error);
+                showToast('保存新品推荐失败，请稍后重试', 'error');
+            }
+        }
+
+        // 删除新品推荐
+        async function deleteNewProduct(newProductId) {
+            if (!confirm('确定要删除该新品推荐吗？')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/ui/new-products/${newProductId}`, {
+                    method: 'DELETE',
+                    headers: getAuthHeaders() // 添加认证头
+                });
+
+                if (response.ok) {
+                    loadNewProducts();
+                    showToast('新品推荐删除成功！', 'success');
+                } else {
+                    const errorData = await response.json();
+                    showToast('删除失败：' + (errorData.error || '未知错误'), 'error');
+                }
+            } catch (error) {
+                console.error('删除新品推荐失败:', error);
+                showToast('删除新品推荐失败，请稍后重试', 'error');
+            }
+        }
+
+        // 用户页面配置相关函数
+
+        // 加载用户页面配置
+        async function loadUserPageConfig() {
+            try {
+                const response = await fetch('/api/ui/user-page-config');
+                if (!response.ok) {
+                    console.error('加载用户页面配置失败: HTTP', response.status);
+                    return;
+                }
+                const data = await response.json();
+
+                if (data && data.header_bg_image) {
+                    document.getElementById('userPageBgImage').value = data.header_bg_image;
+                    updateUserPageBgPreview(data.header_bg_image);
+                }
+
+                if (data && data.header_bg_gradient) {
+                    document.getElementById('userPageBgGradient').value = data.header_bg_gradient;
+                }
+            } catch (error) {
+                console.error('加载用户页面配置失败:', error);
+            }
+        }
+
+        // 更新背景预览
+        function updateUserPageBgPreview(imageUrl) {
+            const preview = document.getElementById('userPageBgPreviewImg');
+            const previewContainer = document.getElementById('userPageBgPreview');
+
+            if (imageUrl) {
+                preview.src = imageUrl;
+                preview.style.display = 'block';
+                previewContainer.style.background = 'transparent';
+            } else {
+                preview.style.display = 'none';
+                const gradient = document.getElementById('userPageBgGradient').value;
+                previewContainer.style.background = gradient || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            }
+        }
+
+        // 上传用户页面背景图片
+        async function uploadUserPageBgImage(input) {
+            if (input.files && input.files[0]) {
+                const formData = new FormData();
+                formData.append('image', input.files[0]);
+
+                try {
+                    const response = await fetch('/api/upload/image', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        document.getElementById('userPageBgImage').value = data.url;
+                        updateUserPageBgPreview(data.url);
+                    } else {
+                        alert('图片上传失败');
+                    }
+                } catch (error) {
+                    console.error('上传图片失败:', error);
+                    alert('图片上传失败');
+                }
+            }
+        }
+
+        // 保存用户页面配置
+        async function saveUserPageConfig() {
+            if (!adminToken) {
+                showToast('请先登录管理员账号', 'warning');
+                showLoginModal();
+                return;
+            }
+
+            const headerBgImage = document.getElementById('userPageBgImage').value.trim();
+            const headerBgGradient = document.getElementById('userPageBgGradient').value.trim();
+
+            const configData = {
+                header_bg_image: headerBgImage || null,
+                header_bg_gradient: headerBgGradient
+            };
+
+            try {
+                const headers = getAuthHeaders(); // 使用getAuthHeaders函数
+                
+                const response = await fetch('/api/ui/user-page-config', {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(configData)
+                });
+
+                if (response.ok) {
+                    showToast('配置保存成功！', 'success');
+                } else {
+                    const errorData = await response.json();
+                    showToast('保存失败：' + (errorData.error || '未知错误'), 'error');
+                }
+            } catch (error) {
+                console.error('保存用户页面配置失败:', error);
+                showToast('保存配置失败，请稍后重试', 'error');
+            }
+        }
+
+        // ==================== 主题配置相关函数 ====================
+
+        // 加载主题配置
+        async function loadThemeConfig() {
+            try {
+                const response = await fetch('/api/ui/theme-config');
+                if (!response.ok) {
+                    console.error('加载主题配置失败: HTTP', response.status);
+                    return;
+                }
+                const data = await response.json();
+
+                if (data && data.bg_color) {
+                    document.getElementById('themeBgColor').value = data.bg_color;
+                    document.getElementById('themeBgColorPicker').value = data.bg_color;
+                    updateThemeBgPreview(data.bg_color);
+                }
+            } catch (error) {
+                console.error('加载主题配置失败:', error);
+            }
+        }
+
+        // 设置主题颜色
+        function setThemeColor(color) {
+            document.getElementById('themeBgColor').value = color;
+            document.getElementById('themeBgColorPicker').value = color;
+            updateThemeBgPreview(color);
+        }
+
+        // 更新主题背景预览
+        function updateThemeBgPreview(color) {
+            const preview = document.getElementById('themeBgPreview');
+            if (preview) {
+                preview.style.background = color;
+            }
+        }
+
+        // 保存主题配置
+        async function saveThemeConfig() {
+            if (!adminToken) {
+                showToast('请先登录管理员账号', 'warning');
+                showLoginModal();
+                return;
+            }
+
+            const bgColor = document.getElementById('themeBgColor').value.trim();
+
+            const configData = {
+                bg_color: bgColor
+            };
+
+            try {
+                const headers = getAuthHeaders(); // 使用getAuthHeaders函数
+                
+                const response = await fetch('/api/ui/theme-config', {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(configData)
+                });
+
+                if (response.ok) {
+                    showToast('主题配置保存成功！\n\n请重启微信开发者工具或刷新小程序，新的背景颜色将会生效。', 'success');
+                } else {
+                    const errorData = await response.json();
+                    showToast('保存失败：' + (errorData.error || '未知错误'), 'error');
+                }
+            } catch (error) {
+                console.error('保存主题配置失败:', error);
+                showToast('保存配置失败，请稍后重试', 'error');
+            }
+        }
+
+        // 监听颜色选择器变化
+        document.addEventListener('DOMContentLoaded', function() {
+            const colorPicker = document.getElementById('themeBgColorPicker');
+            const colorInput = document.getElementById('themeBgColor');
+
+            if (colorPicker && colorInput) {
+                colorPicker.addEventListener('input', function(e) {
+                    colorInput.value = e.target.value;
+                    updateThemeBgPreview(e.target.value);
+                });
+
+                colorInput.addEventListener('input', function(e) {
+                    if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) {
+                        colorPicker.value = e.target.value;
+                        updateThemeBgPreview(e.target.value);
+                    }
+                });
+            }
+
+            // 加载主题配置
+            loadThemeConfig();
+        });
+
+        // TabBar 管理相关函数
+
+        // 加载 TabBar 列表
+        async function loadTabBars() {
+            try {
+                const response = await fetch('/api/tabbar');
+                const data = await response.json();
+                if (data.tabBars) {
+                    tabBars = data.tabBars;
+                    renderTabBars();
+                }
+            } catch (error) {
+                console.error('加载 TabBar 失败:', error);
+            }
+        }
+
+        // 渲染 TabBar 列表
+        function renderTabBars() {
+            const tbody = document.getElementById('tabBarTableBody');
+            tbody.innerHTML = '';
+
+            if (tabBars.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center">暂无 TabBar 数据</td></tr>';
+                return;
+            }
+
+            // 辅助函数：判断是否为 emoji（单字符或双字符的 Unicode 符号）
+            const isEmoji = (str) => {
+                if (!str) return false;
+                // 移除空格和换行
+                const cleanStr = str.trim();
+                // 检查是否是 URL
+                if (cleanStr.startsWith('http://') || cleanStr.startsWith('https://') || cleanStr.startsWith('/')) {
+                    return false;
+                }
+                // 检查长度（emoji 通常很短）
+                if (cleanStr.length <= 4) {
+                    return true;
+                }
+                return false;
+            };
+
+            // 辅助函数：渲染图标
+            const renderIcon = (icon) => {
+                if (!icon) return '<span class="text-muted">-</span>';
+
+                if (isEmoji(icon)) {
+                    return `<span style="font-size: 24px;">${icon}</span>`;
+                } else {
+                    return `<img src="${getImageUrl(icon)}" alt="图标" style="width: 30px; height: 30px; object-fit: contain;">`;
+                }
+            };
+
+            tabBars.forEach(tab => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${tab.id}</td>
+                    <td><strong>${tab.text}</strong></td>
+                    <td><code>${tab.page_path}</code></td>
+                    <td>${renderIcon(tab.icon_normal)}</td>
+                    <td>${renderIcon(tab.icon_selected)}</td>
+                    <td><span class="badge bg-secondary">${tab.sort_order}</span></td>
+                    <td>
+                        <span class="badge ${tab.is_active ? 'bg-success' : 'bg-danger'} status-toggle" onclick="toggleTabBarStatus(${tab.id})">
+                            ${tab.is_active ? '激活' : '禁用'}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary" onclick="openEditTabBarModalById(${tab.id})" title="编辑">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-outline-${tab.is_active ? 'warning' : 'success'}" onclick="toggleTabBarStatus(${tab.id})" title="${tab.is_active ? '禁用' : '激活'}">
+                                <i class="bi bi-${tab.is_active ? 'pause' : 'play'}"></i>
+                            </button>
+                            <button class="btn btn-outline-danger" onclick="deleteTabBar(${tab.id})" title="删除">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // 切换 TabBar 状态
+        async function toggleTabBarStatus(tabBarId) {
+            // 检查登录状态
+            if (!adminToken) {
+                showToast('请先登录管理员账号', 'warning');
+                showLoginModal();
+                return;
+            }
+
+            const tabBar = tabBars.find(t => t.id === tabBarId);
+            if (!tabBar) return;
+
+            const newStatus = tabBar.is_active ? 0 : 1;
+            const actionText = newStatus ? '激活' : '禁用';
+
+            if (!confirm(`确定要${actionText}该底部导航吗？`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/tabbar/${tabBarId}`, {
+                    method: 'PUT',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ is_active: newStatus })
+                });
+
+                if (response.ok) {
+                    loadTabBars();
+                    showToast(`底部导航已${actionText}`, 'success');
+                } else {
+                    const errorData = await response.json();
+                    if (response.status === 401) {
+                        showToast('登录已过期，请重新登录', 'warning');
+                        showLoginModal();
+                    } else {
+                        showToast(errorData.error || '操作失败', 'error');
+                    }
+                }
+            } catch (error) {
+                console.error('切换 TabBar 状态失败:', error);
+                showToast('操作失败，请稍后重试', 'error');
+            }
+        }
+
+        // 打开添加 TabBar 模态框
+        function openAddTabBarModal() {
+            document.getElementById('tabBarModalLabel').innerHTML = '<i class="bi bi-plus-circle"></i> 添加底部导航';
+            document.getElementById('tabBarForm').reset();
+            document.getElementById('tabBarId').value = '';
+            document.getElementById('tabBarIconNormalPreviewContainer').style.display = 'none';
+            document.getElementById('tabBarIconSelectedPreviewContainer').style.display = 'none';
+            // 重置按钮状态
+            document.querySelectorAll('.emoji-option').forEach(btn => {
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-outline-secondary');
+            });
+            // 更新预览为默认值
+            updatePreview();
+            new bootstrap.Modal(document.getElementById('tabBarModal')).show();
+        }
+
+        // 打开编辑 TabBar 模态框
+        function openEditTabBarModal(tab) {
+            document.getElementById('tabBarModalLabel').innerHTML = '<i class="bi bi-pencil-square"></i> 编辑底部导航';
+            document.getElementById('tabBarId').value = tab.id;
+            document.getElementById('tabBarText').value = tab.text;
+            document.getElementById('tabBarPagePath').value = tab.page_path;
+            document.getElementById('tabBarIconNormal').value = tab.icon_normal || '';
+            document.getElementById('tabBarIconSelected').value = tab.icon_selected || '';
+            document.getElementById('tabBarSortOrder').value = tab.sort_order;
+            document.getElementById(tab.is_active ? 'tabBarActive' : 'tabBarInactive').checked = true;
+
+            if (tab.icon_normal) {
+                showTabBarIconNormalPreview(tab.icon_normal);
+            } else {
+                document.getElementById('tabBarIconNormalPreviewContainer').style.display = 'none';
+            }
+
+            if (tab.icon_selected) {
+                showTabBarIconSelectedPreview(tab.icon_selected);
+            } else {
+                document.getElementById('tabBarIconSelectedPreviewContainer').style.display = 'none';
+            }
+
+            // 重置按钮状态
+            document.querySelectorAll('.emoji-option').forEach(btn => {
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-outline-secondary');
+            });
+
+            // 更新实时预览
+            updatePreview();
+
+            new bootstrap.Modal(document.getElementById('tabBarModal')).show();
+        }
+
+        // 通过ID打开编辑底部导航模态框
+        function openEditTabBarModalById(tabId) {
+            const tab = tabBars.find(t => t.id === tabId);
+            if (tab) {
+                openEditTabBarModal(tab);
+            }
+        }
+
+        // 保存 TabBar
+        async function saveTabBar() {
+            // 检查登录状态
+            if (!adminToken) {
+                showToast('请先登录管理员账号', 'warning');
+                showLoginModal();
+                return;
+            }
+
+            const form = document.getElementById('tabBarForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const tabBarId = document.getElementById('tabBarId').value;
+            const tabBarData = {
+                text: document.getElementById('tabBarText').value,
+                page_path: document.getElementById('tabBarPagePath').value,
+                icon_normal: document.getElementById('tabBarIconNormal').value || null,
+                icon_selected: document.getElementById('tabBarIconSelected').value || null,
+                sort_order: parseInt(document.getElementById('tabBarSortOrder').value) || 0,
+                is_active: document.querySelector('input[name="tabBarStatus"]:checked').value
+            };
+
+            try {
+                let response;
+                let successMessage;
+                if (tabBarId) {
+                    response = await fetch(`/api/tabbar/${tabBarId}`, {
+                        method: 'PUT',
+                        headers: getAuthHeaders(),
+                        body: JSON.stringify(tabBarData)
+                    });
+                    successMessage = '底部导航更新成功！';
+                } else {
+                    response = await fetch('/api/tabbar', {
+                        method: 'POST',
+                        headers: getAuthHeaders(),
+                        body: JSON.stringify(tabBarData)
+                    });
+                    successMessage = '底部导航添加成功！';
+                }
+
+                if (response.ok) {
+                    bootstrap.Modal.getInstance(document.getElementById('tabBarModal')).hide();
+                    loadTabBars();
+                    showToast(successMessage, 'success');
+                } else {
+                    const errorData = await response.json();
+                    if (response.status === 401) {
+                        showToast('登录已过期，请重新登录', 'warning');
+                        showLoginModal();
+                    } else {
+                        showToast(errorData.error || '保存失败', 'error');
+                    }
+                }
+            } catch (error) {
+                console.error('保存 TabBar 失败:', error);
+                showToast('保存失败，请稍后重试', 'error');
+            }
+        }
+
+        // 删除 TabBar
+        async function deleteTabBar(tabBarId) {
+            // 检查登录状态
+            if (!adminToken) {
+                showToast('请先登录管理员账号', 'warning');
+                showLoginModal();
+                return;
+            }
+
+            if (!confirm('确定要删除该底部导航吗？此操作不可恢复！')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/tabbar/${tabBarId}`, {
+                    method: 'DELETE',
+                    headers: getAuthHeaders()
+                });
+
+                if (response.ok) {
+                    loadTabBars();
+                    showToast('底部导航删除成功！', 'success');
+                } else {
+                    const errorData = await response.json();
+                    if (response.status === 401) {
+                        showToast('登录已过期，请重新登录', 'warning');
+                        showLoginModal();
+                    } else {
+                        showToast(errorData.error || '删除失败', 'error');
+                    }
+                }
+            } catch (error) {
+                console.error('删除 TabBar 失败:', error);
+                showToast('删除失败，请稍后重试', 'error');
+            }
+        }
+
+        // 初始化 TabBar 上传功能
+        function initTabBarUpload() {
+            initTabBarIconNormalUpload();
+            initTabBarIconSelectedUpload();
+        }
+
+        // 初始化未选中图标上传
+        function initTabBarIconNormalUpload() {
+            const uploadArea = document.getElementById('tabBarIconNormalUploadArea');
+            const fileInput = document.getElementById('tabBarIconNormalFile');
+            const imageUrlInput = document.getElementById('tabBarIconNormal');
+
+            if (!uploadArea || !fileInput) return;
+
+            uploadArea.addEventListener('click', () => fileInput.click());
+
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleTabBarIconNormalUpload(files[0]);
+                }
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleTabBarIconNormalUpload(e.target.files[0]);
+                }
+            });
+
+            if (imageUrlInput) {
+                imageUrlInput.addEventListener('input', () => {
+                    const url = imageUrlInput.value.trim();
+                    if (url) {
+                        showTabBarIconNormalPreview(url);
+                    } else {
+                        document.getElementById('tabBarIconNormalPreviewContainer').style.display = 'none';
+                    }
+                });
+            }
+        }
+
+        // 初始化选中图标上传
+        function initTabBarIconSelectedUpload() {
+            const uploadArea = document.getElementById('tabBarIconSelectedUploadArea');
+            const fileInput = document.getElementById('tabBarIconSelectedFile');
+            const imageUrlInput = document.getElementById('tabBarIconSelected');
+
+            if (!uploadArea || !fileInput) return;
+
+            uploadArea.addEventListener('click', () => fileInput.click());
+
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleTabBarIconSelectedUpload(files[0]);
+                }
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleTabBarIconSelectedUpload(e.target.files[0]);
+                }
+            });
+
+            if (imageUrlInput) {
+                imageUrlInput.addEventListener('input', () => {
+                    const url = imageUrlInput.value.trim();
+                    if (url) {
+                        showTabBarIconSelectedPreview(url);
+                    } else {
+                        document.getElementById('tabBarIconSelectedPreviewContainer').style.display = 'none';
+                    }
+                });
+            }
+        }
+
+        // 处理未选中图标上传
+        async function handleTabBarIconNormalUpload(file) {
+            if (!file.type.startsWith('image/')) {
+                showToast('请上传图片文件', 'error');
+                return;
+            }
+
+            if (file.size > 2 * 1024 * 1024) {
+                showToast('图标大小不能超过2MB', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                showToast('图标上传中...', 'info');
+                const response = await fetch('/api/upload/image', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('tabBarIconNormal').value = data.url;
+                    showTabBarIconNormalPreview(data.url);
+                    // 更新实时预览
+                    updatePreview();
+                    showToast('图标上传成功', 'success');
+                } else {
+                    const errorData = await response.json();
+                    showToast(errorData.error || '图标上传失败', 'error');
+                }
+            } catch (error) {
+                console.error('图标上传失败:', error);
+                showToast('图标上传失败，请稍后重试', 'error');
+            }
+        }
+
+        // 处理选中图标上传
+        async function handleTabBarIconSelectedUpload(file) {
+            if (!file.type.startsWith('image/')) {
+                showToast('请上传图片文件', 'error');
+                return;
+            }
+
+            if (file.size > 2 * 1024 * 1024) {
+                showToast('图标大小不能超过2MB', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                showToast('图标上传中...', 'info');
+                const response = await fetch('/api/upload/image', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('tabBarIconSelected').value = data.url;
+                    showTabBarIconSelectedPreview(data.url);
+                    // 更新实时预览
+                    updatePreview();
+                    showToast('图标上传成功', 'success');
+                } else {
+                    const errorData = await response.json();
+                    showToast(errorData.error || '图标上传失败', 'error');
+                }
+            } catch (error) {
+                console.error('图标上传失败:', error);
+                showToast('图标上传失败，请稍后重试', 'error');
+            }
+        }
+
+        // 选择 Emoji 图标
+        function selectEmoji(button) {
+            const normal = button.getAttribute('data-normal');
+            const selected = button.getAttribute('data-selected');
+
+            // 更新输入框
+            document.getElementById('tabBarIconNormal').value = normal;
+            document.getElementById('tabBarIconSelected').value = selected;
+
+            // 更新预览
+            updatePreview();
+
+            // 高亮选中的按钮
+            document.querySelectorAll('.emoji-option').forEach(btn => {
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-outline-secondary');
+            });
+            button.classList.remove('btn-outline-secondary');
+            button.classList.add('btn-primary');
+
+            showToast('图标已选择', 'success');
+        }
+
+        // 更新实时预览
+        function updatePreview() {
+            const normalIcon = document.getElementById('tabBarIconNormal').value.trim() || '🏠';
+            const selectedIcon = document.getElementById('tabBarIconSelected').value.trim() || '🏡';
+
+            const previewNormal = document.getElementById('previewNormal');
+            const previewSelected = document.getElementById('previewSelected');
+
+            // 判断是否为 URL（图片）
+            const isImageUrl = (str) => {
+                return str.startsWith('http://') || str.startsWith('https://') || str.startsWith('/');
+            };
+
+            // 更新未选中预览
+            if (isImageUrl(normalIcon)) {
+                previewNormal.innerHTML = `<img src="${normalIcon}" alt="预览" style="width: 100%; height: 100%; object-fit: contain;">`;
+            } else {
+                previewNormal.textContent = normalIcon;
+            }
+
+            // 更新选中预览
+            if (isImageUrl(selectedIcon)) {
+                previewSelected.innerHTML = `<img src="${selectedIcon}" alt="预览" style="width: 100%; height: 100%; object-fit: contain;">`;
+            } else {
+                previewSelected.textContent = selectedIcon;
+            }
+        }
+
+        // 监听输入框变化
+        document.addEventListener('DOMContentLoaded', function() {
+            const normalInput = document.getElementById('tabBarIconNormal');
+            const selectedInput = document.getElementById('tabBarIconSelected');
+
+            if (normalInput) {
+                normalInput.addEventListener('input', updatePreview);
+            }
+            if (selectedInput) {
+                selectedInput.addEventListener('input', updatePreview);
+            }
+        });
+
+        // 预览未选中图标 URL
+        function previewTabBarIconNormalUrl() {
+            const url = document.getElementById('tabBarIconNormal').value.trim();
+            if (url) {
+                showTabBarIconNormalPreview(url);
+                showToast('图标预览成功', 'success');
+            } else {
+                showToast('请输入图标URL', 'warning');
+            }
+        }
+
+        // 预览选中图标 URL
+        function previewTabBarIconSelectedUrl() {
+            const url = document.getElementById('tabBarIconSelected').value.trim();
+            if (url) {
+                showTabBarIconSelectedPreview(url);
+                showToast('图标预览成功', 'success');
+            } else {
+                showToast('请输入图标URL', 'warning');
+            }
+        }
+
+        // 显示未选中图标预览
+        function showTabBarIconNormalPreview(url) {
+            const previewContainer = document.getElementById('tabBarIconNormalPreviewContainer');
+            const previewImg = document.getElementById('tabBarIconNormalPreview');
+            previewImg.src = url;
+            previewContainer.style.display = 'block';
+        }
+
+        // 显示选中图标预览
+        function showTabBarIconSelectedPreview(url) {
+            const previewContainer = document.getElementById('tabBarIconSelectedPreviewContainer');
+            const previewImg = document.getElementById('tabBarIconSelectedPreview');
+            previewImg.src = url;
+            previewContainer.style.display = 'block';
+        }
+
+        // 清除未选中图标
+        function clearTabBarIconNormal() {
+            document.getElementById('tabBarIconNormal').value = '';
+            document.getElementById('tabBarIconNormalPreviewContainer').style.display = 'none';
+        }
+
+        // 清除选中图标
+        function clearTabBarIconSelected() {
+            document.getElementById('tabBarIconSelected').value = '';
+            document.getElementById('tabBarIconSelectedPreviewContainer').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

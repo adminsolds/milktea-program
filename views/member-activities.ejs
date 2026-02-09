@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>奶茶店后台管理系统 - 会员活动管理</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="/styles/admin-modern.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .sidebar {
+            min-height: 100vh;
+            background-color: #343a40;
+            color: white;
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+        }
+        .sidebar a:hover {
+            background-color: #495057;
+        }
+        .content {
+            padding: 20px;
+        }
+        .card {
+            margin-bottom: 20px;
+        }
+        .activity-type-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .type-lottery { background-color: #e74c3c; color: white; }
+        .type-member_day { background-color: #3498db; color: white; }
+        .type-birthday { background-color: #f39c12; color: white; }
+        .type-new_product { background-color: #27ae60; color: white; }
+        .type-flash_sale { background-color: #9b59b6; color: white; }
+        .type-custom { background-color: #95a5a6; color: white; }
+        .prize-item {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            background-color: #f8f9fa;
+        }
+        .config-section {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: #fff;
+        }
+        .config-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- 侧边栏 -->
+            <div class="col-md-2 sidebar">
+                <div class="p-3 text-center" style="background-color: #212529;">
+                    <h5 class="mb-0">奶茶店管理系统</h5>
+                </div>
+                <ul class="nav flex-column p-3">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/dashboard">
+                            <i class="bi bi-house"></i> 首页
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/products">
+                            <i class="bi bi-box"></i> 商品管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/pos">
+                            <i class="bi bi-shop"></i> 现场点单
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/orders">
+                            <i class="bi bi-phone"></i> 小程序订单
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/all-orders">
+                            <i class="bi bi-cart"></i> 订单管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/users">
+                            <i class="bi bi-people-fill"></i> 用户管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/members">
+                            <i class="bi bi-people"></i> 会员管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/admin/member-activities">
+                            <i class="bi bi-gift"></i> 会员活动
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/coupons">
+                            <i class="bi bi-ticket"></i> 优惠券管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/dashboard">
+                            <i class="bi bi-graph-up"></i> 数据统计
+                        </a>
+                    </li>
+                    <li class="nav-item mt-3">
+                        <a class="nav-link text-danger" href="/admin/logout">
+                            <i class="bi bi-box-arrow-right"></i> 退出登录
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 主内容区 -->
+            <div class="col-md-10 content">
+                <!-- 顶部导航栏 -->
+                <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4">
+                    <div class="container-fluid d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0"><i class="bi bi-gift"></i> 会员活动管理</h4>
+                        <span class="text-muted">欢迎，<strong>admin</strong></span>
+                    </div>
+                </nav>
+
+                <!-- 活动列表 -->
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">活动列表</h5>
+                        <button class="btn btn-primary btn-sm" onclick="openAddModal()">
+                            <i class="bi bi-plus"></i> 创建活动
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <!-- 筛选 -->
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <select class="form-select" id="filterType" onchange="loadActivities()">
+                                    <option value="">全部类型</option>
+                                    <option value="lottery">会员抽奖</option>
+                                    <option value="member_day">会员日</option>
+                                    <option value="birthday">生日福利</option>
+                                    <option value="new_product">新品立减</option>
+                                    <option value="flash_sale">限时抢购</option>
+                                    <option value="custom">自定义</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" id="filterStatus" onchange="loadActivities()">
+                                    <option value="">全部状态</option>
+                                    <option value="1">启用</option>
+                                    <option value="0">禁用</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- 活动表格 -->
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>活动名称</th>
+                                        <th>类型</th>
+                                        <th>活动时间</th>
+                                        <th>状态</th>
+                                        <th>参与限制</th>
+                                        <th>排序</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="activitiesTableBody">
+                                    <!-- 动态加载 -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- 分页 -->
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination justify-content-center" id="pagination">
+                                <!-- 动态加载 -->
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加/编辑活动模态框 -->
+    <div class="modal fade" id="activityModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">创建活动</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="activityForm">
+                        <input type="hidden" id="activityId">
+                        
+                        <!-- 基本信息 -->
+                        <div class="config-section">
+                            <div class="config-title"><i class="bi bi-info-circle"></i> 基本信息</div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">活动名称 <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="activityName" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">活动类型 <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="activityType" onchange="onTypeChange()" required>
+                                        <option value="">请选择</option>
+                                        <option value="lottery">会员抽奖</option>
+                                        <option value="member_day">会员日</option>
+                                        <option value="birthday">生日福利</option>
+                                        <option value="new_product">新品立减</option>
+                                        <option value="flash_sale">限时抢购</option>
+                                        <option value="custom">自定义</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">活动描述</label>
+                                <textarea class="form-control" id="activityDescription" rows="2"></textarea>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">开始时间 <span class="text-danger">*</span></label>
+                                    <input type="datetime-local" class="form-control" id="startTime" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">结束时间 <span class="text-danger">*</span></label>
+                                    <input type="datetime-local" class="form-control" id="endTime" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 参与限制 -->
+                        <div class="config-section">
+                            <div class="config-title"><i class="bi bi-shield-check"></i> 参与限制</div>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">最低会员等级</label>
+                                    <select class="form-select" id="minLevel">
+                                        <option value="">无限制</option>
+                                        <option value="normal">普通会员</option>
+                                        <option value="silver">白银会员</option>
+                                        <option value="gold">黄金会员</option>
+                                        <option value="platinum">白金会员</option>
+                                        <option value="diamond">钻石会员</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">每日参与次数</label>
+                                    <input type="number" class="form-control" id="dailyLimit" value="1" min="1">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">总参与次数</label>
+                                    <input type="number" class="form-control" id="totalLimit" placeholder="不限">
+                                </div>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="isRepeatable">
+                                <label class="form-check-label" for="isRepeatable">允许重复参与</label>
+                            </div>
+                        </div>
+
+                        <!-- 抽奖配置 -->
+                        <div id="lotteryConfig" class="config-section" style="display: none;">
+                            <div class="config-title"><i class="bi bi-trophy"></i> 抽奖奖品配置</div>
+                            <div id="prizesContainer">
+                                <!-- 动态添加奖品 -->
+                            </div>
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="addPrize()">
+                                <i class="bi bi-plus"></i> 添加奖品
+                            </button>
+                        </div>
+
+                        <!-- 会员日配置 -->
+                        <div id="memberDayConfig" class="config-section" style="display: none;">
+                            <div class="config-title"><i class="bi bi-calendar-star"></i> 会员日配置</div>
+                            <div class="mb-3">
+                                <label class="form-label">会员日（每周）</label>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" value="1" id="dayMon">
+                                    <label class="form-check-label" for="dayMon">周一</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" value="2" id="dayTue">
+                                    <label class="form-check-label" for="dayTue">周二</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" value="3" id="dayWed">
+                                    <label class="form-check-label" for="dayWed">周三</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" value="4" id="dayThu">
+                                    <label class="form-check-label" for="dayThu">周四</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" value="5" id="dayFri">
+                                    <label class="form-check-label" for="dayFri">周五</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" value="6" id="daySat">
+                                    <label class="form-check-label" for="daySat">周六</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" value="0" id="daySun">
+                                    <label class="form-check-label" for="daySun">周日</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">折扣比例（%）</label>
+                                    <input type="number" class="form-control" id="memberDayDiscount" placeholder="如：88表示88折">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="form-check mt-4">
+                                        <input class="form-check-input" type="checkbox" id="memberDayDoublePoints">
+                                        <label class="form-check-label" for="memberDayDoublePoints">双倍积分</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 生日福利配置 -->
+                        <div id="birthdayConfig" class="config-section" style="display: none;">
+                            <div class="config-title"><i class="bi bi-gift-fill"></i> 生日福利配置</div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">赠送积分</label>
+                                    <input type="number" class="form-control" id="birthdayPoints" placeholder="0">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">赠送优惠券</label>
+                                    <select class="form-select" id="birthdayCoupon">
+                                        <option value="">不赠送</option>
+                                        <!-- 动态加载优惠券 -->
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="birthdayDoublePoints">
+                                <label class="form-check-label" for="birthdayDoublePoints">生日当天双倍积分</label>
+                            </div>
+                        </div>
+
+                        <!-- 新品立减配置 -->
+                        <div id="newProductConfig" class="config-section" style="display: none;">
+                            <div class="config-title"><i class="bi bi-tag-fill"></i> 新品立减配置</div>
+                            <div class="mb-3">
+                                <label class="form-label">选择商品 <span class="text-danger">*</span></label>
+                                <div class="row mb-2">
+                                    <div class="col-md-8">
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                            <input type="text" class="form-control" id="newProductSearch" placeholder="搜索商品名称..." oninput="filterNewProducts(this.value)">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 text-end">
+                                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="loadProducts('new_product')">
+                                            <i class="bi bi-arrow-clockwise"></i> 刷新
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="productSelectContainer" class="border rounded p-3" style="max-height: 300px; overflow-y: auto;">
+                                    <div class="text-center text-muted">
+                                        <i class="bi bi-arrow-clockwise spin"></i> 加载商品列表...
+                                    </div>
+                                </div>
+                                <small class="text-muted">请选择参与新品立减活动的商品（可多选）</small>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">立减金额（元） <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="newProductDiscount" placeholder="如：5" min="0" step="0.01">
+                                    <small class="text-muted">每份商品立减金额</small>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="form-check mt-4">
+                                        <input class="form-check-input" type="checkbox" id="newProductDoublePoints">
+                                        <label class="form-check-label" for="newProductDoublePoints">购买新品双倍积分</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 限时抢购配置 -->
+                        <div id="flashSaleConfig" class="config-section" style="display: none;">
+                            <div class="config-title"><i class="bi bi-lightning-fill"></i> 限时抢购配置</div>
+                            <div class="mb-3">
+                                <label class="form-label">选择商品 <span class="text-danger">*</span></label>
+                                <div class="row mb-2">
+                                    <div class="col-md-8">
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                            <input type="text" class="form-control" id="flashSaleSearch" placeholder="搜索商品名称..." oninput="filterFlashSaleProducts(this.value)">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 text-end">
+                                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="loadProducts('flash_sale')">
+                                            <i class="bi bi-arrow-clockwise"></i> 刷新
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="flashSaleProductContainer" class="border rounded p-3" style="max-height: 300px; overflow-y: auto;">
+                                    <div class="text-center text-muted">
+                                        <i class="bi bi-arrow-clockwise spin"></i> 加载商品列表...
+                                    </div>
+                                </div>
+                                <small class="text-muted">请选择参与限时抢购的商品（单选）</small>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">抢购价格（元） <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="flashSalePrice" placeholder="如：9.9" min="0" step="0.01">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">限购数量</label>
+                                    <input type="number" class="form-control" id="flashSaleLimit" placeholder="不限" min="1">
+                                    <small class="text-muted">每人限购数量，留空表示不限</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 其他设置 -->
+                        <div class="config-section">
+                            <div class="config-title"><i class="bi bi-gear"></i> 其他设置</div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">排序权重</label>
+                                    <input type="number" class="form-control" id="sortOrder" value="0">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">状态</label>
+                                    <select class="form-select" id="activityStatus">
+                                        <option value="1">启用</option>
+                                        <option value="0">禁用</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="saveActivity()">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentPage = 1;
+        let totalPages = 1;
+        let prizeCount = 0;
+        const activityModal = new bootstrap.Modal(document.getElementById('activityModal'));
+
+        // 页面加载时获取活动列表
+        document.addEventListener('DOMContentLoaded', function() {
+            loadActivities();
+            loadCoupons();
+        });
+
+        // 加载活动列表
+        async function loadActivities(page = 1) {
+            currentPage = page;
+            const type = document.getElementById('filterType').value;
+            const status = document.getElementById('filterStatus').value;
+
+            try {
+                const token = localStorage.getItem('adminToken');
+                const response = await fetch(`/api/admin/activities?page=${page}&type=${type}&status=${status}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    renderActivities(data.data);
+                    totalPages = data.totalPages;
+                    renderPagination();
+                }
+            } catch (error) {
+                console.error('加载活动列表失败:', error);
+            }
+        }
+
+        // 渲染活动列表
+        function renderActivities(activities) {
+            const tbody = document.getElementById('activitiesTableBody');
+            tbody.innerHTML = '';
+
+            const typeMap = {
+                'lottery': { name: '会员抽奖', class: 'type-lottery' },
+                'member_day': { name: '会员日', class: 'type-member_day' },
+                'birthday': { name: '生日福利', class: 'type-birthday' },
+                'new_product': { name: '新品立减', class: 'type-new_product' },
+                'flash_sale': { name: '限时抢购', class: 'type-flash_sale' },
+                'custom': { name: '自定义', class: 'type-custom' }
+            };
+
+            activities.forEach(activity => {
+                const typeInfo = typeMap[activity.type] || { name: '未知', class: '' };
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${activity.id}</td>
+                    <td>${activity.name}</td>
+                    <td><span class="activity-type-badge ${typeInfo.class}">${typeInfo.name}</span></td>
+                    <td>
+                        <small>${new Date(activity.start_time).toLocaleString()}<br>至<br>${new Date(activity.end_time).toLocaleString()}</small>
+                    </td>
+                    <td>
+                        <span class="badge ${activity.status === 1 ? 'bg-success' : 'bg-secondary'}">
+                            ${activity.status === 1 ? '启用' : '禁用'}
+                        </span>
+                    </td>
+                    <td>
+                        <small>每日${activity.daily_limit}次<br>${activity.is_repeatable ? '可重复' : '不可重复'}</small>
+                    </td>
+                    <td>${activity.sort_order}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="editActivity(${activity.id})">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger ms-1" onclick="deleteActivity(${activity.id})">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // 渲染分页
+        function renderPagination() {
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = '';
+
+            // 上一页
+            const prevLi = document.createElement('li');
+            prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+            prevLi.innerHTML = `<a class="page-link" href="#" onclick="loadActivities(${currentPage - 1})">&laquo;</a>`;
+            pagination.appendChild(prevLi);
+
+            // 页码
+            for (let i = 1; i <= totalPages; i++) {
+                const li = document.createElement('li');
+                li.className = `page-item ${i === currentPage ? 'active' : ''}`;
+                li.innerHTML = `<a class="page-link" href="#" onclick="loadActivities(${i})">${i}</a>`;
+                pagination.appendChild(li);
+            }
+
+            // 下一页
+            const nextLi = document.createElement('li');
+            nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+            nextLi.innerHTML = `<a class="page-link" href="#" onclick="loadActivities(${currentPage + 1})">&raquo;</a>`;
+            pagination.appendChild(nextLi);
+        }
+
+        // 加载优惠券列表
+        async function loadCoupons() {
+            try {
+                const token = localStorage.getItem('adminToken');
+                const response = await fetch('/api/coupons', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    const select = document.getElementById('birthdayCoupon');
+                    data.data.forEach(coupon => {
+                        const option = document.createElement('option');
+                        option.value = coupon.id;
+                        option.textContent = coupon.name;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('加载优惠券失败:', error);
+            }
+        }
+
+        // 打开添加模态框
+        function openAddModal() {
+            document.getElementById('activityForm').reset();
+            document.getElementById('activityId').value = '';
+            document.getElementById('modalTitle').textContent = '创建活动';
+            document.getElementById('prizesContainer').innerHTML = '';
+            prizeCount = 0;
+            onTypeChange();
+            activityModal.show();
+        }
+
+        // 编辑活动
+        async function editActivity(id) {
+            try {
+                const token = localStorage.getItem('adminToken');
+                const response = await fetch(`/api/admin/activities/${id}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    const activity = data.data;
+                    document.getElementById('activityId').value = activity.id;
+                    document.getElementById('activityName').value = activity.name;
+                    document.getElementById('activityType').value = activity.type;
+                    document.getElementById('activityDescription').value = activity.description || '';
+                    document.getElementById('startTime').value = formatDateTimeLocal(activity.start_time);
+                    document.getElementById('endTime').value = formatDateTimeLocal(activity.end_time);
+                    document.getElementById('minLevel').value = activity.min_level || '';
+                    document.getElementById('dailyLimit').value = activity.daily_limit;
+                    document.getElementById('totalLimit').value = activity.total_limit || '';
+                    document.getElementById('isRepeatable').checked = activity.is_repeatable === 1;
+                    document.getElementById('sortOrder').value = activity.sort_order;
+                    document.getElementById('activityStatus').value = activity.status;
+
+                    onTypeChange();
+
+                    // 加载特定类型的配置
+                    const config = activity.config || {};
+                    if (activity.type === 'lottery' && config.prizes) {
+                        document.getElementById('prizesContainer').innerHTML = '';
+                        config.prizes.forEach(prize => addPrize(prize));
+                    } else if (activity.type === 'member_day') {
+                        (config.days || []).forEach(day => {
+                            document.getElementById(`day${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][day]}`).checked = true;
+                        });
+                        document.getElementById('memberDayDiscount').value = config.discount || '';
+                        document.getElementById('memberDayDoublePoints').checked = config.double_points || false;
+                    } else if (activity.type === 'birthday') {
+                        document.getElementById('birthdayPoints').value = config.points || '';
+                        document.getElementById('birthdayCoupon').value = config.coupon_id || '';
+                        document.getElementById('birthdayDoublePoints').checked = config.double_points || false;
+                    } else if (activity.type === 'new_product') {
+                        // 等待商品列表加载完成后再选中
+                        setTimeout(() => {
+                            (config.products || []).forEach(product => {
+                                const checkbox = document.getElementById(`product_${product.id}`);
+                                if (checkbox) checkbox.checked = true;
+                            });
+                            document.getElementById('newProductDiscount').value = config.discount || '';
+                            document.getElementById('newProductDoublePoints').checked = config.double_points || false;
+                        }, 500);
+                    } else if (activity.type === 'flash_sale') {
+                        // 等待商品列表加载完成后再选中
+                        setTimeout(() => {
+                            if (config.product_id) {
+                                const radio = document.getElementById(`flash_${config.product_id}`);
+                                if (radio) radio.checked = true;
+                            }
+                            document.getElementById('flashSalePrice').value = config.sale_price || '';
+                            document.getElementById('flashSaleLimit').value = config.limit || '';
+                        }, 500);
+                    }
+
+                    document.getElementById('modalTitle').textContent = '编辑活动';
+                    activityModal.show();
+                }
+            } catch (error) {
+                console.error('获取活动详情失败:', error);
+            }
+        }
+
+        // 删除活动
+        async function deleteActivity(id) {
+            if (!confirm('确定要删除这个活动吗？')) return;
+
+            try {
+                const token = localStorage.getItem('adminToken');
+                const response = await fetch(`/api/admin/activities/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('删除成功');
+                    loadActivities(currentPage);
+                } else {
+                    alert('删除失败：' + data.message);
+                }
+            } catch (error) {
+                console.error('删除活动失败:', error);
+            }
+        }
+
+        // 保存活动
+        async function saveActivity() {
+            const id = document.getElementById('activityId').value;
+            const type = document.getElementById('activityType').value;
+
+            // 构建配置
+            let config = {};
+            if (type === 'lottery') {
+                const prizes = [];
+                document.querySelectorAll('.prize-item').forEach(item => {
+                    prizes.push({
+                        name: item.querySelector('.prize-name').value,
+                        type: item.querySelector('.prize-type').value,
+                        value: parseInt(item.querySelector('.prize-value').value) || 0,
+                        coupon_id: item.querySelector('.prize-coupon').value || null,
+                        probability: parseFloat(item.querySelector('.prize-probability').value) || 0
+                    });
+                });
+                config = { prizes };
+            } else if (type === 'member_day') {
+                const days = [];
+                ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].forEach((day, index) => {
+                    if (document.getElementById(`day${day}`).checked) {
+                        days.push(index === 6 ? 0 : index + 1);
+                    }
+                });
+                config = {
+                    days,
+                    discount: parseInt(document.getElementById('memberDayDiscount').value) || 0,
+                    double_points: document.getElementById('memberDayDoublePoints').checked
+                };
+            } else if (type === 'birthday') {
+                config = {
+                    points: parseInt(document.getElementById('birthdayPoints').value) || 0,
+                    coupon_id: document.getElementById('birthdayCoupon').value || null,
+                    double_points: document.getElementById('birthdayDoublePoints').checked
+                };
+            } else if (type === 'new_product') {
+                const selectedProducts = [];
+                document.querySelectorAll('.new-product-checkbox:checked').forEach(checkbox => {
+                    selectedProducts.push({
+                        id: parseInt(checkbox.value),
+                        name: checkbox.dataset.name
+                    });
+                });
+                config = {
+                    products: selectedProducts,
+                    discount: parseFloat(document.getElementById('newProductDiscount').value) || 0,
+                    double_points: document.getElementById('newProductDoublePoints').checked
+                };
+            } else if (type === 'flash_sale') {
+                const selectedProduct = document.querySelector('.flash-sale-radio:checked');
+                config = {
+                    product_id: selectedProduct ? parseInt(selectedProduct.value) : null,
+                    product_name: selectedProduct ? selectedProduct.dataset.name : '',
+                    original_price: selectedProduct ? parseFloat(selectedProduct.dataset.price) : 0,
+                    sale_price: parseFloat(document.getElementById('flashSalePrice').value) || 0,
+                    limit: document.getElementById('flashSaleLimit').value ? parseInt(document.getElementById('flashSaleLimit').value) : null
+                };
+            }
+
+            const activityData = {
+                name: document.getElementById('activityName').value,
+                type: type,
+                description: document.getElementById('activityDescription').value,
+                start_time: document.getElementById('startTime').value,
+                end_time: document.getElementById('endTime').value,
+                min_level: document.getElementById('minLevel').value || null,
+                daily_limit: parseInt(document.getElementById('dailyLimit').value) || 1,
+                total_limit: document.getElementById('totalLimit').value ? parseInt(document.getElementById('totalLimit').value) : null,
+                is_repeatable: document.getElementById('isRepeatable').checked ? 1 : 0,
+                sort_order: parseInt(document.getElementById('sortOrder').value) || 0,
+                status: parseInt(document.getElementById('activityStatus').value),
+                config: config
+            };
+
+            try {
+                const token = localStorage.getItem('adminToken');
+                const url = id ? `/api/admin/activities/${id}` : '/api/admin/activities';
+                const method = id ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(activityData)
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('保存成功');
+                    activityModal.hide();
+                    loadActivities(currentPage);
+                } else {
+                    alert('保存失败：' + data.message);
+                }
+            } catch (error) {
+                console.error('保存活动失败:', error);
+                alert('保存失败');
+            }
+        }
+
+        // 活动类型改变时显示对应的配置
+        function onTypeChange() {
+            const type = document.getElementById('activityType').value;
+            document.getElementById('lotteryConfig').style.display = type === 'lottery' ? 'block' : 'none';
+            document.getElementById('memberDayConfig').style.display = type === 'member_day' ? 'block' : 'none';
+            document.getElementById('birthdayConfig').style.display = type === 'birthday' ? 'block' : 'none';
+            document.getElementById('newProductConfig').style.display = type === 'new_product' ? 'block' : 'none';
+            document.getElementById('flashSaleConfig').style.display = type === 'flash_sale' ? 'block' : 'none';
+            
+            // 加载商品列表
+            if (type === 'new_product' || type === 'flash_sale') {
+                loadProducts(type);
+            }
+        }
+
+        // 加载商品列表
+        async function loadProducts(type) {
+            try {
+                const token = localStorage.getItem('adminToken');
+                const response = await fetch('/api/products?page=1&limit=1000', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                console.log('商品列表返回数据:', data);
+
+                // 商品API返回的是 { products: [...] } 格式
+                const products = data.products || [];
+                if (type === 'new_product') {
+                    renderNewProductSelect(products);
+                } else if (type === 'flash_sale') {
+                    renderFlashSaleProductSelect(products);
+                }
+            } catch (error) {
+                console.error('加载商品列表失败:', error);
+                const container = type === 'new_product' 
+                    ? document.getElementById('productSelectContainer')
+                    : document.getElementById('flashSaleProductContainer');
+                container.innerHTML = '<div class="text-center text-danger">加载商品失败，请重试</div>';
+            }
+        }
+
+        // 渲染新品立减商品选择
+        function renderNewProductSelect(products) {
+            const container = document.getElementById('productSelectContainer');
+            container.innerHTML = '';
+            
+            if (products.length === 0) {
+                container.innerHTML = '<div class="text-center text-muted">暂无商品</div>';
+                return;
+            }
+            
+            products.forEach(product => {
+                const div = document.createElement('div');
+                div.className = 'form-check';
+                div.innerHTML = `
+                    <input class="form-check-input new-product-checkbox" type="checkbox" value="${product.id}" id="product_${product.id}" data-name="${product.name}">
+                    <label class="form-check-label" for="product_${product.id}">
+                        ${product.name} - ¥${product.price}
+                    </label>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // 渲染限时抢购商品选择（单选）
+        function renderFlashSaleProductSelect(products) {
+            const container = document.getElementById('flashSaleProductContainer');
+            container.innerHTML = '';
+            
+            if (products.length === 0) {
+                container.innerHTML = '<div class="text-center text-muted">暂无商品</div>';
+                return;
+            }
+            
+            products.forEach(product => {
+                const div = document.createElement('div');
+                div.className = 'form-check flash-sale-item';
+                div.dataset.productName = product.name.toLowerCase();
+                div.innerHTML = `
+                    <input class="form-check-input flash-sale-radio" type="radio" name="flashSaleProduct" value="${product.id}" id="flash_${product.id}" data-name="${product.name}" data-price="${product.price}">
+                    <label class="form-check-label" for="flash_${product.id}">
+                        ${product.name} - 原价¥${product.price}
+                    </label>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // 过滤新品立减商品
+        function filterNewProducts(keyword) {
+            const container = document.getElementById('productSelectContainer');
+            const items = container.querySelectorAll('.form-check');
+            const lowerKeyword = keyword.toLowerCase();
+            
+            items.forEach(item => {
+                const label = item.querySelector('label');
+                if (label) {
+                    const text = label.textContent.toLowerCase();
+                    item.style.display = text.includes(lowerKeyword) ? 'block' : 'none';
+                }
+            });
+        }
+
+        // 过滤限时抢购商品
+        function filterFlashSaleProducts(keyword) {
+            const container = document.getElementById('flashSaleProductContainer');
+            const items = container.querySelectorAll('.flash-sale-item');
+            const lowerKeyword = keyword.toLowerCase();
+            
+            items.forEach(item => {
+                const productName = item.dataset.productName || '';
+                item.style.display = productName.includes(lowerKeyword) ? 'block' : 'none';
+            });
+        }
+
+        // 添加奖品
+        function addPrize(prize = null) {
+            prizeCount++;
+            const container = document.getElementById('prizesContainer');
+            const div = document.createElement('div');
+            div.className = 'prize-item';
+            div.innerHTML = `
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <label class="form-label">奖品名称</label>
+                        <input type="text" class="form-control prize-name" value="${prize ? prize.name : ''}" placeholder="如：一等奖">
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <label class="form-label">类型</label>
+                        <select class="form-select prize-type" onchange="onPrizeTypeChange(this)">
+                            <option value="points" ${prize && prize.type === 'points' ? 'selected' : ''}>积分</option>
+                            <option value="coupon" ${prize && prize.type === 'coupon' ? 'selected' : ''}>优惠券</option>
+                            <option value="none" ${prize && prize.type === 'none' ? 'selected' : ''}>无奖励</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <label class="form-label">数值</label>
+                        <input type="number" class="form-control prize-value" value="${prize ? prize.value : ''}" placeholder="积分数量">
+                    </div>
+                    <div class="col-md-3 mb-2" style="display: ${prize && prize.type === 'coupon' ? 'block' : 'none'};">
+                        <label class="form-label">优惠券</label>
+                        <select class="form-select prize-coupon">
+                            <option value="">选择优惠券</option>
+                            ${document.getElementById('birthdayCoupon').innerHTML}
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <label class="form-label">概率(%)</label>
+                        <input type="number" class="form-control prize-probability" value="${prize ? prize.probability : ''}" placeholder="0-100" min="0" max="100" step="0.01">
+                    </div>
+                </div>
+                <button type="button" class="btn btn-outline-danger btn-sm" onclick="this.parentElement.remove()">
+                    <i class="bi bi-trash"></i> 删除
+                </button>
+            `;
+            container.appendChild(div);
+
+            // 设置优惠券选中值
+            if (prize && prize.coupon_id) {
+                div.querySelector('.prize-coupon').value = prize.coupon_id;
+            }
+        }
+
+        // 奖品类型改变
+        function onPrizeTypeChange(select) {
+            const couponSelect = select.closest('.row').querySelector('.prize-coupon').parentElement;
+            couponSelect.style.display = select.value === 'coupon' ? 'block' : 'none';
+        }
+
+        // 格式化日期时间为本地格式
+        function formatDateTimeLocal(dateString) {
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
+    </script>
+</body>
+</html>

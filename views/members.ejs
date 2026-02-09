@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>奶茶店后台管理系统- 会员管理</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="/styles/admin-modern.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .sidebar {
+            min-height: 100vh;
+            background-color: #343a40;
+            color: white;
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+        }
+        .sidebar a:hover {
+            background-color: #495057;
+        }
+        .content {
+            padding: 20px;
+        }
+        .card {
+            margin-bottom: 20px;
+        }
+        .table th {
+            white-space: nowrap;
+        }
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .color-preview {
+            width: 20px;
+            height: 20px;
+            display: inline-block;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            margin-right: 8px;
+        }
+        .level-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- 侧边栏-->
+            <div class="col-md-2 sidebar">
+                <div class="p-3 text-center" style="background-color: #212529;">
+                    <h5 class="mb-0">奶茶店管理系统</h5>
+                </div>
+                <ul class="nav flex-column p-3">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/dashboard">
+                            <i class="bi bi-house"></i> 首页
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/pos">
+                            <i class="bi bi-shop"></i> 现场点单
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/products">
+                            <i class="bi bi-box"></i> 商品管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/orders">
+                            <i class="bi bi-phone"></i> 小程序订单
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/all-orders">
+                            <i class="bi bi-cart"></i> 订单管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/users">
+                            <i class="bi bi-people-fill"></i> 用户管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/admin/members">
+                            <i class="bi bi-people"></i> 会员管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/member-activities">
+                            <i class="bi bi-gift"></i> 会员活动
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/coupons">
+                            <i class="bi bi-ticket"></i> 优惠券管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/stores">
+                            <i class="bi bi-building"></i> 店铺管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/recharge">
+                            <i class="bi bi-wallet2"></i> 储值管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/group-buy">
+                            <i class="bi bi-people-fill"></i> 团购管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/ui">
+                            <i class="bi bi-palette-fill"></i> UI管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/delivery-platforms">
+                            <i class="bi bi-truck"></i> 外卖平台
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/stats">
+                            <i class="bi bi-bar-chart"></i> 数据统计
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-danger" href="/admin/logout">
+                            <i class="bi bi-box-arrow-right"></i> 退出登录
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- 主内容区 -->
+            <div class="col-md-10 content">
+                <!-- 顶部导航栏 -->
+                <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4">
+                    <div class="container-fluid d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0"><i class="bi bi-people"></i> 会员管理</h4>
+                        <span class="text-muted">欢迎，<strong>admin</strong></span>
+                    </div>
+                </nav>
+                
+                <!-- 会员管理页面 -->
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0"><i class="bi bi-people"></i> 会员列表</h5>
+                        <button class="btn btn-primary" onclick="openAddMemberModal()">
+                            <i class="bi bi-person-plus"></i> 新增会员
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <!-- 搜索和筛�?-->
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" id="searchInput" placeholder="搜索会员（昵称/手机号）">
+                            </div>
+                            <div class="col-md-2">
+                                <select class="form-select" id="levelFilter">
+                                    <option value="">所有等级</option>
+                                    <!-- 动态加载会员等级 -->
+                                </select>
+                            </div>
+                            <div class="col-md-2 d-flex gap-2">
+                                <button class="btn btn-primary" onclick="searchMembers()">
+                                    <i class="bi bi-search"></i> 搜索
+                                </button>
+                                <button class="btn btn-secondary" onclick="resetFilters()">
+                                    <i class="bi bi-arrow-counterclockwise"></i> 重置
+                                </button>
+                            </div>
+                            <div class="col-md-5 d-flex justify-content-end">
+                                <button class="btn btn-success" onclick="openLevelModal()">
+                                    <i class="bi bi-crown"></i> 会员等级
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- 会员列表 -->
+                        <div class="table-responsive">
+                            <table class="table table-hover table-striped">
+                                <thead>
+                                    <tr>
+                                    <th>ID</th>
+                                    <th>会员编号</th>
+                                    <th>头像</th>
+                                    <th>昵称</th>
+                                    <th>手机号码</th>
+                                    <th>会员等级</th>
+                                    <th>成长值</th>
+                                    <th>积分</th>
+                                    <th>余额</th>
+                                    <th>优惠券</th>
+                                    <th>状态</th>
+                                    <th>注册时间</th>
+                                    <th>操作</th>
+                                </tr>
+                                </thead>
+                                <tbody id="membersTableBody">
+                                    <!-- 动态加载会员列表 -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- 分页 -->
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination justify-content-center" id="pagination">
+                                <!-- 动态加载分页 -->
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 会员等级列表模态框 -->
+    <div class="modal fade" id="memberLevelListModal" tabindex="-1" aria-labelledby="memberLevelListModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="memberLevelListModalLabel"><i class="bi bi-crown"></i> 会员等级管理</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex justify-content-end mb-3">
+                        <button class="btn btn-primary btn-sm" onclick="openAddLevelModal()">
+                            <i class="bi bi-plus"></i> 添加等级
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>等级名称</th>
+                                    <th>等级标识</th>
+                                    <th>成长值</th>
+                                    <th>折扣</th>
+                                    <th>颜色</th>
+                                    <th>排序</th>
+                                    <th>状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="memberLevelListTableBody">
+                                <!-- 会员等级数据将通过JS动态加载 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加/编辑会员等级模态框 -->
+    <div class="modal fade" id="memberLevelModal" tabindex="-1" aria-labelledby="memberLevelModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="memberLevelModalLabel">添加会员等级</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="memberLevelForm">
+                        <input type="hidden" id="memberLevelId">
+                        
+                        <div class="mb-3">
+                            <label for="memberLevelName" class="form-label">等级名称</label>
+                            <input type="text" class="form-control" id="memberLevelName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="memberLevelIdInput" class="form-label">等级标识</label>
+                            <input type="text" class="form-control" id="memberLevelIdInput" required placeholder="如：normal, silver, gold">
+                        </div>
+                        <div class="mb-3">
+                            <label for="growthRequired" class="form-label">成长值</label>
+                            <input type="number" class="form-control" id="growthRequired" min="0" required placeholder="升级到该等级所需的成长值">
+                        </div>
+                        <div class="mb-3">
+                            <label for="discount" class="form-label">折扣</label>
+                            <input type="number" class="form-control" id="discount" step="0.01" min="0" max="100" placeholder="95表示95折">
+                        </div>
+                        <div class="mb-3">
+                            <label for="levelColor" class="form-label">颜色</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="levelColor" placeholder="如：#6B7280">
+                                <input type="color" class="form-control form-control-color" id="colorPicker" value="#6B7280" title="选择颜色">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="sortOrder" class="form-label">排序</label>
+                            <input type="number" class="form-control" id="sortOrder" min="0" value="0">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">状态</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="levelStatus" id="levelActive" value="1" checked>
+                                <label class="form-check-label" for="levelActive">激活</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="levelStatus" id="levelInactive" value="0">
+                                <label class="form-check-label" for="levelInactive">禁用</label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="saveMemberLevel()">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 编辑会员模态框 -->
+    <div class="modal fade" id="editMemberModal" tabindex="-1" aria-labelledby="editMemberModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editMemberModalLabel">编辑会员信息</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editMemberForm">
+                        <input type="hidden" id="editMemberId">
+                        <div class="mb-3">
+                            <label for="editMemberNo" class="form-label">会员编号</label>
+                            <input type="text" class="form-control" id="editMemberNo" readonly>
+                            <div class="form-text">会员编号由系统自动生成，不可修改</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editNickname" class="form-label">昵称</label>
+                            <input type="text" class="form-control" id="editNickname">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editPhone" class="form-label">手机号</label>
+                            <input type="text" class="form-control" id="editPhone">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editAvatar" class="form-label">头像URL</label>
+                            <input type="text" class="form-control" id="editAvatar">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editGrowthValue" class="form-label">成长值</label>
+                            <input type="number" class="form-control" id="editGrowthValue">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editPoints" class="form-label">积分</label>
+                            <input type="number" class="form-control" id="editPoints">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editBalance" class="form-label">余额</label>
+                            <input type="number" step="0.01" class="form-control" id="editBalance">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editIsActive" class="form-label">状态</label>
+                            <select class="form-select" id="editIsActive">
+                                <option value="1">激活</option>
+                                <option value="0">禁用</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="saveMemberChanges()">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增会员模态框 -->
+    <div class="modal fade" id="addMemberModal" tabindex="-1" aria-labelledby="addMemberModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addMemberModalLabel"><i class="bi bi-person-plus"></i> 新增会员</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addMemberForm">
+                        <div class="mb-3">
+                            <label for="addNickname" class="form-label">昵称 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="addNickname" required placeholder="请输入会员昵称">
+                        </div>
+                        <div class="mb-3">
+                            <label for="addPhone" class="form-label">手机号 <span class="text-danger">*</span></label>
+                            <input type="tel" class="form-control" id="addPhone" required placeholder="请输入手机号" pattern="^1[3-9]\d{9}$">
+                            <div class="form-text">请输入11位手机号码</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="addMemberLevel" class="form-label">会员等级</label>
+                            <select class="form-select" id="addMemberLevel">
+                                <option value="">普通会员</option>
+                                <!-- 动态加载会员等级 -->
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="addGrowthValue" class="form-label">成长值</label>
+                            <input type="number" class="form-control" id="addGrowthValue" min="0" value="0" placeholder="初始成长值">
+                        </div>
+                        <div class="mb-3">
+                            <label for="addPoints" class="form-label">积分</label>
+                            <input type="number" class="form-control" id="addPoints" min="0" value="0" placeholder="初始积分">
+                        </div>
+                        <div class="mb-3">
+                            <label for="addBalance" class="form-label">余额</label>
+                            <input type="number" step="0.01" class="form-control" id="addBalance" min="0" value="0" placeholder="初始余额">
+                        </div>
+                        <div class="mb-3">
+                            <label for="addAvatar" class="form-label">头像URL</label>
+                            <input type="text" class="form-control" id="addAvatar" placeholder="头像URL（可选）">
+                        </div>
+                        <div class="mb-3">
+                            <label for="addIsActive" class="form-label">状态</label>
+                            <select class="form-select" id="addIsActive">
+                                <option value="1" selected>激活</option>
+                                <option value="0">禁用</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="saveNewMember()">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentPage = 1;
+        let totalPages = 1;
+        let memberLevels = [];
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadMemberLevels().then(() => {
+                renderMemberLevels();
+                loadMembers();
+            });
+        });
+        
+        // 加载会员等级（用于筛选）
+        async function loadMemberLevels() {
+            try {
+                const response = await fetch('/api/member-levels');
+                const data = await response.json();
+                if (Array.isArray(data)) {
+                    memberLevels = data;
+                    populateLevelFilter();
+                } else if (data.success) {
+                    memberLevels = data.data;
+                    populateLevelFilter();
+                }
+            } catch (error) {
+                console.error('加载会员等级失败:', error);
+            }
+        }
+        
+        // 填充等级筛选下拉框
+        function populateLevelFilter() {
+            const select = document.getElementById('levelFilter');
+            memberLevels.forEach(level => {
+                const option = document.createElement('option');
+                option.value = level.level_id;
+                option.textContent = level.name;
+                select.appendChild(option);
+            });
+        }
+        
+        // 加载会员列表
+        async function loadMembers(page = 1) {
+            try {
+                const search = document.getElementById('searchInput')?.value || '';
+                const level = document.getElementById('levelFilter')?.value || '';
+                
+                const response = await fetch(`/api/members?page=${page}&limit=10&search=${encodeURIComponent(search)}&level=${level}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    renderMembers(data.data);
+                    currentPage = data.page;
+                    totalPages = data.totalPages;
+                    renderPagination();
+                }
+            } catch (error) {
+                console.error('加载会员列表失败:', error);
+            }
+        }
+        
+        // 渲染会员列表
+        function renderMembers(members) {
+            const tbody = document.getElementById('membersTableBody');
+            tbody.innerHTML = '';
+
+            members.forEach(member => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${member.id}</td>
+                    <td><code>${member.member_no || '-'}</code></td>
+                    <td>
+                        ${member.avatarUrl && member.avatarUrl.trim() && !member.avatarUrl.includes('example.com') ? `<img src="${member.avatarUrl}" alt="头像" style="width: 40px; height: 40px; border-radius: 50%;">` : `<i class="bi bi-person-circle" style="font-size: 40px;"></i>`}
+                    </td>
+                    <td>${member.nickname || '未设置昵称'}</td>
+                    <td>${member.phone || '未绑定手机号'}</td>
+                    <td>
+                        <span class="level-badge" style="background-color: ${member.level_info?.color || '#999'}; color: white;">
+                            ${member.level_info?.icon || ''} ${member.level_info?.name || '普通会员'}
+                        </span>
+                    </td>
+                    <td>${member.growth_value}</td>
+                    <td>${member.points}</td>
+                    <td>¥${member.balance}</td>
+                    <td>
+                        <span class="badge bg-warning text-dark">
+                            <i class="bi bi-ticket-perforated"></i> ${member.couponCount || 0} 张
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge ${member.is_active ? 'bg-success' : 'bg-danger'}">
+                            ${member.is_active ? '激活' : '禁用'}
+                        </span>
+                    </td>
+                    <td>${new Date(member.createdAt).toLocaleString()}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="openEditModal(${member.id})">
+                            <i class="bi bi-pencil"></i> 编辑
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger ms-1" onclick="deleteMember(${member.id})">
+                            <i class="bi bi-trash"></i> 删除
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // 渲染分页
+        function renderPagination() {
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = '';
+
+            // 上一页
+            const prevLi = document.createElement('li');
+            prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+            prevLi.innerHTML = `<a class="page-link" href="#" onclick="loadMembers(${currentPage - 1})">&laquo;</a>`;
+            pagination.appendChild(prevLi);
+
+            // 页码
+            for (let i = 1; i <= totalPages; i++) {
+                const li = document.createElement('li');
+                li.className = `page-item ${i === currentPage ? 'active' : ''}`;
+                li.innerHTML = `<a class="page-link" href="#" onclick="loadMembers(${i})"></a>`;
+                const pageLink = li.querySelector('.page-link');
+                pageLink.textContent = i;
+                pagination.appendChild(li);
+            }
+
+            // 下一页
+            const nextLi = document.createElement('li');
+            nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+            nextLi.innerHTML = `<a class="page-link" href="#" onclick="loadMembers(${currentPage + 1})">&raquo;</a>`;
+            pagination.appendChild(nextLi);
+        }
+        
+        // 搜索会员
+        function searchMembers() {
+            loadMembers(1);
+        }
+
+        // 重置筛选
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('levelFilter').value = '';
+            loadMembers(1);
+        }
+        
+        // 打开编辑模态框
+        async function openEditModal(memberId) {
+            try {
+                const response = await fetch(`/api/members/${memberId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const member = data.data;
+                    document.getElementById('editMemberId').value = member.id;
+                    document.getElementById('editMemberNo').value = member.member_no || '';
+                    document.getElementById('editNickname').value = member.nickname || '';
+                    document.getElementById('editPhone').value = member.phone || '';
+                    // 支持两种字段
+                    document.getElementById('editAvatar').value = member.avatarUrl || member.avatar || '';
+                    document.getElementById('editGrowthValue').value = member.growth_value;
+                    document.getElementById('editPoints').value = member.points;
+                    document.getElementById('editBalance').value = member.balance;
+                    document.getElementById('editIsActive').value = member.is_active;
+
+                    const modal = new bootstrap.Modal(document.getElementById('editMemberModal'));
+                    modal.show();
+                }
+            } catch (error) {
+                console.error('获取会员详情失败:', error);
+            }
+        }
+        
+        // 保存会员修改
+        async function saveMemberChanges() {
+            try {
+                const memberId = document.getElementById('editMemberId').value;
+                const memberData = {
+                    nickname: document.getElementById('editNickname').value,
+                    phone: document.getElementById('editPhone').value,
+                    avatar: document.getElementById('editAvatar').value,
+                    growth_value: parseInt(document.getElementById('editGrowthValue').value),
+                    points: parseInt(document.getElementById('editPoints').value),
+                    balance: parseFloat(document.getElementById('editBalance').value),
+                    is_active: parseInt(document.getElementById('editIsActive').value)
+                };
+                
+                const response = await fetch(`/api/members/${memberId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(memberData)
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('editMemberModal'));
+                    modal.hide();
+                    loadMembers(currentPage);
+                    alert('会员信息更新成功');
+                }
+            } catch (error) {
+                console.error('更新会员信息失败:', error);
+                alert('更新会员信息失败，请重试');
+            }
+        }
+        
+        // 删除会员
+        async function deleteMember(memberId) {
+            if (confirm('确定要删除这个会员吗？')) {
+                try {
+                    const response = await fetch(`/api/members/${memberId}`, {
+                        method: 'DELETE'
+                    });
+
+                    const data = await response.json();
+                    if (data.success) {
+                        loadMembers(currentPage);
+                        alert('会员删除成功');
+                    }
+                } catch (error) {
+                    console.error('删除会员失败:', error);
+                    alert('删除会员失败，请重试');
+                }
+            }
+        }
+
+        // 回车键搜索
+        document.getElementById('searchInput')?.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchMembers();
+            }
+        });
+
+        // ========== 会员等级管理功能 ==========
+        
+        // 渲染会员等级列表（用于弹窗内显示）
+        function renderMemberLevels() {
+            const tbody = document.getElementById('memberLevelTableBody');
+            // 如果表格不存在（页面已移除该元素），则直接返回
+            if (!tbody) return;
+            
+            tbody.innerHTML = '';
+            
+            if (memberLevels.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center">暂无会员等级数据</td></tr>';
+                return;
+            }
+            
+            memberLevels.forEach(level => {
+                const discountValue = parseFloat(level.discount);
+                const discountText = discountValue === 100 ? '无折扣' : `${discountValue.toFixed(0)}折`;
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${level.id}</td>
+                    <td>${level.name}</td>
+                    <td>${level.level_id}</td>
+                    <td>${level.growth_required}</td>
+                    <td>${discountText}</td>
+                    <td>
+                        <span class="color-preview" style="background-color: ${level.color || '#6B7280'}"></span>
+                        ${level.color || '#6B7280'}
+                    </td>
+                    <td>${level.sort_order}</td>
+                    <td><span class="badge ${level.is_active ? 'bg-success' : 'bg-danger'}">${level.is_active ? '激活' : '禁用'}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="openEditLevelModal(${level.id})"><i class="bi bi-pencil"></i></button>
+                        <button class="btn btn-sm btn-outline-danger ms-1" onclick="deleteMemberLevel(${level.id})"><i class="bi bi-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // 打开会员等级列表模态框
+        function openLevelModal() {
+            renderMemberLevelList();
+            new bootstrap.Modal(document.getElementById('memberLevelListModal')).show();
+        }
+        
+        // 渲染会员等级列表到弹窗表格
+        function renderMemberLevelList() {
+            const tbody = document.getElementById('memberLevelListTableBody');
+            if (!tbody) return;
+            
+            tbody.innerHTML = '';
+            
+            if (memberLevels.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center">暂无会员等级数据</td></tr>';
+                return;
+            }
+            
+            memberLevels.forEach(level => {
+                const discountValue = parseFloat(level.discount);
+                const discountText = discountValue === 100 ? '无折扣' : `${discountValue.toFixed(0)}折`;
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${level.id}</td>
+                    <td>${level.name}</td>
+                    <td>${level.level_id}</td>
+                    <td>${level.growth_required}</td>
+                    <td>${discountText}</td>
+                    <td>
+                        <span class="color-preview" style="background-color: ${level.color || '#6B7280'}"></span>
+                        ${level.color || '#6B7280'}
+                    </td>
+                    <td>${level.sort_order}</td>
+                    <td><span class="badge ${level.is_active ? 'bg-success' : 'bg-danger'}">${level.is_active ? '激活' : '禁用'}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="openEditLevelModal(${level.id})"><i class="bi bi-pencil"></i></button>
+                        <button class="btn btn-sm btn-outline-danger ms-1" onclick="deleteMemberLevel(${level.id})"><i class="bi bi-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // 打开添加会员等级模态框
+        function openAddLevelModal() {
+            document.getElementById('memberLevelModalLabel').textContent = '添加会员等级';
+            document.getElementById('memberLevelForm').reset();
+            document.getElementById('memberLevelId').value = '';
+            document.getElementById('colorPicker').value = '#6B7280';
+            document.getElementById('levelColor').value = '#6B7280';
+            new bootstrap.Modal(document.getElementById('memberLevelModal')).show();
+        }
+        
+        // 打开编辑会员等级模态框
+        function openEditLevelModal(levelId) {
+            const level = memberLevels.find(l => l.id === levelId);
+            if (!level) return;
+            
+            document.getElementById('memberLevelModalLabel').textContent = '编辑会员等级';
+            document.getElementById('memberLevelId').value = level.id;
+            document.getElementById('memberLevelName').value = level.name;
+            document.getElementById('memberLevelIdInput').value = level.level_id;
+            document.getElementById('growthRequired').value = level.growth_required;
+            document.getElementById('discount').value = level.discount;
+            document.getElementById('levelColor').value = level.color || '#6B7280';
+            document.getElementById('colorPicker').value = level.color || '#6B7280';
+            document.getElementById('sortOrder').value = level.sort_order || 0;
+            document.getElementById(level.is_active ? 'levelActive' : 'levelInactive').checked = true;
+            new bootstrap.Modal(document.getElementById('memberLevelModal')).show();
+        }
+        
+        // 保存会员等级
+        async function saveMemberLevel() {
+            const form = document.getElementById('memberLevelForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            
+            const levelId = document.getElementById('memberLevelId').value;
+            const levelData = {
+                name: document.getElementById('memberLevelName').value,
+                level_id: document.getElementById('memberLevelIdInput').value,
+                growth_required: parseInt(document.getElementById('growthRequired').value),
+                discount: parseFloat(document.getElementById('discount').value) || 0.00,
+                color: document.getElementById('levelColor').value,
+                sort_order: parseInt(document.getElementById('sortOrder').value) || 0,
+                is_active: document.querySelector('input[name="levelStatus"]:checked').value
+            };
+            
+            try {
+                let response;
+                if (levelId) {
+                    response = await fetch(`/api/member-levels/${levelId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(levelData)
+                    });
+                } else {
+                    response = await fetch('/api/member-levels', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(levelData)
+                    });
+                }
+                
+                if (response.ok) {
+                    bootstrap.Modal.getInstance(document.getElementById('memberLevelModal')).hide();
+                    await loadMemberLevels();
+                    renderMemberLevelList(); // 刷新列表弹窗中的数据
+                    renderMemberLevels(); // 刷新旧的数据（如果存在）
+                    alert('会员等级保存成功！');
+                } else {
+                    const errorData = await response.json();
+                    alert('保存失败：' + (errorData.error || '未知错误'));
+                }
+            } catch (error) {
+                console.error('保存会员等级失败:', error);
+                alert('保存会员等级失败，请稍后重试');
+            }
+        }
+        
+        // 删除会员等级
+        async function deleteMemberLevel(levelId) {
+            if (!confirm('确定要删除该会员等级吗？')) return;
+            
+            try {
+                const response = await fetch(`/api/member-levels/${levelId}`, { method: 'DELETE' });
+                
+                if (response.ok) {
+                    await loadMemberLevels();
+                    renderMemberLevelList(); // 刷新列表弹窗中的数据
+                    renderMemberLevels(); // 刷新旧的数据（如果存在）
+                    alert('会员等级删除成功！');
+                } else {
+                    const errorData = await response.json();
+                    alert('删除失败：' + (errorData.error || '未知错误'));
+                }
+            } catch (error) {
+                console.error('删除会员等级失败:', error);
+                alert('删除会员等级失败，请稍后重试');
+            }
+        }
+
+        // 颜色选择器联动
+        document.getElementById('colorPicker')?.addEventListener('input', function() {
+            document.getElementById('levelColor').value = this.value;
+        });
+
+        document.getElementById('levelColor')?.addEventListener('input', function() {
+            document.getElementById('colorPicker').value = this.value;
+        });
+
+        // ========== 新增会员功能 ==========
+
+        // 打开新增会员模态框
+        function openAddMemberModal() {
+            // 重置表单
+            document.getElementById('addMemberForm').reset();
+            document.getElementById('addGrowthValue').value = 0;
+            document.getElementById('addPoints').value = 0;
+            document.getElementById('addBalance').value = 0;
+            document.getElementById('addIsActive').value = '1';
+
+            // 动态加载会员等级到下拉框
+            const levelSelect = document.getElementById('addMemberLevel');
+            levelSelect.innerHTML = '<option value="">普通会员</option>';
+            memberLevels.forEach(level => {
+                if (level.is_active) {
+                    const option = document.createElement('option');
+                    option.value = level.level_id;
+                    option.textContent = level.name;
+                    levelSelect.appendChild(option);
+                }
+            });
+
+            // 显示模态框
+            new bootstrap.Modal(document.getElementById('addMemberModal')).show();
+        }
+
+        // 保存新会员
+        async function saveNewMember() {
+            const form = document.getElementById('addMemberForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const memberData = {
+                nickname: document.getElementById('addNickname').value.trim(),
+                phone: document.getElementById('addPhone').value.trim(),
+                member_level: document.getElementById('addMemberLevel').value || null,
+                growth_value: parseInt(document.getElementById('addGrowthValue').value) || 0,
+                points: parseInt(document.getElementById('addPoints').value) || 0,
+                balance: parseFloat(document.getElementById('addBalance').value) || 0,
+                avatar: document.getElementById('addAvatar').value.trim(),
+                is_active: parseInt(document.getElementById('addIsActive').value)
+            };
+
+            try {
+                const response = await fetch('/api/members', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(memberData)
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('addMemberModal'));
+                    modal.hide();
+                    loadMembers(currentPage);
+                    alert('会员创建成功！会员编号：' + data.data.member_no);
+                } else {
+                    alert('创建失败：' + (data.error || '未知错误'));
+                }
+            } catch (error) {
+                console.error('创建会员失败:', error);
+                alert('创建会员失败，请稍后重试');
+            }
+        }
+    </script>
+</body>
+</html>

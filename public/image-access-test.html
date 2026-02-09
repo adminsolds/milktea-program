@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片访问测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        .image-container {
+            margin: 15px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .url {
+            font-family: monospace;
+            word-break: break-all;
+            color: #007bff;
+            margin: 10px 0;
+            padding: 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+        }
+        .status {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <h1>图片访问测试</h1>
+    
+    <div class="test-section">
+        <h2>1. 上传目录图片访问测试</h2>
+        <div class="image-container">
+            <h3>上传的轮播图图片</h3>
+            <div class="url">URL: /uploads/image-1767521334962-574471387.jpg</div>
+            <img src="/uploads/image-1767521334962-574471387.jpg" alt="上传的轮播图" onload="this.previousElementSibling.previousElementSibling.innerHTML = '<span class=status success>✓ 图片加载成功</span>'" onerror="this.previousElementSibling.previousElementSibling.innerHTML = '<span class=status error>✗ 图片加载失败</span>'">
+            <div class="status">图片加载中...</div>
+        </div>
+        
+        <div class="image-container">
+            <h3>其他上传的图片</h3>
+            <div class="url">URL: /uploads/image-1767518632075-361339204.jpg</div>
+            <img src="/uploads/image-1767518632075-361339204.jpg" alt="其他上传图片" onload="this.previousElementSibling.previousElementSibling.innerHTML = '<span class=status success>✓ 图片加载成功</span>'" onerror="this.previousElementSibling.previousElementSibling.innerHTML = '<span class=status error>✗ 图片加载失败</span>'">
+            <div class="status">图片加载中...</div>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. 静态目录图片访问测试</h2>
+        <div class="image-container">
+            <h3>轮播图1 (SVG)</h3>
+            <div class="url">URL: /images/banners/banner1.svg</div>
+            <img src="/images/banners/banner1.svg" alt="轮播图1" onload="this.previousElementSibling.previousElementSibling.innerHTML = '<span class=status success>✓ 图片加载成功</span>'" onerror="this.previousElementSibling.previousElementSibling.innerHTML = '<span class=status error>✗ 图片加载失败</span>'">
+            <div class="status">图片加载中...</div>
+        </div>
+        
+        <div class="image-container">
+            <h3>轮播图2 (SVG)</h3>
+            <div class="url">URL: /images/banners/banner2.svg</div>
+            <img src="/images/banners/banner2.svg" alt="轮播图2" onload="this.previousElementSibling.previousElementSibling.innerHTML = '<span class=status success>✓ 图片加载成功</span>'" onerror="this.previousElementSibling.previousElementSibling.innerHTML = '<span class=status error>✗ 图片加载失败</span>'">
+            <div class="status">图片加载中...</div>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. API数据测试</h2>
+        <div id="apiTestResult" style="font-family: monospace; white-space: pre-wrap; padding: 15px; background: #f0f0f0; border-radius: 4px;"></div>
+    </div>
+    
+    <script>
+        // 测试API请求
+        async function testApi() {
+            try {
+                const response = await fetch('/api/ui/banners?position=home&is_active=1');
+                const data = await response.json();
+                
+                const resultDiv = document.getElementById('apiTestResult');
+                resultDiv.innerHTML = 'API响应数据:\n' + JSON.stringify(data, null, 2);
+                
+                if (data.banners && data.banners.length > 0) {
+                    resultDiv.innerHTML += '\n\n轮播图列表:\n';
+                    data.banners.forEach((banner, index) => {
+                        resultDiv.innerHTML += `${index + 1}. ID: ${banner.id}, 标题: ${banner.title}, 图片URL: ${banner.image}\n`;
+                    });
+                }
+            } catch (error) {
+                document.getElementById('apiTestResult').innerHTML = 'API请求失败: ' + error.message;
+            }
+        }
+        
+        // 页面加载时测试API
+        testApi();
+    </script>
+</body>
+</html>

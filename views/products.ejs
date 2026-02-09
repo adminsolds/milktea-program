@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>奶茶店后台管理系统- 商品管理</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="/styles/admin-modern.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .sidebar {
+            min-height: 100vh;
+            background-color: #343a40;
+            color: white;
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+        }
+        .sidebar a:hover {
+            background-color: #495057;
+        }
+        .content {
+            padding: 20px;
+        }
+        .card {
+            margin-bottom: 20px;
+        }
+        .table th {
+            white-space: nowrap;
+        }
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- 侧边栏-->
+            <div class="col-md-2 sidebar">
+                <div class="p-3 bg-dark text-center">
+                    <h5>奶茶店管理系统</h5>
+                </div>
+                <ul class="nav flex-column p-3">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/dashboard">
+                            <i class="bi bi-house"></i> 首页
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/pos">
+                            <i class="bi bi-shop"></i> 现场点单
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/admin/products">
+                            <i class="bi bi-box"></i> 商品管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/orders">
+                            <i class="bi bi-phone"></i> 小程序订单
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/all-orders">
+                            <i class="bi bi-cart"></i> 订单管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/users">
+                            <i class="bi bi-people-fill"></i> 用户管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/members">
+                            <i class="bi bi-people"></i> 会员管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/coupons">
+                            <i class="bi bi-ticket"></i> 优惠券管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/stores">
+                            <i class="bi bi-building"></i> 店铺管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/recharge">
+                            <i class="bi bi-wallet2"></i> 储值管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/group-buy">
+                            <i class="bi bi-people-fill"></i> 团购管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/ui">
+                            <i class="bi bi-palette-fill"></i> UI管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/delivery-platforms">
+                            <i class="bi bi-truck"></i> 外卖平台
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/stats">
+                            <i class="bi bi-bar-chart"></i> 数据统计
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-danger" href="/admin/logout">
+                            <i class="bi bi-box-arrow-right"></i> 退出登录
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 主内容区 -->
+            <div class="col-md-10 content">
+                <!-- 顶部导航栏 -->
+                <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4">
+                    <div class="container-fluid d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0"><i class="bi bi-box"></i> 商品管理</h4>
+                        <span class="text-muted">欢迎，<strong>admin</strong></span>
+                    </div>
+                </nav>
+                
+                <!-- 商品管理页面 -->
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">商品管理</h5>
+                        <div>
+                            <button class="btn btn-primary" onclick="openAddModal()">
+                                <i class="bi bi-plus"></i> 添加商品
+                            </button>
+                            <button class="btn btn-secondary ms-2" onclick="openCategoryModal()">
+                                <i class="bi bi-tag"></i> 分类管理
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- 搜索和筛选 -->
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" placeholder="搜索商品名称" id="searchInput">
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" id="categorySelect">
+                                    <option value="">所有分类/option>
+                                    <!-- 分类选项将通过JS动态加载 -->
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-secondary" onclick="searchProducts()">
+                                    <i class="bi bi-search"></i> 搜索
+                                </button>
+                                <button class="btn btn-outline-secondary ms-2" onclick="resetFilters()">
+                                    <i class="bi bi-arrow-clockwise"></i> 重置
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- 商品列表 -->
+                        <div class="table-responsive">
+                            <table class="table table-hover table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>商品名称</th>
+                                        <th>分类</th>
+                                        <th>价格</th>
+                                        <th>配送费</th>
+                                        <th>销量</th>
+                                        <th>新品</th>
+                                        <th>推荐</th>
+                                        <th>状态</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="productTableBody">
+                                    <!-- 商品数据将通过JS动态加载 -->
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- 分页 -->
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>显示 <span id="showingCount">0</span> 条记录，共<span id="totalCount">0</span> </div>
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination" id="pagination">
+                                    <!-- 分页按钮将通过JS动态生成 -->
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 分类管理模态框 -->
+    <div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="categoryModalLabel">分类管理</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- 分类列表 -->
+                    <div class="mb-4">
+                        <h6>现有分类</h6>
+                        <ul class="list-group mb-3" id="categoryList">
+                            <!-- 分类列表将通过JS动态加载 -->
+                        </ul>
+                    </div>
+                    
+                    <!-- 添加/编辑分类表单 -->
+                    <form id="categoryForm">
+                        <input type="hidden" id="categoryId">
+                        <div class="mb-3">
+                            <label for="categoryName" class="form-label">分类名称</label>
+                            <input type="text" class="form-control" id="categoryName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="categoryDesc" class="form-label">分类描述</label>
+                            <textarea class="form-control" id="categoryDesc" rows="2"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="categoryIcon" class="form-label">分类图标</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="categoryIcon" placeholder="图标URL或点击上传>
+                                <button type="button" class="btn btn-secondary" onclick="triggerCategoryIconUpload()">上传</button>
+                            </div>
+                            <input type="file" id="categoryIconUpload" accept="image/*" style="display: none;">
+                            <div class="mt-2" id="categoryIconPreview"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="categorySort" class="form-label">排序</label>
+                            <input type="number" class="form-control" id="categorySort" value="0">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">状态/label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="categoryStatus" id="categoryActive" value="1" checked>
+                                <label class="form-check-label" for="categoryActive">激活</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="categoryStatus" id="categoryInactive" value="0">
+                                <label class="form-check-label" for="categoryInactive">禁用</label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" onclick="saveCategory()">保存分类</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 添加/编辑商品模态框 -->
+    <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="productModalLabel">添加商品</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="productForm">
+                        <input type="hidden" id="productId">
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="productName" class="form-label">商品名称</label>
+                                <input type="text" class="form-control" id="productName" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="productCategory" class="form-label">商品分类</label>
+                                <select class="form-select" id="productCategory" required>
+                                    <!-- 分类选项将通过JS动态加载 -->
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label for="productPriceSmall" class="form-label">小杯价格</label>
+                                <input type="number" class="form-control" id="productPriceSmall" step="0.01" min="0" required>
+                                <div class="form-check form-check-inline mt-2">
+                                    <input class="form-check-input" type="checkbox" id="enableSizeSmall" value="1" checked>
+                                    <label class="form-check-label" for="enableSizeSmall">启用</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="productPriceMedium" class="form-label">中杯价格</label>
+                                <input type="number" class="form-control" id="productPriceMedium" step="0.01" min="0" required>
+                                <div class="form-check form-check-inline mt-2">
+                                    <input class="form-check-input" type="checkbox" id="enableSizeMedium" value="1" checked>
+                                    <label class="form-check-label" for="enableSizeMedium">启用</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="productPriceLarge" class="form-label">大杯价格</label>
+                                <input type="number" class="form-control" id="productPriceLarge" step="0.01" min="0" required>
+                                <div class="form-check form-check-inline mt-2">
+                                    <input class="form-check-input" type="checkbox" id="enableSizeLarge" value="1" checked>
+                                    <label class="form-check-label" for="enableSizeLarge">启用</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label for="productDeliveryFee" class="form-label">配送费（元）</label>
+                                <input type="number" class="form-control" id="productDeliveryFee" step="0.01" min="0" value="0" placeholder="请输入配送费，0表示免配送费">
+                                <small class="text-muted">外卖订单的配送费用，设置为0表示免配送费</small>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label for="productImage" class="form-label">商品图片</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="productImage" placeholder="图片URL或点击上传>
+                                    <button type="button" class="btn btn-secondary" onclick="triggerImageUpload()">上传</button>
+                                </div>
+                                <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+                                <div class="mt-2" id="imagePreview"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="productDesc" class="form-label">商品描述</label>
+                            <textarea class="form-control" id="productDesc" rows="3"></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="productTags" class="form-label">商品标签</label>
+                            <input type="text" class="form-control" id="productTags" placeholder="用逗号分隔，如：热门推荐">
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label">新品推荐</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="isNew" id="isNewYes" value="1">
+                                    <label class="form-check-label" for="isNewYes"></label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="isNew" id="isNewNo" value="0" checked>
+                                    <label class="form-check-label" for="isNewNo"></label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">推荐商品</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="isRecommended" id="isRecommendedYes" value="1">
+                                    <label class="form-check-label" for="isRecommendedYes"></label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="isRecommended" id="isRecommendedNo" value="0" checked>
+                                    <label class="form-check-label" for="isRecommendedNo"></label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">商品状态/label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="isActive" id="isActiveYes" value="1" checked>
+                                    <label class="form-check-label" for="isActiveYes">激活</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="isActive" id="isActiveNo" value="0">
+                                    <label class="form-check-label" for="isActiveNo">禁用</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label class="form-label">启用配料</label>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="enableToppings" id="enableToppingsYes" value="1" checked>
+                                    <label class="form-check-label" for="enableToppingsYes"></label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="enableToppings" id="enableToppingsNo" value="0">
+                                    <label class="form-check-label" for="enableToppingsNo"></label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="form-label mb-0">商品规格</label>
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="openSpecModal()">
+                                    <i class="bi bi-plus"></i> 管理规格
+                                </button>
+                            </div>
+                            <small class="text-muted">点击"管理规格"按钮配置冰度、甜度和配料选项。杯型价格已在商品价格区域设置/small>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="saveProduct()">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 规格管理模态框 -->
+    <div class="modal fade" id="specModal" tabindex="-1" aria-labelledby="specModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="specModalLabel">商品规格管理</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- 规格类型标签页 -->
+                    <ul class="nav nav-tabs mb-3" id="specTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="ice-tab" data-bs-toggle="tab" data-bs-target="#ice-pane" type="button" role="tab">冰度</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="sugar-tab" data-bs-toggle="tab" data-bs-target="#sugar-pane" type="button" role="tab">甜度</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="topping-tab" data-bs-toggle="tab" data-bs-target="#topping-pane" type="button" role="tab">配料</button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="specTabContent">
+                        <!-- 冰度规格 -->
+                        <div class="tab-pane fade show active" id="ice-pane" role="tabpanel">
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6>冰度选项</h6>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="addSpecItem('ice')">
+                                        <i class="bi bi-plus"></i> 添加
+                                    </button>
+                                </div>
+                                <div id="ice-specs-container">
+                                    <!-- 冰度规格列表 -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 甜度规格 -->
+                        <div class="tab-pane fade" id="sugar-pane" role="tabpanel">
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6>甜度选项</h6>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="addSpecItem('sugar')">
+                                        <i class="bi bi-plus"></i> 添加
+                                    </button>
+                                </div>
+                                <div id="sugar-specs-container">
+                                    <!-- 甜度规格列表 -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 配料规格 -->
+                        <div class="tab-pane fade" id="topping-pane" role="tabpanel">
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6>配料选项</h6>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="addSpecItem('topping')">
+                                        <i class="bi bi-plus"></i> 添加
+                                    </button>
+                                </div>
+                                <div id="topping-specs-container">
+                                    <!-- 配料规格列表 -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="form-check me-auto">
+                        <input class="form-check-input" type="checkbox" id="applyToGlobal">
+                        <label class="form-check-label" for="applyToGlobal">
+                            应用至全局所有商品
+                        </label>
+                    </div>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="saveSpecs()">保存规格</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 全局变量
+        let currentPage = 1;
+        const pageSize = 10;
+        let products = [];
+        let categories = [];
+        let currentProductId = null; // 当前编辑的商品ID
+        let currentSpecs = {
+            ice: [],
+            sugar: [],
+            topping: []
+        };
+
+        // 获取认证头
+        function getAuthHeaders() {
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            // 从localStorage获取adminToken
+            const adminToken = localStorage.getItem('adminToken');
+            if (adminToken) {
+                headers['Authorization'] = `Bearer ${adminToken}`;
+            }
+            return headers;
+        }
+        
+        // 显示提示消息
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `alert alert-${type === 'error' ? 'danger' : type === 'success' ? 'success' : 'info'} position-fixed top-0 end-0 m-3`;
+            toast.style.zIndex = '9999';
+            toast.innerHTML = `
+                <i class="bi bi-${type === 'success' ? 'check-circle' : type === 'error' ? 'x-circle' : 'info-circle'}"></i>
+                ${message}
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCategories();
+            loadProducts();
+        });
+        
+        // 加载分类
+        async function loadCategories() {
+            try {
+                const response = await fetch('/api/products/categories');
+                const data = await response.json();
+                categories = data;
+                
+                // 填充分类选择器
+                const categorySelect = document.getElementById('categorySelect');
+                const productCategory = document.getElementById('productCategory');
+                
+                // 清空现有选项
+                categorySelect.innerHTML = '<option value="">所有分类/option>';
+                productCategory.innerHTML = '';
+                
+                // 添加分类选项
+                data.forEach(category => {
+                    // 搜索筛选的分类选择
+                    const option1 = document.createElement('option');
+                    option1.value = category.id;
+                    option1.textContent = category.name;
+                    categorySelect.appendChild(option1);
+                    
+                    // 添加/编辑商品的分类选择
+                    const option2 = document.createElement('option');
+                    option2.value = category.id;
+                    option2.textContent = category.name;
+                    productCategory.appendChild(option2);
+                });
+            } catch (error) {
+                console.error('加载分类失败:', error);
+                alert('加载分类失败，请稍后重试');
+            }
+        }
+        
+        // 加载商品列表
+        async function loadProducts() {
+            try {
+                const search = document.getElementById('searchInput').value;
+                const category = document.getElementById('categorySelect').value;
+                
+                const url = `/api/products?page=${currentPage}&limit=${pageSize}&name=${encodeURIComponent(search)}&category_id=${category}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                products = data.products;
+                const total = data.total;
+                
+                renderProducts();
+                renderPagination(total);
+                updateCountInfo();
+            } catch (error) {
+                console.error('加载商品失败:', error);
+                alert('加载商品失败，请稍后重试');
+            }
+        }
+        
+        // 渲染商品列表
+        function renderProducts() {
+            const tbody = document.getElementById('productTableBody');
+            tbody.innerHTML = '';
+            
+            if (products.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" class="text-center">暂无商品数据</td></tr>';
+                return;
+            }
+
+            products.forEach(product => {
+                // 确保price是数字类型
+                const price = parseFloat(product.price) || 0;
+                const deliveryFee = parseFloat(product.delivery_fee) || 0;
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${product.id}</td>
+                    <td>${product.name}</td>
+                    <td>${product.category ? product.category.name : '-'}</td>
+                    <td>¥${price.toFixed(2)}</td>
+                    <td>${deliveryFee > 0 ? '¥' + deliveryFee.toFixed(2) : '<span class="text-muted">免配送费</span>'}</td>
+                    <td>${product.sales}</td>
+                    <td><i class="bi ${product.is_new ? 'bi-check-circle text-success' : 'bi-x-circle text-danger'}"></i></td>
+                    <td><i class="bi ${product.is_recommended ? 'bi-check-circle text-success' : 'bi-x-circle text-danger'}"></i></td>
+                    <td><span class="badge ${product.is_active ? 'bg-success' : 'bg-danger'}">${product.is_active ? '激活' : '禁用'}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="openEditProductModalById(${product.id})"><i class="bi bi-pencil"></i></button>
+                        <button class="btn btn-sm btn-outline-danger ms-1" onclick="deleteProduct(${product.id})"><i class="bi bi-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // 渲染分页
+        function renderPagination(total) {
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = '';
+            
+            const totalPages = Math.ceil(total / pageSize);
+            
+            // 上一页按钮
+            const prevBtn = document.createElement('li');
+            prevBtn.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+            prevBtn.innerHTML = `<a class="page-link" href="#" onclick="changePage(${currentPage - 1})">&laquo;</a>`;
+            pagination.appendChild(prevBtn);
+            
+            // 页码按钮
+            for (let i = 1; i <= totalPages; i++) {
+                const pageBtn = document.createElement('li');
+                pageBtn.className = `page-item ${i === currentPage ? 'active' : ''}`;
+                pageBtn.innerHTML = `<a class="page-link" href="#" onclick="changePage(${i})">${i}</a>`;
+                pagination.appendChild(pageBtn);
+            }
+            
+            // 下一页按钮
+            const nextBtn = document.createElement('li');
+            nextBtn.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+            nextBtn.innerHTML = `<a class="page-link" href="#" onclick="changePage(${currentPage + 1})">&raquo;</a>`;
+            pagination.appendChild(nextBtn);
+        }
+        
+        // 更新统计信息
+        function updateCountInfo() {
+            document.getElementById('showingCount').textContent = products.length;
+            const total = document.getElementById('totalCount').textContent;
+        }
+        
+        // 切换页码
+        function changePage(page) {
+            if (page < 1) return;
+            const totalPages = Math.ceil(parseInt(document.getElementById('totalCount').textContent) / pageSize);
+            if (page > totalPages) return;
+            
+            currentPage = page;
+            loadProducts();
+        }
+        
+        // 搜索商品
+        function searchProducts() {
+            currentPage = 1;
+            loadProducts();
+        }
+        
+        // 重置筛选条件
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('categorySelect').value = '';
+            currentPage = 1;
+            loadProducts();
+        }
+        
+        // 打开添加商品模态框
+        function openAddModal() {
+            document.getElementById('productModalLabel').textContent = '添加商品';
+            document.getElementById('productId').value = '';
+            document.getElementById('productForm').reset();
+            currentProductId = null;
+
+            // 重置单选按钮
+            document.getElementById('isNewNo').checked = true;
+            document.getElementById('isRecommendedNo').checked = true;
+            document.getElementById('isActiveYes').checked = true;
+            document.getElementById('enableToppingsYes').checked = true;
+
+            // 重置规格数据
+            currentSpecs = { ice: [], sugar: [], topping: [] };
+
+            new bootstrap.Modal(document.getElementById('productModal')).show();
+        }
+
+        // 打开编辑商品模态框
+        function openEditModal(product) {
+            document.getElementById('productModalLabel').textContent = '编辑商品';
+            document.getElementById('productId').value = product.id;
+            currentProductId = product.id;
+            document.getElementById('productName').value = product.name;
+            document.getElementById('productCategory').value = product.category_id;
+            document.getElementById('productPriceSmall').value = product.price_small || product.price;
+            document.getElementById('productPriceMedium').value = product.price_medium || product.price;
+            document.getElementById('productPriceLarge').value = product.price_large || product.price;
+            document.getElementById('productDeliveryFee').value = product.delivery_fee || 0;
+            document.getElementById('productImage').value = product.image || '';
+            document.getElementById('productDesc').value = product.desc || '';
+            document.getElementById('productTags').value = product.tags || '';
+
+            // 设置单选按钮
+            document.getElementById(product.is_new ? 'isNewYes' : 'isNewNo').checked = true;
+            document.getElementById(product.is_recommended ? 'isRecommendedYes' : 'isRecommendedNo').checked = true;
+            document.getElementById(product.is_active ? 'isActiveYes' : 'isActiveNo').checked = true;
+
+            // 设置配料开关
+            document.getElementById(product.enable_toppings ? 'enableToppingsYes' : 'enableToppingsNo').checked = true;
+
+            // 设置各杯型启用开关
+            document.getElementById('enableSizeSmall').checked = product.enable_size_small ? true : false;
+            document.getElementById('enableSizeMedium').checked = product.enable_size_medium ? true : false;
+            document.getElementById('enableSizeLarge').checked = product.enable_size_large ? true : false;
+
+            // 显示图片预览
+            showImagePreview(product.image || '');
+
+            // 加载商品规格
+            loadProductSpecs(product.id);
+
+            new bootstrap.Modal(document.getElementById('productModal')).show();
+        }
+
+        // 通过ID打开编辑商品模态框
+        async function openEditProductModalById(productId) {
+            try {
+                // 从服务器获取完整的商品详情
+                const response = await fetch(`/api/products/${productId}`);
+                if (!response.ok) {
+                    throw new Error('获取商品详情失败');
+                }
+                const product = await response.json();
+                openEditModal(product);
+            } catch (error) {
+                console.error('加载商品详情失败:', error);
+                alert('加载商品详情失败，请稍后重试');
+            }
+        }
+        
+        // 打开分类管理模态框
+        function openCategoryModal() {
+            document.getElementById('categoryModalLabel').textContent = '分类管理';
+            document.getElementById('categoryForm').reset();
+            document.getElementById('categoryId').value = '';
+            loadCategoryList();
+            new bootstrap.Modal(document.getElementById('categoryModal')).show();
+        }
+        
+        // 加载分类列表
+        async function loadCategoryList() {
+            try {
+                const response = await fetch('/api/products/categories');
+                const categories = await response.json();
+                
+                const categoryList = document.getElementById('categoryList');
+                categoryList.innerHTML = '';
+                
+                categories.forEach(category => {
+                    const li = document.createElement('li');
+                    li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                    li.innerHTML = `
+                        <div>
+                            <strong>${category.name}</strong>
+                            <small class="text-muted d-block">${category.desc || '无描述'}</small>
+                        </div>
+                        <div>
+                            <span class="badge ${category.is_active ? 'bg-success' : 'bg-danger'} me-2">
+                                ${category.is_active ? '激活' : '禁用'}
+                            </span>
+                            <button class="btn btn-sm btn-outline-primary me-1" onclick="editCategoryById(${category.id})"><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteCategory(${category.id})"><i class="bi bi-trash"></i></button>
+                        </div>
+                    `;
+                    categoryList.appendChild(li);
+                });
+            } catch (error) {
+                console.error('加载分类列表失败:', error);
+                alert('加载分类列表失败，请稍后重试');
+            }
+        }
+        
+        // 编辑分类
+        function editCategory(category) {
+            document.getElementById('categoryId').value = category.id;
+            document.getElementById('categoryName').value = category.name;
+            document.getElementById('categoryDesc').value = category.desc || '';
+            document.getElementById('categoryIcon').value = category.icon || '';
+            document.getElementById('categorySort').value = category.sort_order || 0;
+            document.getElementById(category.is_active ? 'categoryActive' : 'categoryInactive').checked = true;
+
+            // 显示图标预览
+            showCategoryIconPreview(category.icon || '');
+        }
+
+        // 通过ID编辑分类
+        async function editCategoryById(categoryId) {
+            try {
+                const response = await fetch(`/api/products/categories/${categoryId}`);
+                const category = await response.json();
+                if (category) {
+                    editCategory(category);
+                }
+            } catch (error) {
+                console.error('获取分类详情失败:', error);
+                alert('获取分类详情失败，请稍后重试');
+            }
+        }
+        
+        // 触发分类图标上传
+        function triggerCategoryIconUpload() {
+            document.getElementById('categoryIconUpload').click();
+        }
+        
+        // 监听分类图标上传
+        document.getElementById('categoryIconUpload').addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            // 检查文件类型
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('只允许上传JPG、PNG、GIF、WEBP 类型的图片');
+                return;
+            }
+            
+            // 检查文件大小（5MB）
+            if (file.size > 5 * 1024 * 1024) {
+                alert('图片大小不能超过 5MB');
+                return;
+            }
+            
+            // 创建 FormData
+            const formData = new FormData();
+            formData.append('image', file);
+            
+            try {
+                // 显示上传状态
+                document.getElementById('categoryIcon').value = '上传中...';
+                
+                // 上传图片
+                const response = await fetch('/api/upload/image', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    // 上传成功，设置图片URL
+                    const imageUrl = result.url; // 修正：通用上传路由返回的是result.url
+                    document.getElementById('categoryIcon').value = imageUrl;
+                    showCategoryIconPreview(imageUrl);
+                    showToast('分类图标上传成功', 'success');
+                } else {
+                    showToast('上传失败：' + (result.message || '未知错误'), 'error');
+                    document.getElementById('categoryIcon').value = '';
+                    showCategoryIconPreview('');
+                }
+            } catch (error) {
+                console.error('分类图标上传失败:', error);
+                showToast('分类图标上传失败，请稍后重试', 'error');
+                document.getElementById('categoryIcon').value = '';
+                showCategoryIconPreview('');
+            }
+        });
+        
+        // 显示分类图标预览
+        function showCategoryIconPreview(iconUrl) {
+            const previewContainer = document.getElementById('categoryIconPreview');
+            if (iconUrl) {
+                previewContainer.innerHTML = `<img src="${iconUrl}" style="max-width: 100px; max-height: 100px; border: 1px solid #eee; border-radius: 4px;">`;
+            } else {
+                previewContainer.innerHTML = '';
+            }
+        }
+        
+        // 保存分类
+        async function saveCategory() {
+            const form = document.getElementById('categoryForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            
+            const categoryId = document.getElementById('categoryId').value;
+            const categoryData = {
+                name: document.getElementById('categoryName').value,
+                desc: document.getElementById('categoryDesc').value,
+                icon: document.getElementById('categoryIcon').value,
+                sort_order: parseInt(document.getElementById('categorySort').value),
+                is_active: document.querySelector('input[name="categoryStatus"]:checked').value
+            };
+            
+            try {
+                let response;
+                const headers = getAuthHeaders(); // 获取认证头                
+                if (categoryId) {
+                    // 更新分类
+                    response = await fetch(`/api/products/categories/${categoryId}`, {
+                        method: 'PUT',
+                        headers: headers,
+                        body: JSON.stringify(categoryData)
+                    });
+                } else {
+                    // 添加分类
+                    response = await fetch('/api/products/categories', {
+                        method: 'POST',
+                        headers: headers,
+                        body: JSON.stringify(categoryData)
+                    });
+                }
+                
+                if (response.ok) {
+                    loadCategoryList();
+                    loadCategories(); // 更新商品管理页面的分类选择
+                    form.reset();
+                    document.getElementById('categoryId').value = '';
+                    showCategoryIconPreview('');
+                    showToast('分类保存成功！', 'success');
+                    // 关闭模态框
+                    bootstrap.Modal.getInstance(document.getElementById('categoryModal')).hide();
+                } else {
+                    const errorData = await response.json();
+                    showToast('保存失败：' + (errorData.error || '未知错误'), 'error');
+                }
+            } catch (error) {
+                console.error('保存分类失败:', error);
+                showToast('保存分类失败，请稍后重试', 'error');
+            }
+        }
+        
+        // 删除分类
+        async function deleteCategory(categoryId) {
+            if (!confirm('确定要删除该分类吗？删除后该分类下的商品将无法正常显示。')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/products/categories/${categoryId}`, {
+                    method: 'DELETE',
+                    headers: getAuthHeaders() // 添加认证头
+                });
+                
+                if (response.ok) {
+                    loadCategoryList();
+                    loadCategories(); // 更新商品管理页面的分类选择
+                    showToast('分类删除成功！', 'success');
+                } else {
+                    const errorData = await response.json();
+                    let errorMessage = '删除失败：' + (errorData.error || '未知错误');
+                    // 更友好的错误提示
+                    if (errorData.error === 'Cannot delete category with products') {
+                        errorMessage = '删除失败：该分类下存在商品，请先将商品转移到其他分类或删除商品后再尝试删除分类。';
+                    }
+                    showToast(errorMessage, 'error');
+                }
+            } catch (error) {
+                console.error('删除分类失败:', error);
+                showToast('删除分类失败，请稍后重试', 'error');
+            }
+        }
+        
+        // 触发图片上传
+        function triggerImageUpload() {
+            document.getElementById('imageUpload').click();
+        }
+        
+        // 监听图片上传
+        document.getElementById('imageUpload').addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            // 检查文件类型
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('只允许上传JPG、PNG、GIF、WEBP 类型的图片');
+                return;
+            }
+            
+            // 检查文件大小（5MB）
+            if (file.size > 5 * 1024 * 1024) {
+                alert('图片大小不能超过 5MB');
+                return;
+            }
+            
+            // 创建 FormData
+            const formData = new FormData();
+            formData.append('image', file);
+            
+            try {
+                // 显示上传状态
+                document.getElementById('productImage').value = '上传中...';
+                
+                // 上传图片
+                const response = await fetch('/api/upload/image', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    // 上传成功，设置图片URL
+                    const imageUrl = result.url; // 修正：通用上传路由返回的是result.url
+                    document.getElementById('productImage').value = imageUrl;
+                    showImagePreview(imageUrl);
+                    showToast('图片上传成功', 'success');
+                } else {
+                    showToast('上传失败：' + (result.message || '未知错误'), 'error');
+                    document.getElementById('productImage').value = '';
+                    showImagePreview('');
+                }
+            } catch (error) {
+                console.error('图片上传失败:', error);
+                showToast('图片上传失败，请稍后重试', 'error');
+                document.getElementById('productImage').value = '';
+                showImagePreview('');
+            }
+        });
+        
+        // 显示图片预览
+        function showImagePreview(imageUrl) {
+            const previewContainer = document.getElementById('imagePreview');
+            if (imageUrl) {
+                previewContainer.innerHTML = `<img src="${imageUrl}" style="max-width: 200px; max-height: 200px; border: 1px solid #eee; border-radius: 4px;">`;
+            } else {
+                previewContainer.innerHTML = '';
+            }
+        }
+        
+        // 保存商品
+        async function saveProduct() {
+            const form = document.getElementById('productForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const productId = document.getElementById('productId').value;
+            const productData = {
+                name: document.getElementById('productName').value,
+                category_id: document.getElementById('productCategory').value,
+                price_small: parseFloat(document.getElementById('productPriceSmall').value),
+                price_medium: parseFloat(document.getElementById('productPriceMedium').value),
+                price_large: parseFloat(document.getElementById('productPriceLarge').value),
+                delivery_fee: parseFloat(document.getElementById('productDeliveryFee').value) || 0,
+                image: document.getElementById('productImage').value,
+                desc: document.getElementById('productDesc').value,
+                tags: document.getElementById('productTags').value,
+                is_new: document.querySelector('input[name="isNew"]:checked').value,
+                is_recommended: document.querySelector('input[name="isRecommended"]:checked').value,
+                is_active: document.querySelector('input[name="isActive"]:checked').value,
+                enable_toppings: document.querySelector('input[name="enableToppings"]:checked').value,
+                enable_size_small: document.getElementById('enableSizeSmall').checked ? 1 : 0,
+                enable_size_medium: document.getElementById('enableSizeMedium').checked ? 1 : 0,
+                enable_size_large: document.getElementById('enableSizeLarge').checked ? 1 : 0,
+                // 冰度和甜度默认启用
+                enable_ice: 1,
+                enable_sugar: 1
+            };
+
+            try {
+                // 从 localStorage 获取管理员 token
+                const token = localStorage.getItem('adminToken');
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+
+                let response;
+                if (productId) {
+                    // 更新商品
+                    response = await fetch(`/api/products/${productId}`, {
+                        method: 'PUT',
+                        headers: headers,
+                        body: JSON.stringify(productData)
+                    });
+                } else {
+                    // 添加商品
+                    response = await fetch('/api/products', {
+                        method: 'POST',
+                        headers: headers,
+                        body: JSON.stringify(productData)
+                    });
+                }
+
+                if (response.ok) {
+                    // 关闭模态框
+                    bootstrap.Modal.getInstance(document.getElementById('productModal')).hide();
+                    // 重新加载商品列表
+                    loadProducts();
+                    alert('商品保存成功！');
+                } else {
+                    const errorData = await response.json();
+                    alert('保存失败：' + (errorData.error || '未知错误'));
+                }
+            } catch (error) {
+                console.error('保存商品失败:', error);
+                alert('保存商品失败，请稍后重试');
+            }
+        }
+
+        // 加载商品规格
+        async function loadProductSpecs(productId) {
+            try {
+                const response = await fetch(`/api/products/${productId}/specs`);
+                const specs = await response.json();
+
+                // 分类规格（过滤掉杯型规格，因为杯型已在商品价格区域管理）
+                currentSpecs = {
+                    ice: specs.filter(s => s.type === 'ice'),
+                    sugar: specs.filter(s => s.type === 'sugar'),
+                    topping: specs.filter(s => s.type === 'topping')
+                };
+
+                // 渲染规格列表
+                renderSpecItems('ice');
+                renderSpecItems('sugar');
+                renderSpecItems('topping');
+            } catch (error) {
+                console.error('加载规格失败:', error);
+                // 如果加载失败，使用空数组
+                currentSpecs = { ice: [], sugar: [], topping: [] };
+            }
+        }
+
+        // 打开规格管理模态框
+        function openSpecModal() {
+            if (!currentProductId) {
+                alert('请先保存商品后再管理规格');
+                return;
+            }
+
+            // 渲染当前规格（杯型已移除，不在规格管理中）
+            renderSpecItems('ice');
+            renderSpecItems('sugar');
+            renderSpecItems('topping');
+
+            new bootstrap.Modal(document.getElementById('specModal')).show();
+        }
+
+        // 渲染规格项
+        function renderSpecItems(type) {
+            const container = document.getElementById(`${type}-specs-container`);
+            container.innerHTML = '';
+
+            currentSpecs[type].forEach((spec, index) => {
+                const div = document.createElement('div');
+                div.className = 'row mb-2 align-items-center spec-item';
+                div.dataset.type = type;
+                div.dataset.index = index;
+
+                const priceField = type === 'topping' ?
+                    `<div class="col-md-3">
+                        <input type="number" class="form-control form-control-sm" placeholder="价格" value="${spec.price}" step="0.01" min="0" onchange="updateSpecPrice('${type}', ${index}, this.value)">
+                    </div>` : '';
+
+                div.innerHTML = `
+                    <div class="col-md-${type === 'topping' ? '5' : '8'}">
+                        <input type="text" class="form-control form-control-sm" placeholder="名称" value="${spec.name}" onchange="updateSpecName('${type}', ${index}, this.value)">
+                    </div>
+                    ${priceField}
+                    <div class="col-md-4 text-end">
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeSpecItem('${type}', ${index})">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // 添加规格项
+        function addSpecItem(type) {
+            const newSpec = type === 'topping' ? { name: '', price: 0 } : { name: '' };
+            currentSpecs[type].push(newSpec);
+            renderSpecItems(type);
+        }
+
+        // 移除规格项
+        function removeSpecItem(type, index) {
+            currentSpecs[type].splice(index, 1);
+            renderSpecItems(type);
+        }
+
+        // 更新规格名称
+        function updateSpecName(type, index, value) {
+            currentSpecs[type][index].name = value;
+        }
+
+        // 更新规格价格
+        function updateSpecPrice(type, index, value) {
+            currentSpecs[type][index].price = parseFloat(value) || 0;
+        }
+
+        // 保存规格
+        async function saveSpecs() {
+            if (!currentProductId) {
+                alert('无法保存规格：缺少商品ID');
+                return;
+            }
+
+            // 合并所有规格
+            const allSpecs = [
+                ...currentSpecs.ice.map(s => ({ ...s, type: 'ice' })),
+                ...currentSpecs.sugar.map(s => ({ ...s, type: 'sugar' })),
+                ...currentSpecs.topping.map(s => ({ ...s, type: 'topping' }))
+            ];
+
+            // 检查是否应用至全局
+            const applyToGlobal = document.getElementById('applyToGlobal').checked;
+
+            try {
+                let url = `/api/products/${currentProductId}/specs/batch`;
+                let body = { specs: allSpecs };
+
+                // 如果应用至全局，添加参数
+                if (applyToGlobal) {
+                    body.applyToGlobal = true;
+
+                    // 确认操作
+                    const confirmMsg = `确定要将当前规格设置应用到所有商品吗？\n\n这将覆盖所有商品现有的冰度、甜度和配料规格！`;
+                    if (!confirm(confirmMsg)) {
+                        return;
+                    }
+                }
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(body)
+                });
+
+                if (response.ok) {
+                    // 关闭模态框
+                    bootstrap.Modal.getInstance(document.getElementById('specModal')).hide();
+                    alert(applyToGlobal ? '规格已成功应用到所有商品！' : '规格保存成功！');
+                    // 重置复选框
+                    document.getElementById('applyToGlobal').checked = false;
+                } else {
+                    const errorData = await response.json();
+                    alert('保存失败：' + (errorData.error || '未知错误'));
+                }
+            } catch (error) {
+                console.error('保存规格失败:', error);
+                alert('保存规格失败，请稍后重试');
+            }
+        }
+        
+        // 删除商品
+        async function deleteProduct(productId) {
+            if (!confirm('确定要删除该商品吗？')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/products/${productId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    // 重新加载商品列表
+                    loadProducts();
+                    alert('商品删除成功！');
+                } else {
+                    const errorData = await response.json();
+                    alert('删除失败：' + (errorData.error || '未知错误'));
+                }
+            } catch (error) {
+                console.error('删除商品失败:', error);
+                alert('删除商品失败，请稍后重试');
+            }
+        }
+    </script>
+</body>
+</html>

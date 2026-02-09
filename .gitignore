@@ -1,0 +1,69 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Database
+database.sqlite
+database.sqlite-journal
+*.db
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.production
+.env.deploy
+
+# Uploads
+uploads/
+public/uploads/
+
+# Logs
+logs/
+*.log
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Build files
+dist/
+build/
+
+# Test files
+__tests__/
+tests/
+
+# Local development files
+.trae/
+local-print-server/
+
+# Deployment archives
+*.zip
+deploy.zip
+webusb-deploy.zip
+
+# SSL certificates (if private)
+certs/

@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>奶茶店后台管理系统 - 首页</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="/styles/admin-modern.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .sidebar {
+            min-height: 100vh;
+            background-color: #343a40;
+            color: white;
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+        }
+        .sidebar a:hover {
+            background-color: #495057;
+        }
+        .content {
+            padding: 20px;
+        }
+        .card {
+            margin-bottom: 20px;
+        }
+        #orderStatusLegend .list-group-item {
+            border: none;
+            padding: 8px 12px;
+        }
+        #orderStatusLegend .badge {
+            display: inline-block;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- 侧边栏 -->
+            <div class="col-md-2 sidebar">
+                <div class="p-3 text-center" style="background-color: #212529;">
+                    <h5 class="mb-0">奶茶店管理系统</h5>
+                </div>
+                <ul class="nav flex-column p-3">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/admin/dashboard">
+                            <i class="bi bi-house"></i> 首页
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/pos">
+                            <i class="bi bi-shop"></i> 现场点单
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/products">
+                            <i class="bi bi-box"></i> 商品管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/orders">
+                            <i class="bi bi-phone"></i> 小程序订单
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/all-orders">
+                            <i class="bi bi-cart"></i> 订单管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/users">
+                            <i class="bi bi-people-fill"></i> 用户管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/members">
+                            <i class="bi bi-people"></i> 会员管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/coupons">
+                            <i class="bi bi-ticket"></i> 优惠券管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/recharge">
+                            <i class="bi bi-wallet2"></i> 储值管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/group-buy">
+                            <i class="bi bi-people-fill"></i> 团购管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/ui">
+                            <i class="bi bi-palette-fill"></i> UI管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/delivery-platforms">
+                            <i class="bi bi-truck"></i> 外卖平台
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/stores">
+                            <i class="bi bi-building"></i> 店铺管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/stats">
+                            <i class="bi bi-bar-chart"></i> 数据统计
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-danger" href="/admin/logout">
+                            <i class="bi bi-box-arrow-right"></i> 退出登录
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- 主内容区 -->
+            <div class="col-md-10 content">
+                <!-- 顶部导航栏 -->
+                <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4">
+                    <div class="container-fluid d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0"><i class="bi bi-house"></i> 数据看板</h4>
+                        <span class="text-muted">欢迎，<strong>admin</strong></span>
+                    </div>
+                </nav>
+                
+                <!-- 统计卡片 -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card text-white bg-primary">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col">
+                                        <h6 class="card-title text-white-50">商品总数</h6>
+                                        <h3 class="card-text">0</h3>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="bi bi-box h3"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-white bg-success">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col">
+                                        <h6 class="card-title text-white-50">今日订单</h6>
+                                        <h3 class="card-text">0</h3>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="bi bi-cart h3"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-white bg-warning">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col">
+                                        <h6 class="card-title text-white-50">总用户数</h6>
+                                        <h3 class="card-text">0</h3>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="bi bi-people h3"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-white bg-info">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col">
+                                        <h6 class="card-title text-white-50">总销售额</h6>
+                                        <h3 class="card-text">¥0.00</h3>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="bi bi-cash h3"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 订单状态分布 -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">订单状态分布</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-7">
+                                <canvas id="orderStatusChart" height="250"></canvas>
+                            </div>
+                            <div class="col-md-5">
+                                <div id="orderStatusLegend" class="mt-3">
+                                    <!-- 图例将通过JS动态生成 -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 商品销售情况 -->
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">商品销售排行 TOP10</h5>
+                        <span class="text-muted small">统计时间：本月</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-7">
+                                <canvas id="productSalesChart" height="300"></canvas>
+                            </div>
+                            <div class="col-md-5">
+                                <div id="productSalesLegend" class="mt-3">
+                                    <!-- 图例将通过JS动态生成 -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        // ==================== 原有功能 ====================
+        // 加载统计数据
+        async function loadStats() {
+            try {
+                // 获取日期范围（今年）
+                const currentYear = new Date().getFullYear();
+                const startOfYear = `${currentYear}-01-01`;
+                const endOfYear = `${currentYear}-12-31`;
+                
+                // 并行加载所有统计数据
+                const [salesRes, ordersRes, productsRes, usersRes] = await Promise.all([
+                    fetch(`/api/stats/sales?start_date=${startOfYear}&end_date=${endOfYear}`),
+                    fetch(`/api/stats/orders?start_date=${startOfYear}&end_date=${endOfYear}`),
+                    fetch('/api/stats/products'),
+                    fetch('/api/stats/users')
+                ]);
+                
+                const salesData = await salesRes.json();
+                const ordersData = await ordersRes.json();
+                const productsData = await productsRes.json();
+                const usersData = await usersRes.json();
+                
+                // 更新统计卡片
+                document.querySelector('.bg-primary .card-text').textContent = productsData.total_products || 0;
+                document.querySelector('.bg-success .card-text').textContent = ordersData.total_orders || 0;
+                document.querySelector('.bg-warning .card-text').textContent = usersData.total_users || 0;
+                document.querySelector('.bg-info .card-text').textContent = '¥' + (salesData.total_sales || 0).toFixed(2);
+                
+            } catch (error) {
+                console.error('加载统计数据失败:', error);
+            }
+        }
+        
+        // 加载订单状态分布图表
+        async function loadOrderStatusChart() {
+            try {
+                // 获取今年日期范围
+                const currentYear = new Date().getFullYear();
+                const startOfYear = `${currentYear}-01-01`;
+                const endOfYear = `${currentYear}-12-31`;
+
+                const response = await fetch(`/api/stats/orders?start_date=${startOfYear}&end_date=${endOfYear}`);
+                const data = await response.json();
+
+                if (data.status_distribution && data.status_distribution.length > 0) {
+                    // 订单状态映射
+                    const statusMap = {
+                        0: { name: '待支付', color: '#6c757d' },
+                        1: { name: '已支付', color: '#0d6efd' },
+                        2: { name: '制作中', color: '#0dcaf0' },
+                        3: { name: '待取餐', color: '#ffc107' },
+                        4: { name: '已完成', color: '#198754' },
+                        5: { name: '已取消', color: '#dc3545' }
+                    };
+
+                    // 准备图表数据
+                    const labels = [];
+                    const values = [];
+                    const colors = [];
+                    const legendContainer = document.getElementById('orderStatusLegend');
+
+                    let legendHtml = '<div class="list-group">';
+                    let totalOrders = data.total_orders || 0;
+
+                    data.status_distribution.forEach(item => {
+                        const statusInfo = statusMap[item.status] || { name: `状态${item.status}`, color: '#6c757d' };
+                        labels.push(statusInfo.name);
+                        values.push(item.count);
+                        colors.push(statusInfo.color);
+
+                        // 添加图例项
+                        const percentage = item.percentage || 0;
+                        legendHtml += `
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <span class="badge rounded-pill me-2" style="background-color: ${statusInfo.color}; width: 16px; height: 16px;"></span>
+                                    <span>${statusInfo.name}</span>
+                                </div>
+                                <div>
+                                    <strong>${item.count}</strong>
+                                    <span class="text-muted ms-2">(${percentage}%)</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    legendHtml += '</div>';
+                    legendContainer.innerHTML = legendHtml;
+
+                    // 销毁已存在的图表
+                    const existingChart = Chart.getChart('orderStatusChart');
+                    if (existingChart) {
+                        existingChart.destroy();
+                    }
+
+                    // 创建饼状图
+                    const ctx = document.getElementById('orderStatusChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'pie',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                data: values,
+                                backgroundColor: colors,
+                                borderColor: colors.map(color => color),
+                                borderWidth: 2
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false // 使用自定义图例
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            const label = context.label || '';
+                                            const value = context.parsed || 0;
+                                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                            const percentage = ((value / total) * 100).toFixed(1);
+                                            return `${label}: ${value}单 (${percentage}%)`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    // 没有数据时显示提示
+                    document.getElementById('orderStatusLegend').innerHTML = '<p class="text-muted text-center">暂无订单数据</p>';
+                }
+            } catch (error) {
+                console.error('加载订单状态分布失败:', error);
+            }
+        }
+
+        // 获取订单状态样式
+        function getStatusBadgeClass(status) {
+            const statusMap = {
+                0: 'bg-secondary',    // 待支付
+                1: 'bg-primary',      // 已支付
+                2: 'bg-info',         // 制作中
+                3: 'bg-warning',      // 待取餐/配送中
+                4: 'bg-success',      // 已完成
+                5: 'bg-danger'        // 已取消
+            };
+            return statusMap[status] || 'bg-secondary';
+        }
+        
+        // 获取订单状态文本
+        function getStatusText(status) {
+            const statusMap = {
+                0: '待支付',
+                1: '已支付',
+                2: '制作中',
+                3: '待取餐',
+                4: '已完成',
+                5: '已取消'
+            };
+            return statusMap[status] || '未知';
+        }
+        
+        // 加载商品销售排行图表
+        async function loadProductSalesChart() {
+            try {
+                // 获取本月日期范围
+                const now = new Date();
+                const startOfMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+                const endOfMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()).padStart(2, '0')}`;
+
+                const response = await fetch(`/api/stats/products?start_date=${startOfMonth}&end_date=${endOfMonth}&limit=10`);
+                const data = await response.json();
+
+                if (data.products && data.products.length > 0) {
+                    // 准备图表数据
+                    const labels = [];
+                    const values = [];
+                    const colors = [];
+                    const legendContainer = document.getElementById('productSalesLegend');
+
+                    // 生成颜色数组
+                    const colorPalette = [
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+                        '#FF9F40', '#FF6384', '#C9CBCF', '#4BC0C0', '#FF6384'
+                    ];
+
+                    let legendHtml = '<div class="list-group">';
+                    let totalSales = data.products.reduce((sum, item) => sum + item.total_quantity, 0);
+
+                    data.products.forEach((item, index) => {
+                        const productName = item.product_name;
+                        const quantity = item.total_quantity;
+                        const percentage = totalSales > 0 ? ((quantity / totalSales) * 100).toFixed(1) : 0;
+                        const color = colorPalette[index % colorPalette.length];
+
+                        labels.push(productName);
+                        values.push(quantity);
+                        colors.push(color);
+
+                        // 添加图例项
+                        legendHtml += `
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <span class="badge rounded-pill me-2" style="background-color: ${color}; width: 16px; height: 16px;"></span>
+                                    <span class="text-truncate" style="max-width: 120px;" title="${productName}">${productName}</span>
+                                </div>
+                                <div>
+                                    <strong>${quantity}</strong>
+                                    <span class="text-muted ms-2">(${percentage}%)</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    legendHtml += '</div>';
+                    legendContainer.innerHTML = legendHtml;
+
+                    // 销毁已存在的图表
+                    const existingChart = Chart.getChart('productSalesChart');
+                    if (existingChart) {
+                        existingChart.destroy();
+                    }
+
+                    // 创建饼状图
+                    const ctx = document.getElementById('productSalesChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'pie',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                data: values,
+                                backgroundColor: colors,
+                                borderColor: colors.map(color => color),
+                                borderWidth: 2
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false // 使用自定义图例
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            const label = context.label || '';
+                                            const value = context.parsed || 0;
+                                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                            const percentage = ((value / total) * 100).toFixed(1);
+                                            return `${label}: ${value}杯 (${percentage}%)`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    // 没有数据时显示提示
+                    document.getElementById('productSalesLegend').innerHTML = '<p class="text-muted text-center">暂无销售数据</p>';
+                }
+            } catch (error) {
+                console.error('加载商品销售排行失败:', error);
+            }
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStats();
+            loadOrderStatusChart();
+            loadProductSalesChart();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>字体测试页面</title>
+    <style>
+        body {
+            font-family: 'BWNW-Cocoa', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .loaded {
+            color: green;
+            font-weight: bold;
+        }
+        .not-loaded {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>白无常可可体测试页面</h1>
+
+    <div class="test-section">
+        <h2>字体加载状态</h2>
+        <p id="font-status">检测中...</p>
+    </div>
+
+    <div class="test-section">
+        <h2>测试文本</h2>
+        <p>这是一段测试文本，用于检查白无常可可体是否正确加载。</p>
+        <p>半夏奶茶店 - 点餐页面</p>
+        <p>价格：¥15起</p>
+        <p><strong>粗体文字测试</strong></p>
+    </div>
+
+    <div class="test-section">
+        <h2>字体文件路径</h2>
+        <p>预期路径：<code>/fonts/BWNW-Cocoa.woff2</code></p>
+        <p>完整URL：<code id="font-url"></code></p>
+    </div>
+
+    <script>
+        // 显示字体URL
+        const fontUrl = window.location.origin + '/fonts/BWNW-Cocoa.woff2';
+        document.getElementById('font-url').textContent = fontUrl;
+
+        // 测试字体是否加载
+        document.fonts.ready.then(() => {
+            const statusEl = document.getElementById('font-status');
+
+            // 检查字体是否已加载
+            if (document.fonts.check('16px BWNW-Cocoa')) {
+                statusEl.innerHTML = '<span class="loaded">✅ 白无常可可体已成功加载</span>';
+            } else {
+                statusEl.innerHTML = '<span class="not-loaded">❌ 白无常可可体未加载，使用系统回退字体</span>';
+            }
+        });
+
+        // 尝试加载字体
+        try {
+            const font = new FontFace('BWNW-Cocoa', 'url("/fonts/BWNW-Cocoa.woff2")');
+            font.load().then(
+                (loadedFace) => {
+                    document.fonts.add(loadedFace);
+                    console.log('字体加载成功');
+                },
+                (error) => {
+                    console.error('字体加载失败:', error);
+                    document.getElementById('font-status').innerHTML =
+                        '<span class="not-loaded">❌ 字体文件不存在或加载失败</span>';
+                }
+            );
+        } catch (error) {
+            console.error('字体加载异常:', error);
+        }
+    </script>
+</body>
+</html>

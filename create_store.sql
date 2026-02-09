@@ -1,0 +1,1 @@
+INSERT INTO milktea_shop.stores (id, name, address, phone, business_hours, is_active) VALUES (1, '默认门店', '门店地址', '13800138000', '09:00-22:00', 1);
