@@ -4,7 +4,7 @@
  */
 
 // 临时配置：服务器地址（部署时请修改为实际地址）
-const TEMP_SERVER_URL = 'http://39.102.214.230:3003';
+const TEMP_SERVER_URL = 'http://39.102.214.230:8080';
 
 module.exports = {
   // 是否启用微信支付
