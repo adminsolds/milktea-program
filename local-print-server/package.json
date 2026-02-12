@@ -1,20 +1,34 @@
 {
-  "name": "local-print-server",
+  "name": "milktea-local-print-server",
   "version": "1.0.0",
-  "description": "本地打印服务 - 用于美团点餐机浏览器打印",
-  "main": "server.js",
+  "description": "奶茶店本地打印服务 - 连接网页系统和打印机",
+  "main": "print-server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
+    "start": "node print-server.js",
+    "dev": "nodemon print-server.js"
   },
   "dependencies": {
-    "escpos": "^3.0.0-alpha.6",
-    "escpos-usb": "^3.0.0-alpha.4",
-    "escpos-network": "^3.0.0-alpha.4",
+    "express": "^4.18.2",
     "cors": "^2.8.5",
-    "express": "^4.18.2"
+    "body-parser": "^1.20.2",
+    "serialport": "^12.0.0",
+    "usb": "^2.11.0",
+    "node-escpos": "^0.0.3",
+    "escpos-usb": "^3.0.0-alpha.4",
+    "ws": "^8.14.2",
+    "qrcode": "^1.5.3",
+    "moment": "^2.29.4"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
-  }
+  },
+  "keywords": [
+    "printer",
+    "thermal",
+    "pos",
+    "milktea",
+    "escpos"
+  ],
+  "author": "MilkTea POS",
+  "license": "MIT"
 }

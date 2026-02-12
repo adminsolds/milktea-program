@@ -743,6 +743,80 @@ const decryptPhone = async (req, res) => {
   }
 };
 
+// 使用微信 getuserphonenumber API 换取手机号
+const getPhoneNumber = async (req, res) => {
+  try {
+    const { code } = req.body;
+
+    console.log('收到获取手机号请求');
+    console.log('code:', code);
+
+    if (!code) {
+      return res.status(400).json({ success: false, message: '缺少code参数' });
+    }
+
+    // 微信配置
+    const appId = process.env.WECHAT_APP_ID || 'wx34c42d4602b7d07c';
+    const appSecret = process.env.WECHAT_APP_SECRET || '3192d00b3028d2154b07b066f9b21034';
+
+    if (!appId || !appSecret) {
+      throw new Error('微信配置不完整，缺少appId或appSecret');
+    }
+
+    // 获取微信接口调用凭证
+    console.log('正在获取access_token...');
+    const accessTokenResponse = await axios.post('https://api.weixin.qq.com/cgi-bin/stable_token',
+      {
+        grant_type: 'client_credential',
+        appid: appId,
+        secret: appSecret
+      },
+      {
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+
+    console.log('access_token获取结果:', accessTokenResponse.data);
+
+    if (!accessTokenResponse.data.access_token) {
+      console.error('获取access_token失败:', accessTokenResponse.data.errmsg);
+      throw new Error('获取access_token失败: ' + (accessTokenResponse.data.errmsg || '未知错误'));
+    }
+
+    const accessToken = accessTokenResponse.data.access_token;
+
+    // 调用微信的 getuserphonenumber 接口
+    console.log('正在调用微信 getuserphonenumber 接口...');
+    const phoneResponse = await axios.post(
+      `https://api.weixin.qq.com/wxa/business/getuserphonenumber?access_token=${accessToken}`,
+      { code },
+      {
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+
+    console.log('微信 getuserphonenumber 接口返回:', phoneResponse.data);
+
+    if (phoneResponse.data && phoneResponse.data.phone_info) {
+      const phoneNumber = phoneResponse.data.phone_info.phoneNumber;
+      console.log('获取手机号成功:', phoneNumber);
+
+      res.json({
+        success: true,
+        phone: phoneNumber,
+        purePhoneNumber: phoneResponse.data.phone_info.purePhoneNumber,
+        countryCode: phoneResponse.data.phone_info.countryCode
+      });
+    } else {
+      console.error('获取手机号失败:', phoneResponse.data.errmsg || '未知错误');
+      throw new Error(phoneResponse.data.errmsg || '获取手机号失败');
+    }
+  } catch (error) {
+    console.error('获取手机号失败:', error);
+    res.status(500).json({ success: false, message: '获取手机号失败', error: error.message });
+  }
+};
+
 module.exports = {
   login,
   getUserProfile,
@@ -753,5 +827,6 @@ module.exports = {
   updateUser,
   deleteUser,
   updateUserPhone,
-  decryptPhone
+  decryptPhone,
+  getPhoneNumber
 };

@@ -279,7 +279,7 @@
             } catch (error) {
                 console.error('加载配置失败:', error)
                 if (error.response && error.response.status === 401) {
-                    alert('登录已过期，请重新登录！)
+                    alert('登录已过期，请重新登录！')
                     window.location.href = '/admin/login'
                 }
             }

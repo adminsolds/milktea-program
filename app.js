@@ -228,6 +228,11 @@ try {
   app.use('/api', apiRoutes);
   console.log('API路由注册成功！');
 
+  // 注册打印路由
+  const printRoutes = require('./routes/print');
+  app.use('/api/print', printRoutes);
+  console.log('打印路由注册成功！');
+
   // 加载 HTTPS 配置
   const { httpsConfig, validateHttpsConfig } = require('./config/https');
   const validation = validateHttpsConfig();

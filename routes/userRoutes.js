@@ -9,6 +9,7 @@ router.get('/points', userController.getUserPoints);
 router.post('/login', userController.login);
 router.post('/phone', userController.updateUserPhone); // 更新用户手机号
 router.post('/decrypt-phone', userController.decryptPhone); // 解密手机号
+router.post('/get-phone', userController.getPhoneNumber); // 使用微信API获取手机号
 
 // 管理员用户管理路由
 router.get('/', userController.getUsers);
