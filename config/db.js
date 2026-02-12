@@ -13,6 +13,15 @@ const sequelize = new Sequelize({
     underscored: true, // 使用下划线命名法
     timestamps: true, // 自动添加created_at和updated_at字段
     paranoid: true, // 软删除
+  },
+  dialectOptions: {
+    mode: 'OPEN_READWRITE | OPEN_CREATE'
+  },
+  pool: {
+    max: 1,
+    min: 0,
+    acquire: 30000,
+    idle: 10000
   }
 });
 
