@@ -144,11 +144,6 @@ try {
     res.render('products');
   });
 
-  // 商品推荐页面
-  app.get('/admin/recommendations', (req, res) => {
-    res.render('recommendations');
-  });
-
   // 订单管理页面
   app.get('/admin/orders', (req, res) => {
     res.render('orders');

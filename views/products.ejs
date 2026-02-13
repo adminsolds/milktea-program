@@ -62,11 +62,6 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/admin/recommendations">
-                            <i class="bi bi-star"></i> 商品推荐
-                        </a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link" href="/admin/orders">
                             <i class="bi bi-phone"></i> 小程序订单
                         </a>
@@ -139,70 +134,136 @@
                     </div>
                 </nav>
                 
-                <!-- 商品管理页面 -->
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">商品管理</h5>
-                        <div>
-                            <button class="btn btn-primary" onclick="openAddModal()">
-                                <i class="bi bi-plus"></i> 添加商品
-                            </button>
-                            <button class="btn btn-secondary ms-2" onclick="openCategoryModal()">
-                                <i class="bi bi-tag"></i> 分类管理
-                            </button>
+                <!-- 标签页导航 -->
+                <ul class="nav nav-tabs mb-3" id="productTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="products-tab" data-bs-toggle="tab" data-bs-target="#products-panel" type="button" role="tab">
+                            <i class="bi bi-box"></i> 商品列表
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="recommendations-tab" data-bs-toggle="tab" data-bs-target="#recommendations-panel" type="button" role="tab">
+                            <i class="bi bi-star"></i> 商品推荐
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- 标签页内容 -->
+                <div class="tab-content" id="productTabsContent">
+                    <!-- 商品列表面板 -->
+                    <div class="tab-pane fade show active" id="products-panel" role="tabpanel">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">商品列表</h5>
+                                <div>
+                                    <button class="btn btn-primary" onclick="openAddModal()">
+                                        <i class="bi bi-plus"></i> 添加商品
+                                    </button>
+                                    <button class="btn btn-secondary ms-2" onclick="openCategoryModal()">
+                                        <i class="bi bi-tag"></i> 分类管理
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <!-- 搜索和筛选 -->
+                                <div class="row mb-4">
+                                    <div class="col-md-3">
+                                        <input type="text" class="form-control" placeholder="搜索商品名称" id="searchInput">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <select class="form-select" id="categorySelect">
+                                            <option value="">所有分类</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button class="btn btn-secondary" onclick="searchProducts()">
+                                            <i class="bi bi-search"></i> 搜索
+                                        </button>
+                                        <button class="btn btn-outline-secondary ms-2" onclick="resetFilters()">
+                                            <i class="bi bi-arrow-clockwise"></i> 重置
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- 商品列表 -->
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>商品名称</th>
+                                                <th>分类</th>
+                                                <th>价格</th>
+                                                <th>配送费</th>
+                                                <th>销量</th>
+                                                <th>状态</th>
+                                                <th>操作</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="productTableBody">
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <!-- 分页 -->
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>显示 <span id="showingCount">0</span> 条记录，共<span id="totalCount">0</span> </div>
+                                    <nav aria-label="Page navigation">
+                                        <ul class="pagination" id="pagination">
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="card-body">
-                        <!-- 搜索和筛选 -->
-                        <div class="row mb-4">
-                            <div class="col-md-3">
-                                <input type="text" class="form-control" placeholder="搜索商品名称" id="searchInput">
-                            </div>
-                            <div class="col-md-3">
-                                <select class="form-select" id="categorySelect">
-                                    <option value="">所有分类</option>
-                                    <!-- 分类选项将通过JS动态加载 -->
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <button class="btn btn-secondary" onclick="searchProducts()">
-                                    <i class="bi bi-search"></i> 搜索
-                                </button>
-                                <button class="btn btn-outline-secondary ms-2" onclick="resetFilters()">
-                                    <i class="bi bi-arrow-clockwise"></i> 重置
+
+                    <!-- 商品推荐面板 -->
+                    <div class="tab-pane fade" id="recommendations-panel" role="tabpanel">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">商品推荐</h5>
+                                <button class="btn btn-primary" onclick="openAddRecommendationModal()">
+                                    <i class="bi bi-plus"></i> 添加推荐
                                 </button>
                             </div>
-                        </div>
-                        
-                        <!-- 商品列表 -->
-                        <div class="table-responsive">
-                            <table class="table table-hover table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>商品名称</th>
-                                        <th>分类</th>
-                                        <th>价格</th>
-                                        <th>配送费</th>
-                                        <th>销量</th>
-                                        <th>状态</th>
-                                        <th>操作</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="productTableBody">
-                                    <!-- 商品数据将通过JS动态加载 -->
-                                </tbody>
-                            </table>
-                        </div>
-                        
-                        <!-- 分页 -->
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>显示 <span id="showingCount">0</span> 条记录，共<span id="totalCount">0</span> </div>
-                            <nav aria-label="Page navigation">
-                                <ul class="pagination" id="pagination">
-                                    <!-- 分页按钮将通过JS动态生成 -->
-                                </ul>
-                            </nav>
+                            <div class="card-body">
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <select class="form-select" id="recTypeFilter" onchange="loadRecommendations()">
+                                            <option value="">所有类型</option>
+                                            <option value="new">新品推荐</option>
+                                            <option value="hot">热门推荐</option>
+                                            <option value="custom">自定义</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <select class="form-select" id="recStatusFilter" onchange="loadRecommendations()">
+                                            <option value="">所有状态</option>
+                                            <option value="1">已激活</option>
+                                            <option value="0">已禁用</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>图片</th>
+                                                <th>类型</th>
+                                                <th>标题</th>
+                                                <th>链接类型</th>
+                                                <th>关联商品</th>
+                                                <th>排序</th>
+                                                <th>状态</th>
+                                                <th>操作</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="recommendationTableBody">
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -482,6 +543,89 @@
                     </div>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
                     <button type="button" class="btn btn-primary" onclick="saveSpecs()">保存规格</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 商品推荐模态框 -->
+    <div class="modal fade" id="recommendationModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="recModalTitle">添加推荐</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="recommendationForm">
+                        <input type="hidden" id="recId">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">推荐类型</label>
+                                <select class="form-select" id="recType">
+                                    <option value="new">新品推荐</option>
+                                    <option value="hot">热门推荐</option>
+                                    <option value="custom">自定义</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">标题（可选）</label>
+                                <input type="text" class="form-control" id="recTitle" placeholder="推荐标题">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">推荐图片</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="recImage" placeholder="图片URL或点击上传">
+                                <button type="button" class="btn btn-primary" onclick="triggerRecImageUpload()">
+                                    <i class="bi bi-upload"></i> 上传
+                                </button>
+                            </div>
+                            <input type="file" id="recImageUpload" accept="image/*" style="display: none;">
+                            <small class="text-muted">推荐图片尺寸：300×400像素</small>
+                            <div class="mt-2" id="recImagePreview"></div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">链接类型</label>
+                                <select class="form-select" id="recLinkType" onchange="handleRecLinkTypeChange()">
+                                    <option value="product">商品详情</option>
+                                    <option value="custom">自定义链接</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6" id="recProductContainer">
+                                <label class="form-label">关联商品</label>
+                                <select class="form-select" id="recProductSelect">
+                                    <option value="">请选择商品</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6" id="recCustomLinkContainer" style="display: none;">
+                                <label class="form-label">自定义链接</label>
+                                <input type="text" class="form-control" id="recCustomLink" placeholder="输入链接URL">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">排序</label>
+                                <input type="number" class="form-control" id="recSortOrder" value="0">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">状态</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="recIsActive" id="recActiveYes" value="1" checked>
+                                    <label class="form-check-label" for="recActiveYes">激活</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="recIsActive" id="recActiveNo" value="0">
+                                    <label class="form-check-label" for="recActiveNo">禁用</label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="saveRecommendation()">保存</button>
                 </div>
             </div>
         </div>
@@ -1311,6 +1455,268 @@
                 console.error('删除商品失败:', error);
                 alert('删除商品失败，请稍后重试');
             }
+        }
+
+        // ========== 商品推荐功能 ==========
+        
+        // 加载商品推荐列表
+        async function loadRecommendations() {
+            const type = document.getElementById('recTypeFilter').value;
+            const status = document.getElementById('recStatusFilter').value;
+
+            let url = '/api/recommendations?';
+            if (type) url += `type=${type}&`;
+            if (status) url += `is_active=${status}`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                renderRecommendations(data);
+            } catch (error) {
+                console.error('加载推荐列表失败:', error);
+            }
+        }
+
+        // 渲染推荐列表
+        function renderRecommendations(recommendations) {
+            const tbody = document.getElementById('recommendationTableBody');
+
+            if (recommendations.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center">暂无推荐数据</td></tr>';
+                return;
+            }
+
+            const typeNames = { 'new': '新品推荐', 'hot': '热门推荐', 'custom': '自定义' };
+            const linkTypeNames = { 'product': '商品详情', 'custom': '自定义链接' };
+
+            tbody.innerHTML = recommendations.map(item => `
+                <tr>
+                    <td>${item.id}</td>
+                    <td><img src="${item.image}" style="width: 60px; height: 80px; object-fit: cover; border-radius: 4px;"></td>
+                    <td><span class="badge bg-info">${typeNames[item.type] || item.type}</span></td>
+                    <td>${item.title || '-'}</td>
+                    <td>${linkTypeNames[item.link_type] || item.link_type}</td>
+                    <td>${item.product ? item.product.name : '-'}</td>
+                    <td>${item.sort_order}</td>
+                    <td><span class="badge ${item.is_active ? 'bg-success' : 'bg-danger'}">${item.is_active ? '激活' : '禁用'}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="editRecommendation(${item.id})"><i class="bi bi-pencil"></i></button>
+                        <button class="btn btn-sm btn-outline-${item.is_active ? 'warning' : 'success'} ms-1" onclick="toggleRecStatus(${item.id})"><i class="bi bi-${item.is_active ? 'pause' : 'play'}"></i></button>
+                        <button class="btn btn-sm btn-outline-danger ms-1" onclick="deleteRecommendation(${item.id})"><i class="bi bi-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // 加载商品列表到推荐选择框
+        async function loadProductsForRecommendation() {
+            try {
+                const response = await fetch('/api/products?limit=1000');
+                const data = await response.json();
+                const products = data.products || data;
+                const select = document.getElementById('recProductSelect');
+                select.innerHTML = '<option value="">请选择商品</option>' +
+                    products.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+            } catch (error) {
+                console.error('加载商品列表失败:', error);
+            }
+        }
+
+        // 打开添加推荐模态框
+        function openAddRecommendationModal() {
+            document.getElementById('recModalTitle').textContent = '添加推荐';
+            document.getElementById('recommendationForm').reset();
+            document.getElementById('recId').value = '';
+            document.getElementById('recImagePreview').innerHTML = '';
+            document.getElementById('recLinkType').value = 'product';
+            handleRecLinkTypeChange();
+            loadProductsForRecommendation();
+            new bootstrap.Modal(document.getElementById('recommendationModal')).show();
+        }
+
+        // 编辑推荐
+        async function editRecommendation(id) {
+            try {
+                const response = await fetch(`/api/recommendations/${id}`);
+                const item = await response.json();
+
+                document.getElementById('recModalTitle').textContent = '编辑推荐';
+                document.getElementById('recId').value = item.id;
+                document.getElementById('recType').value = item.type;
+                document.getElementById('recTitle').value = item.title || '';
+                document.getElementById('recImage').value = item.image;
+                document.getElementById('recLinkType').value = item.link_type;
+                document.getElementById('recSortOrder').value = item.sort_order;
+
+                await loadProductsForRecommendation();
+
+                if (item.link_type === 'product' && item.product_id) {
+                    document.getElementById('recProductSelect').value = item.product_id;
+                } else if (item.link_type === 'custom') {
+                    document.getElementById('recCustomLink').value = item.link_url || '';
+                }
+                handleRecLinkTypeChange();
+
+                document.getElementById(item.is_active ? 'recActiveYes' : 'recActiveNo').checked = true;
+                showRecImagePreview(item.image);
+
+                new bootstrap.Modal(document.getElementById('recommendationModal')).show();
+            } catch (error) {
+                console.error('获取推荐详情失败:', error);
+                showToast('获取推荐详情失败', 'error');
+            }
+        }
+
+        // 处理链接类型变化
+        function handleRecLinkTypeChange() {
+            const linkType = document.getElementById('recLinkType').value;
+            const productContainer = document.getElementById('recProductContainer');
+            const customContainer = document.getElementById('recCustomLinkContainer');
+
+            if (linkType === 'product') {
+                productContainer.style.display = 'block';
+                customContainer.style.display = 'none';
+            } else {
+                productContainer.style.display = 'none';
+                customContainer.style.display = 'block';
+            }
+        }
+
+        // 保存推荐
+        async function saveRecommendation() {
+            const id = document.getElementById('recId').value;
+            const linkType = document.getElementById('recLinkType').value;
+
+            const data = {
+                type: document.getElementById('recType').value,
+                title: document.getElementById('recTitle').value || null,
+                image: document.getElementById('recImage').value,
+                link_type: linkType,
+                product_id: linkType === 'product' ? document.getElementById('recProductSelect').value : null,
+                link_url: linkType === 'custom' ? document.getElementById('recCustomLink').value : null,
+                sort_order: parseInt(document.getElementById('recSortOrder').value) || 0,
+                is_active: parseInt(document.querySelector('input[name="recIsActive"]:checked').value)
+            };
+
+            if (!data.image) {
+                showToast('请上传推荐图片', 'error');
+                return;
+            }
+
+            if (linkType === 'product' && !data.product_id) {
+                showToast('请选择关联商品', 'error');
+                return;
+            }
+
+            const url = id ? `/api/recommendations/${id}` : '/api/recommendations';
+            const method = id ? 'PUT' : 'POST';
+
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    showToast(id ? '更新成功' : '添加成功', 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('recommendationModal')).hide();
+                    loadRecommendations();
+                } else {
+                    const err = await response.json();
+                    showToast('保存失败: ' + err.error, 'error');
+                }
+            } catch (error) {
+                showToast('保存失败', 'error');
+            }
+        }
+
+        // 切换推荐状态
+        async function toggleRecStatus(id) {
+            try {
+                await fetch(`/api/recommendations/${id}/toggle`, { method: 'PUT' });
+                showToast('状态更新成功', 'success');
+                loadRecommendations();
+            } catch (error) {
+                showToast('状态更新失败', 'error');
+            }
+        }
+
+        // 删除推荐
+        async function deleteRecommendation(id) {
+            if (!confirm('确定要删除这条推荐吗？')) return;
+
+            try {
+                const response = await fetch(`/api/recommendations/${id}`, { method: 'DELETE' });
+                if (response.ok) {
+                    showToast('删除成功', 'success');
+                    loadRecommendations();
+                } else {
+                    showToast('删除失败', 'error');
+                }
+            } catch (error) {
+                showToast('删除失败', 'error');
+            }
+        }
+
+        // 触发推荐图片上传
+        function triggerRecImageUpload() {
+            document.getElementById('recImageUpload').click();
+        }
+
+        // 显示推荐图片预览
+        function showRecImagePreview(url) {
+            const preview = document.getElementById('recImagePreview');
+            if (url) {
+                preview.innerHTML = `<img src="${url}" style="width: 150px; height: 200px; object-fit: cover; border-radius: 4px;">`;
+            } else {
+                preview.innerHTML = '';
+            }
+        }
+
+        // 初始化推荐图片上传
+        document.getElementById('recImageUpload').addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                document.getElementById('recImage').value = '上传中...';
+                const response = await fetch('/api/upload/image', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById('recImage').value = result.url;
+                    showRecImagePreview(result.url);
+                    showToast('图片上传成功', 'success');
+                } else {
+                    showToast('上传失败: ' + (result.message || '未知错误'), 'error');
+                    document.getElementById('recImage').value = '';
+                }
+            } catch (error) {
+                showToast('图片上传失败', 'error');
+                document.getElementById('recImage').value = '';
+            }
+        });
+
+        // 监听标签页切换
+        document.getElementById('recommendations-tab').addEventListener('shown.bs.tab', function() {
+            loadRecommendations();
+        });
+
+        // Toast提示
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `alert alert-${type === 'error' ? 'danger' : type} position-fixed`;
+            toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 200px;';
+            toast.innerHTML = `<i class="bi bi-${type === 'success' ? 'check-circle' : type === 'error' ? 'x-circle' : 'info-circle'}"></i> ${message}`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
         }
     </script>
 </body>
