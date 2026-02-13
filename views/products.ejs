@@ -1674,39 +1674,41 @@
             }
         }
 
-        // 初始化推荐图片上传
-        document.getElementById('recImageUpload').addEventListener('change', async function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
+        // 初始化推荐图片上传（放在DOMContentLoaded中确保DOM已加载）
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('recImageUpload').addEventListener('change', async function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
 
-            const formData = new FormData();
-            formData.append('image', file);
+                const formData = new FormData();
+                formData.append('image', file);
 
-            try {
-                document.getElementById('recImage').value = '上传中...';
-                const response = await fetch('/api/upload/image', {
-                    method: 'POST',
-                    body: formData
-                });
-                const result = await response.json();
+                try {
+                    document.getElementById('recImage').value = '上传中...';
+                    const response = await fetch('/api/upload/image', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const result = await response.json();
 
-                if (result.success) {
-                    document.getElementById('recImage').value = result.url;
-                    showRecImagePreview(result.url);
-                    showToast('图片上传成功', 'success');
-                } else {
-                    showToast('上传失败: ' + (result.message || '未知错误'), 'error');
+                    if (result.success) {
+                        document.getElementById('recImage').value = result.url;
+                        showRecImagePreview(result.url);
+                        showToast('图片上传成功', 'success');
+                    } else {
+                        showToast('上传失败: ' + (result.message || '未知错误'), 'error');
+                        document.getElementById('recImage').value = '';
+                    }
+                } catch (error) {
+                    showToast('图片上传失败', 'error');
                     document.getElementById('recImage').value = '';
                 }
-            } catch (error) {
-                showToast('图片上传失败', 'error');
-                document.getElementById('recImage').value = '';
-            }
-        });
+            });
 
-        // 监听标签页切换
-        document.getElementById('recommendations-tab').addEventListener('shown.bs.tab', function() {
-            loadRecommendations();
+            // 监听标签页切换
+            document.getElementById('recommendations-tab').addEventListener('shown.bs.tab', function() {
+                loadRecommendations();
+            });
         });
 
         // Toast提示
