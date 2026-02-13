@@ -299,25 +299,25 @@
                         <div class="row mb-3">
                             <div class="col-md-4">
                                 <label for="productPriceSmall" class="form-label">小杯价格</label>
-                                <input type="number" class="form-control" id="productPriceSmall" step="0.01" min="0" required>
+                                <input type="number" class="form-control" id="productPriceSmall" step="0.01" min="0" placeholder="不启用可不填">
                                 <div class="form-check form-check-inline mt-2">
-                                    <input class="form-check-input" type="checkbox" id="enableSizeSmall" value="1" checked>
+                                    <input class="form-check-input" type="checkbox" id="enableSizeSmall" value="1" checked onchange="toggleSizeRequired('small')">
                                     <label class="form-check-label" for="enableSizeSmall">启用</label>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <label for="productPriceMedium" class="form-label">中杯价格</label>
-                                <input type="number" class="form-control" id="productPriceMedium" step="0.01" min="0" required>
+                                <input type="number" class="form-control" id="productPriceMedium" step="0.01" min="0" placeholder="不启用可不填">
                                 <div class="form-check form-check-inline mt-2">
-                                    <input class="form-check-input" type="checkbox" id="enableSizeMedium" value="1" checked>
+                                    <input class="form-check-input" type="checkbox" id="enableSizeMedium" value="1" checked onchange="toggleSizeRequired('medium')">
                                     <label class="form-check-label" for="enableSizeMedium">启用</label>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <label for="productPriceLarge" class="form-label">大杯价格</label>
-                                <input type="number" class="form-control" id="productPriceLarge" step="0.01" min="0" required>
+                                <input type="number" class="form-control" id="productPriceLarge" step="0.01" min="0" placeholder="不启用可不填">
                                 <div class="form-check form-check-inline mt-2">
-                                    <input class="form-check-input" type="checkbox" id="enableSizeLarge" value="1" checked>
+                                    <input class="form-check-input" type="checkbox" id="enableSizeLarge" value="1" checked onchange="toggleSizeRequired('large')">
                                     <label class="form-check-label" for="enableSizeLarge">启用</label>
                                 </div>
                             </div>
@@ -1050,7 +1050,33 @@
                 showImagePreview('');
             }
         });
-        
+
+        // 切换杯型启用状态时设置必填
+        function toggleSizeRequired(size) {
+            const sizeMap = {
+                'small': { price: 'productPriceSmall', enable: 'enableSizeSmall' },
+                'medium': { price: 'productPriceMedium', enable: 'enableSizeMedium' },
+                'large': { price: 'productPriceLarge', enable: 'enableSizeLarge' }
+            };
+            const priceField = document.getElementById(sizeMap[size].price);
+            const enableCheckbox = document.getElementById(sizeMap[size].enable);
+
+            if (enableCheckbox.checked) {
+                priceField.setAttribute('required', 'required');
+                priceField.placeholder = '请输入价格';
+            } else {
+                priceField.removeAttribute('required');
+                priceField.placeholder = '不启用可不填';
+            }
+        }
+
+        // 初始化杯型必填状态
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleSizeRequired('small');
+            toggleSizeRequired('medium');
+            toggleSizeRequired('large');
+        });
+
         // 显示图片预览
         function showImagePreview(imageUrl) {
             const previewContainer = document.getElementById('imagePreview');
