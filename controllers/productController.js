@@ -180,6 +180,17 @@ const createProduct = async (req, res) => {
       return res.status(400).json({ error: 'Category ID and name are required' });
     }
 
+    // 验证：启用的杯型必须填写价格
+    if (enable_size_small && (!price_small || parseFloat(price_small) <= 0)) {
+      return res.status(400).json({ error: '启用小杯时，必须填写小杯价格且价格必须大于0' });
+    }
+    if (enable_size_medium && (!price_medium || parseFloat(price_medium) <= 0)) {
+      return res.status(400).json({ error: '启用中杯时，必须填写中杯价格且价格必须大于0' });
+    }
+    if (enable_size_large && (!price_large || parseFloat(price_large) <= 0)) {
+      return res.status(400).json({ error: '启用大杯时，必须填写大杯价格且价格必须大于0' });
+    }
+
     if (!price_small && !price_medium && !price_large) {
       return res.status(400).json({ error: 'At least one cup size price is required' });
     }
@@ -236,6 +247,30 @@ const updateProduct = async (req, res) => {
 
     if (!product) {
       return res.status(404).json({ error: 'Product not found' });
+    }
+
+    // 验证：启用的杯型必须填写价格
+    const finalEnableSizeSmall = enable_size_small !== undefined ? enable_size_small : product.enable_size_small;
+    const finalEnableSizeMedium = enable_size_medium !== undefined ? enable_size_medium : product.enable_size_medium;
+    const finalEnableSizeLarge = enable_size_large !== undefined ? enable_size_large : product.enable_size_large;
+
+    if (finalEnableSizeSmall) {
+      const finalPriceSmall = price_small !== undefined ? parseFloat(price_small) : product.price_small;
+      if (!finalPriceSmall || finalPriceSmall <= 0) {
+        return res.status(400).json({ error: '启用小杯时，必须填写小杯价格且价格必须大于0' });
+      }
+    }
+    if (finalEnableSizeMedium) {
+      const finalPriceMedium = price_medium !== undefined ? parseFloat(price_medium) : product.price_medium;
+      if (!finalPriceMedium || finalPriceMedium <= 0) {
+        return res.status(400).json({ error: '启用中杯时，必须填写中杯价格且价格必须大于0' });
+      }
+    }
+    if (finalEnableSizeLarge) {
+      const finalPriceLarge = price_large !== undefined ? parseFloat(price_large) : product.price_large;
+      if (!finalPriceLarge || finalPriceLarge <= 0) {
+        return res.status(400).json({ error: '启用大杯时，必须填写大杯价格且价格必须大于0' });
+      }
     }
 
     // 处理杯型价格
