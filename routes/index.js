@@ -39,6 +39,7 @@ const addressRoutes = require('./addressRoutes');
 const printRoutes = require('./printRoutes');
 const memberActivityRoutes = require('./memberActivityRoutes');
 const activityRoutes = require('./activityRoutes');
+const recommendationRoutes = require('./recommendationRoutes');
 
 // 注册路由
 router.use('/admin', adminRoutes);
@@ -70,5 +71,6 @@ router.use('/addresses', addressRoutes);
 router.use('/print', printRoutes);
 router.use('/', memberActivityRoutes);
 router.use('/activities', activityRoutes);
+router.use('/recommendations', recommendationRoutes);
 
 module.exports = router;

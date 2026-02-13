@@ -10,6 +10,7 @@ const UserCoupon = require('./userCoupon');
 const Banner = require('./banner');
 const FunctionEntry = require('./functionEntry');
 const NewProduct = require('./newProduct');
+const ProductRecommendation = require('./productRecommendation');
 const Admin = require('./admin');
 const MemberLevel = require('./memberLevel');
 const RechargePlan = require('./rechargePlan');
@@ -74,6 +75,12 @@ User.hasMany(UserCoupon, {
 Product.hasOne(NewProduct, {
   foreignKey: 'product_id',
   as: 'newProduct'
+});
+
+// 一对多关系：一个商品可以有多个推荐
+Product.hasMany(ProductRecommendation, {
+  foreignKey: 'product_id',
+  as: 'recommendations'
 });
 
 // 一对多关系：一个用户有多个储值记录
@@ -173,6 +180,7 @@ module.exports = {
   Banner,
   FunctionEntry,
   NewProduct,
+  ProductRecommendation,
   Admin,
   MemberLevel,
   RechargePlan,

@@ -62,6 +62,11 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="/admin/recommendations">
+                            <i class="bi bi-star"></i> 商品推荐
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="/admin/orders">
                             <i class="bi bi-phone"></i> 小程序订单
                         </a>
@@ -180,8 +185,6 @@
                                         <th>价格</th>
                                         <th>配送费</th>
                                         <th>销量</th>
-                                        <th>新品</th>
-                                        <th>推荐</th>
                                         <th>状态</th>
                                         <th>操作</th>
                                     </tr>
@@ -354,32 +357,11 @@
                         <div class="mb-3">
                             <label for="productTags" class="form-label">商品标签</label>
                             <input type="text" class="form-control" id="productTags" placeholder="用逗号分隔，如：热门推荐">
+                            <small class="text-muted">商品推荐功能已移至<a href="/admin/recommendations">商品推荐管理</a>页面</small>
                         </div>
-                        
+
                         <div class="row mb-3">
-                            <div class="col-md-4">
-                                <label class="form-label">新品推荐</label>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="isNew" id="isNewYes" value="1">
-                                    <label class="form-check-label" for="isNewYes">是</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="isNew" id="isNewNo" value="0" checked>
-                                    <label class="form-check-label" for="isNewNo">否</label>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">推荐商品</label>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="isRecommended" id="isRecommendedYes" value="1">
-                                    <label class="form-check-label" for="isRecommendedYes">是</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="isRecommended" id="isRecommendedNo" value="0" checked>
-                                    <label class="form-check-label" for="isRecommendedNo">否</label>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <label class="form-label">商品状态</label>
                                 <div class="form-check">
                                     <input class="form-check-input" type="radio" name="isActive" id="isActiveYes" value="1" checked>
@@ -390,16 +372,13 @@
                                     <label class="form-check-label" for="isActiveNo">禁用</label>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-12">
+                            <div class="col-md-6">
                                 <label class="form-label">启用配料</label>
-                                <div class="form-check form-check-inline">
+                                <div class="form-check">
                                     <input class="form-check-input" type="radio" name="enableToppings" id="enableToppingsYes" value="1" checked>
                                     <label class="form-check-label" for="enableToppingsYes">是</label>
                                 </div>
-                                <div class="form-check form-check-inline">
+                                <div class="form-check">
                                     <input class="form-check-input" type="radio" name="enableToppings" id="enableToppingsNo" value="0">
                                     <label class="form-check-label" for="enableToppingsNo">否</label>
                                 </div>
@@ -633,8 +612,6 @@
                     <td>¥${price.toFixed(2)}</td>
                     <td>${deliveryFee > 0 ? '¥' + deliveryFee.toFixed(2) : '<span class="text-muted">免配送费</span>'}</td>
                     <td>${product.sales}</td>
-                    <td><i class="bi ${product.is_new ? 'bi-check-circle text-success' : 'bi-x-circle text-danger'}"></i></td>
-                    <td><i class="bi ${product.is_recommended ? 'bi-check-circle text-success' : 'bi-x-circle text-danger'}"></i></td>
                     <td><span class="badge ${product.is_active ? 'bg-success' : 'bg-danger'}">${product.is_active ? '激活' : '禁用'}</span></td>
                     <td>
                         <button class="btn btn-sm btn-outline-primary" onclick="openEditProductModalById(${product.id})"><i class="bi bi-pencil"></i></button>
@@ -711,8 +688,6 @@
             currentProductId = null;
 
             // 重置单选按钮
-            document.getElementById('isNewNo').checked = true;
-            document.getElementById('isRecommendedNo').checked = true;
             document.getElementById('isActiveYes').checked = true;
             document.getElementById('enableToppingsYes').checked = true;
 
@@ -738,8 +713,6 @@
             document.getElementById('productTags').value = product.tags || '';
 
             // 设置单选按钮
-            document.getElementById(product.is_new ? 'isNewYes' : 'isNewNo').checked = true;
-            document.getElementById(product.is_recommended ? 'isRecommendedYes' : 'isRecommendedNo').checked = true;
             document.getElementById(product.is_active ? 'isActiveYes' : 'isActiveNo').checked = true;
 
             // 设置配料开关
@@ -1113,8 +1086,6 @@
                 image: document.getElementById('productImage').value,
                 desc: document.getElementById('productDesc').value,
                 tags: document.getElementById('productTags').value,
-                is_new: document.querySelector('input[name="isNew"]:checked').value,
-                is_recommended: document.querySelector('input[name="isRecommended"]:checked').value,
                 is_active: document.querySelector('input[name="isActive"]:checked').value,
                 enable_toppings: document.querySelector('input[name="enableToppings"]:checked').value,
                 enable_size_small: enableSizeSmall ? 1 : 0,
