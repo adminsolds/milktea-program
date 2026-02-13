@@ -335,10 +335,13 @@
                             <div class="col-md-12">
                                 <label for="productImage" class="form-label">商品图片</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" id="productImage" placeholder="图片URL或点击上传>
-                                    <button type="button" class="btn btn-secondary" onclick="triggerImageUpload()">上传</button>
+                                    <input type="text" class="form-control" id="productImage" placeholder="图片URL或点击上传">
+                                    <button type="button" class="btn btn-primary" onclick="triggerImageUpload()">
+                                        <i class="bi bi-upload"></i> 上传
+                                    </button>
                                 </div>
                                 <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+                                <small class="text-muted">新品推荐图片建议尺寸：300×400像素</small>
                                 <div class="mt-2" id="imagePreview"></div>
                             </div>
                         </div>
@@ -1081,7 +1084,7 @@
         function showImagePreview(imageUrl) {
             const previewContainer = document.getElementById('imagePreview');
             if (imageUrl) {
-                previewContainer.innerHTML = `<img src="${imageUrl}" style="max-width: 200px; max-height: 200px; border: 1px solid #eee; border-radius: 4px;">`;
+                previewContainer.innerHTML = `<img src="${imageUrl}" style="width: 150px; height: 200px; object-fit: cover; border: 1px solid #eee; border-radius: 4px;" title="预览比例 3:4（新品推荐卡片 300×400）">`;
             } else {
                 previewContainer.innerHTML = '';
             }
