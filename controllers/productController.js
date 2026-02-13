@@ -191,8 +191,9 @@ const createProduct = async (req, res) => {
       return res.status(400).json({ error: '启用大杯时，必须填写大杯价格且价格必须大于0' });
     }
 
-    if (!price_small && !price_medium && !price_large) {
-      return res.status(400).json({ error: 'At least one cup size price is required' });
+    // 验证：至少启用一个杯型
+    if (!enable_size_small && !enable_size_medium && !enable_size_large) {
+      return res.status(400).json({ error: '至少启用一个杯型' });
     }
 
     // 确保杯型价格是数字类型
@@ -271,6 +272,11 @@ const updateProduct = async (req, res) => {
       if (!finalPriceLarge || finalPriceLarge <= 0) {
         return res.status(400).json({ error: '启用大杯时，必须填写大杯价格且价格必须大于0' });
       }
+    }
+
+    // 验证：至少启用一个杯型
+    if (!finalEnableSizeSmall && !finalEnableSizeMedium && !finalEnableSizeLarge) {
+      return res.status(400).json({ error: '至少启用一个杯型' });
     }
 
     // 处理杯型价格
