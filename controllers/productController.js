@@ -286,21 +286,33 @@ const updateProduct = async (req, res) => {
     let numericDeliveryFee = product.delivery_fee;
 
     if (price_small !== undefined) {
-      numericPriceSmall = parseFloat(price_small);
-      if (isNaN(numericPriceSmall)) {
-        return res.status(400).json({ error: 'Small cup price must be a valid number' });
+      if (price_small === null) {
+        numericPriceSmall = null;
+      } else {
+        numericPriceSmall = parseFloat(price_small);
+        if (isNaN(numericPriceSmall)) {
+          return res.status(400).json({ error: 'Small cup price must be a valid number' });
+        }
       }
     }
     if (price_medium !== undefined) {
-      numericPriceMedium = parseFloat(price_medium);
-      if (isNaN(numericPriceMedium)) {
-        return res.status(400).json({ error: 'Medium cup price must be a valid number' });
+      if (price_medium === null) {
+        numericPriceMedium = null;
+      } else {
+        numericPriceMedium = parseFloat(price_medium);
+        if (isNaN(numericPriceMedium)) {
+          return res.status(400).json({ error: 'Medium cup price must be a valid number' });
+        }
       }
     }
     if (price_large !== undefined) {
-      numericPriceLarge = parseFloat(price_large);
-      if (isNaN(numericPriceLarge)) {
-        return res.status(400).json({ error: 'Large cup price must be a valid number' });
+      if (price_large === null) {
+        numericPriceLarge = null;
+      } else {
+        numericPriceLarge = parseFloat(price_large);
+        if (isNaN(numericPriceLarge)) {
+          return res.status(400).json({ error: 'Large cup price must be a valid number' });
+        }
       }
     }
     if (delivery_fee !== undefined) {
