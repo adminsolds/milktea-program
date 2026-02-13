@@ -1096,12 +1096,16 @@
             }
 
             const productId = document.getElementById('productId').value;
+            const enableSizeSmall = document.getElementById('enableSizeSmall').checked;
+            const enableSizeMedium = document.getElementById('enableSizeMedium').checked;
+            const enableSizeLarge = document.getElementById('enableSizeLarge').checked;
+
             const productData = {
                 name: document.getElementById('productName').value,
                 category_id: document.getElementById('productCategory').value,
-                price_small: parseFloat(document.getElementById('productPriceSmall').value),
-                price_medium: parseFloat(document.getElementById('productPriceMedium').value),
-                price_large: parseFloat(document.getElementById('productPriceLarge').value),
+                price_small: enableSizeSmall ? parseFloat(document.getElementById('productPriceSmall').value) || null : null,
+                price_medium: enableSizeMedium ? parseFloat(document.getElementById('productPriceMedium').value) || null : null,
+                price_large: enableSizeLarge ? parseFloat(document.getElementById('productPriceLarge').value) || null : null,
                 delivery_fee: parseFloat(document.getElementById('productDeliveryFee').value) || 0,
                 image: document.getElementById('productImage').value,
                 desc: document.getElementById('productDesc').value,
@@ -1110,9 +1114,9 @@
                 is_recommended: document.querySelector('input[name="isRecommended"]:checked').value,
                 is_active: document.querySelector('input[name="isActive"]:checked').value,
                 enable_toppings: document.querySelector('input[name="enableToppings"]:checked').value,
-                enable_size_small: document.getElementById('enableSizeSmall').checked ? 1 : 0,
-                enable_size_medium: document.getElementById('enableSizeMedium').checked ? 1 : 0,
-                enable_size_large: document.getElementById('enableSizeLarge').checked ? 1 : 0,
+                enable_size_small: enableSizeSmall ? 1 : 0,
+                enable_size_medium: enableSizeMedium ? 1 : 0,
+                enable_size_large: enableSizeLarge ? 1 : 0,
                 // 冰度和甜度默认启用
                 enable_ice: 1,
                 enable_sugar: 1
