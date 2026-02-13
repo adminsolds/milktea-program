@@ -238,8 +238,10 @@
                         <div class="mb-3">
                             <label for="categoryIcon" class="form-label">分类图标</label>
                             <div class="input-group">
-                                <input type="text" class="form-control" id="categoryIcon" placeholder="图标URL或点击上传">
-                                <button type="button" class="btn btn-secondary" onclick="triggerCategoryIconUpload()">上传</button>
+                                <input type="text" class="form-control" id="categoryIcon" placeholder="输入图标URL或点击右侧上传按钮">
+                                <button type="button" class="btn btn-primary" onclick="triggerCategoryIconUpload()">
+                                    <i class="bi bi-upload"></i> 上传
+                                </button>
                             </div>
                             <input type="file" id="categoryIconUpload" accept="image/*" style="display: none;">
                             <div class="mt-2" id="categoryIconPreview"></div>
