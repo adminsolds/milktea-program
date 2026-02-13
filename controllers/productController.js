@@ -330,7 +330,7 @@ const getCategories = async (req, res) => {
       where: { is_active: 1 },
       order: [['sort_order', 'ASC']]
     });
-    
+
     // 处理图标URL，确保是完整URL，并将 is_active 转换为布尔值
     const processedCategories = categories.map(category => {
       const categoryData = category.toJSON();
@@ -340,10 +340,32 @@ const getCategories = async (req, res) => {
         is_active: Boolean(categoryData.is_active)
       };
     });
-    
+
     res.json(processedCategories);
   } catch (error) {
     console.error('Get categories error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// 获取单个分类详情
+const getCategoryById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const category = await Category.findByPk(id);
+
+    if (!category) {
+      return res.status(404).json({ error: 'Category not found' });
+    }
+
+    const categoryData = category.toJSON();
+    res.json({
+      ...categoryData,
+      icon: ensureFullUrl(categoryData.icon),
+      is_active: Boolean(categoryData.is_active)
+    });
+  } catch (error) {
+    console.error('Get category by id error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -593,6 +615,7 @@ module.exports = {
   updateProduct,
   deleteProduct,
   getCategories,
+  getCategoryById,
   createCategory,
   updateCategory,
   deleteCategory,

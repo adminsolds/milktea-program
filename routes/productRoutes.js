@@ -5,6 +5,7 @@ const { authenticateAdmin } = require('../middleware/auth');
 
 // 分类相关路由
 router.get('/categories', productController.getCategories);
+router.get('/categories/:id', productController.getCategoryById);
 router.post('/categories', authenticateAdmin, productController.createCategory);
 router.put('/categories/:id', authenticateAdmin, productController.updateCategory);
 router.delete('/categories/:id', authenticateAdmin, productController.deleteCategory);
