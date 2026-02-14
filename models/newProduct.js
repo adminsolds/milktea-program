@@ -8,6 +8,11 @@ const NewProduct = sequelize.define('NewProduct', {
     allowNull: false,
     comment: '商品ID'
   },
+  marketing_image: {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+    comment: '营销宣传图片URL（优先显示）'
+  },
   sort_order: {
     type: DataTypes.INTEGER,
     allowNull: false,

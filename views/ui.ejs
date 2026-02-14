@@ -1376,8 +1376,23 @@
                                     <label for="productSelect" class="form-label">选择商品</label>
                                     <select class="form-select" id="productSelect" required onchange="previewSelectedProduct()">
                                         <option value="">请选择商品</option>
-                                        <!-- 动态加载商品列表 -->
                                     </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">营销宣传图片（可选）</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="newProductMarketingImage" placeholder="营销图片URL或点击上传">
+                                        <button type="button" class="btn btn-outline-primary" onclick="triggerNewProductMarketingImageUpload()">
+                                            <i class="bi bi-upload"></i> 上传
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary" onclick="clearNewProductMarketingImage()">
+                                            <i class="bi bi-x"></i> 清除
+                                        </button>
+                                    </div>
+                                    <input type="file" id="newProductMarketingImageUpload" accept="image/*" style="display: none;">
+                                    <small class="text-muted">营销图片优先显示，无营销图片时显示商品图片</small>
+                                    <div class="mt-2" id="newProductMarketingImagePreview"></div>
                                 </div>
 
                                 <div class="mb-3">
@@ -1709,10 +1724,46 @@
             initBannerUpload();
             initFunctionEntryUpload();
             initTabBarUpload();
+            initNewProductMarketingImageUpload();
 
             console.log('页面初始化完成');
             console.log('当前登录状态:', { token: adminToken ? '存在' : '不存在', adminInfo });
         });
+
+        // 初始化新品推荐营销图片上传
+        function initNewProductMarketingImageUpload() {
+            const uploadInput = document.getElementById('newProductMarketingImageUpload');
+            if (uploadInput) {
+                uploadInput.addEventListener('change', async function(e) {
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    const formData = new FormData();
+                    formData.append('image', file);
+
+                    try {
+                        document.getElementById('newProductMarketingImage').value = '上传中...';
+                        const response = await fetch('/api/upload/image', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        const result = await response.json();
+
+                        if (result.success) {
+                            document.getElementById('newProductMarketingImage').value = result.url;
+                            showNewProductMarketingImagePreview(result.url);
+                            showToast('营销图片上传成功！', 'success');
+                        } else {
+                            showToast('上传失败: ' + (result.message || '未知错误'), 'error');
+                            document.getElementById('newProductMarketingImage').value = '';
+                        }
+                    } catch (error) {
+                        showToast('图片上传失败', 'error');
+                        document.getElementById('newProductMarketingImage').value = '';
+                    }
+                });
+            }
+        }
 
         // ========== 管理员认证相关函数 ==========
 
@@ -2648,11 +2699,12 @@
             // 渲染预览区域
             sortedNewProducts.forEach(newProduct => {
                 if (newProduct.is_active && newProduct.product) {
+                    const displayImage = newProduct.marketing_image || newProduct.product.image;
                     const previewCard = document.createElement('div');
                     previewCard.className = 'col-md-3 col-sm-6 mb-2';
                     previewCard.innerHTML = `
                         <div class="card h-100">
-                            <img src="${newProduct.product.image ? getImageUrl(newProduct.product.image) : '/images/no-image.png'}"
+                            <img src="${displayImage ? getImageUrl(displayImage) : '/images/no-image.png'}"
                                  class="card-img-top"
                                  style="height: 150px; object-fit: cover;"
                                  alt="${newProduct.product.name}"
@@ -2670,13 +2722,14 @@
             // 渲染表格
             sortedNewProducts.forEach(newProduct => {
                 const row = document.createElement('tr');
-                const imageUrl = newProduct.product?.image || '/images/no-image.png';
+                const displayImage = newProduct.marketing_image || newProduct.product?.image;
+                const marketingBadge = newProduct.marketing_image ? '<span class="badge bg-warning text-dark ms-1">营销</span>' : '';
                 row.innerHTML = `
                     <td>
-                        <img src="${imageUrl}"
+                        <img src="${displayImage || '/images/no-image.png'}"
                              alt="商品图片"
                              style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;"
-                             onerror="this.src='/images/no-image.png'">
+                             onerror="this.src='/images/no-image.png'">${marketingBadge}
                     </td>
                     <td>${newProduct.product?.name || '-'}</td>
                     <td class="text-muted small">${newProduct.product?.desc || '-'}</td>
@@ -2760,6 +2813,9 @@
             document.getElementById('newProductModalLabel').textContent = '添加新品推荐';
             document.getElementById('newProductForm').reset();
             document.getElementById('newProductId').value = '';
+            // 重置营销图片
+            document.getElementById('newProductMarketingImage').value = '';
+            document.getElementById('newProductMarketingImagePreview').innerHTML = '';
             // 重置预览
             document.getElementById('selectedProductPreview').style.display = 'none';
             document.getElementById('selectedProductName').textContent = '未选择商品';
@@ -2773,8 +2829,12 @@
             document.getElementById('newProductModalLabel').textContent = '编辑新品推荐';
             document.getElementById('newProductId').value = newProduct.id;
             document.getElementById('productSelect').value = newProduct.product_id;
+            document.getElementById('newProductMarketingImage').value = newProduct.marketing_image || '';
             document.getElementById('newProductSortOrder').value = newProduct.sort_order;
             document.getElementById(newProduct.is_active ? 'newProductActive' : 'newProductInactive').checked = true;
+
+            // 显示营销图片预览
+            showNewProductMarketingImagePreview(newProduct.marketing_image);
 
             // 触发预览
             setTimeout(() => previewSelectedProduct(), 100);
@@ -2790,6 +2850,27 @@
             }
         }
         
+        // 触发营销图片上传
+        function triggerNewProductMarketingImageUpload() {
+            document.getElementById('newProductMarketingImageUpload').click();
+        }
+
+        // 显示营销图片预览
+        function showNewProductMarketingImagePreview(url) {
+            const preview = document.getElementById('newProductMarketingImagePreview');
+            if (url) {
+                preview.innerHTML = `<img src="${url}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px; border: 2px solid #ffc107;" title="营销图片（优先显示）">`;
+            } else {
+                preview.innerHTML = '';
+            }
+        }
+
+        // 清除营销图片
+        function clearNewProductMarketingImage() {
+            document.getElementById('newProductMarketingImage').value = '';
+            document.getElementById('newProductMarketingImagePreview').innerHTML = '';
+        }
+        
         // 保存新品推荐
         async function saveNewProduct() {
             const form = document.getElementById('newProductForm');
@@ -2801,23 +2882,22 @@
             const newProductId = document.getElementById('newProductId').value;
             const newProductData = {
                 product_id: document.getElementById('productSelect').value,
+                marketing_image: document.getElementById('newProductMarketingImage').value || null,
                 sort_order: parseInt(document.getElementById('newProductSortOrder').value) || 0,
                 is_active: document.querySelector('input[name="newProductStatus"]:checked').value
             };
             
             try {
                 let response;
-                const headers = getAuthHeaders(); // 获取认证头
+                const headers = getAuthHeaders();
                 
                 if (newProductId) {
-                    // 更新新品推荐
                     response = await fetch(`/api/ui/new-products/${newProductId}`, {
                         method: 'PUT',
                         headers: headers,
                         body: JSON.stringify(newProductData)
                     });
                 } else {
-                    // 添加新品推荐
                     response = await fetch('/api/ui/new-products', {
                         method: 'POST',
                         headers: headers,

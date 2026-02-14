@@ -359,7 +359,7 @@ const getNewProductById = async (req, res) => {
 // 创建新品推荐
 const createNewProduct = async (req, res) => {
   try {
-    const { product_id, sort_order, is_active } = req.body;
+    const { product_id, marketing_image, sort_order, is_active } = req.body;
     
     // 验证必填字段
     if (!product_id) {
@@ -380,6 +380,7 @@ const createNewProduct = async (req, res) => {
     
     const newProduct = await NewProduct.create({
       product_id,
+      marketing_image: marketing_image || null,
       sort_order: sort_order || 0,
       is_active: is_active !== undefined ? is_active : 1
     });
@@ -395,7 +396,7 @@ const createNewProduct = async (req, res) => {
 const updateNewProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { sort_order, is_active } = req.body;
+    const { marketing_image, sort_order, is_active } = req.body;
     
     const newProduct = await NewProduct.findByPk(id);
     
@@ -403,10 +404,12 @@ const updateNewProduct = async (req, res) => {
       return res.status(404).json({ error: 'New product not found' });
     }
     
-    await newProduct.update({
-      sort_order: sort_order !== undefined ? sort_order : newProduct.sort_order,
-      is_active: is_active !== undefined ? is_active : newProduct.is_active
-    });
+    const updateData = {};
+    if (marketing_image !== undefined) updateData.marketing_image = marketing_image || null;
+    if (sort_order !== undefined) updateData.sort_order = sort_order;
+    if (is_active !== undefined) updateData.is_active = is_active;
+    
+    await newProduct.update(updateData);
     
     res.json(newProduct);
   } catch (error) {
