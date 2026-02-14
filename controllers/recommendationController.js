@@ -101,16 +101,26 @@ const updateRecommendation = async (req, res) => {
       return res.status(404).json({ error: 'Recommendation not found' });
     }
 
-    await recommendation.update({
-      type: type || recommendation.type,
-      title: title !== undefined ? title : recommendation.title,
-      image: image || recommendation.image,
-      product_id: link_type === 'product' ? product_id : (link_type === 'custom' ? null : recommendation.product_id),
-      link_type: link_type || recommendation.link_type,
-      link_url: link_type === 'custom' ? link_url : null,
-      sort_order: sort_order !== undefined ? sort_order : recommendation.sort_order,
-      is_active: is_active !== undefined ? is_active : recommendation.is_active
-    });
+    const updateData = {};
+    
+    if (type !== undefined) updateData.type = type;
+    if (title !== undefined) updateData.title = title;
+    if (image !== undefined) updateData.image = image;
+    if (sort_order !== undefined) updateData.sort_order = sort_order;
+    if (is_active !== undefined) updateData.is_active = is_active;
+    
+    if (link_type !== undefined) {
+      updateData.link_type = link_type;
+      if (link_type === 'product') {
+        updateData.product_id = product_id || null;
+        updateData.link_url = null;
+      } else if (link_type === 'custom') {
+        updateData.product_id = null;
+        updateData.link_url = link_url || null;
+      }
+    }
+
+    await recommendation.update(updateData);
 
     const result = await ProductRecommendation.findByPk(id, {
       include: [{
