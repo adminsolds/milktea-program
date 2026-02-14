@@ -574,7 +574,7 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">推荐图片</label>
+                            <label class="form-label">商品图片</label>
                             <div class="input-group">
                                 <input type="text" class="form-control" id="recImage" placeholder="图片URL或点击上传">
                                 <button type="button" class="btn btn-primary" onclick="triggerRecImageUpload()">
@@ -582,8 +582,23 @@
                                 </button>
                             </div>
                             <input type="file" id="recImageUpload" accept="image/*" style="display: none;">
-                            <small class="text-muted">推荐图片尺寸：300×400像素</small>
+                            <small class="text-muted">商品图片尺寸：300×400像素（默认显示）</small>
                             <div class="mt-2" id="recImagePreview"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">营销宣传图片（可选）</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="recMarketingImage" placeholder="营销图片URL或点击上传">
+                                <button type="button" class="btn btn-outline-primary" onclick="triggerRecMarketingImageUpload()">
+                                    <i class="bi bi-upload"></i> 上传
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary" onclick="clearRecMarketingImage()">
+                                    <i class="bi bi-x"></i> 清除
+                                </button>
+                            </div>
+                            <input type="file" id="recMarketingImageUpload" accept="image/*" style="display: none;">
+                            <small class="text-muted">营销图片优先显示，建议尺寸：300×400像素</small>
+                            <div class="mt-2" id="recMarketingImagePreview"></div>
                         </div>
                         <div class="row mb-3">
                             <div class="col-md-6">
@@ -1489,10 +1504,13 @@
             const typeNames = { 'new': '新品推荐', 'hot': '热门推荐', 'custom': '自定义' };
             const linkTypeNames = { 'product': '商品详情', 'custom': '自定义链接' };
 
-            tbody.innerHTML = recommendations.map(item => `
+            tbody.innerHTML = recommendations.map(item => {
+                const displayImage = item.marketing_image || item.image;
+                const imageBadge = item.marketing_image ? '<span class="badge bg-warning text-dark ms-1">营销</span>' : '';
+                return `
                 <tr>
                     <td>${item.id}</td>
-                    <td><img src="${item.image}" style="width: 60px; height: 80px; object-fit: cover; border-radius: 4px;"></td>
+                    <td><img src="${displayImage}" style="width: 60px; height: 80px; object-fit: cover; border-radius: 4px;">${imageBadge}</td>
                     <td><span class="badge bg-info">${typeNames[item.type] || item.type}</span></td>
                     <td>${item.title || '-'}</td>
                     <td>${linkTypeNames[item.link_type] || item.link_type}</td>
@@ -1505,7 +1523,7 @@
                         <button class="btn btn-sm btn-outline-danger ms-1" onclick="deleteRecommendation(${item.id})"><i class="bi bi-trash"></i></button>
                     </td>
                 </tr>
-            `).join('');
+            `}).join('');
         }
 
         // 加载商品列表到推荐选择框
@@ -1528,6 +1546,8 @@
             document.getElementById('recommendationForm').reset();
             document.getElementById('recId').value = '';
             document.getElementById('recImagePreview').innerHTML = '';
+            document.getElementById('recMarketingImage').value = '';
+            document.getElementById('recMarketingImagePreview').innerHTML = '';
             document.getElementById('recLinkType').value = 'product';
             handleRecLinkTypeChange();
             loadProductsForRecommendation();
@@ -1545,6 +1565,7 @@
                 document.getElementById('recType').value = item.type;
                 document.getElementById('recTitle').value = item.title || '';
                 document.getElementById('recImage').value = item.image;
+                document.getElementById('recMarketingImage').value = item.marketing_image || '';
                 document.getElementById('recLinkType').value = item.link_type;
                 document.getElementById('recSortOrder').value = item.sort_order;
 
@@ -1559,6 +1580,7 @@
 
                 document.getElementById(item.is_active ? 'recActiveYes' : 'recActiveNo').checked = true;
                 showRecImagePreview(item.image);
+                showRecMarketingImagePreview(item.marketing_image);
 
                 new bootstrap.Modal(document.getElementById('recommendationModal')).show();
             } catch (error) {
@@ -1591,6 +1613,7 @@
                 type: document.getElementById('recType').value,
                 title: document.getElementById('recTitle').value || null,
                 image: document.getElementById('recImage').value,
+                marketing_image: document.getElementById('recMarketingImage').value || null,
                 link_type: linkType,
                 product_id: linkType === 'product' ? document.getElementById('recProductSelect').value : null,
                 link_url: linkType === 'custom' ? document.getElementById('recCustomLink').value : null,
@@ -1599,7 +1622,7 @@
             };
 
             if (!data.image) {
-                showToast('请上传推荐图片', 'error');
+                showToast('请上传商品图片', 'error');
                 return;
             }
 
@@ -1668,10 +1691,31 @@
         function showRecImagePreview(url) {
             const preview = document.getElementById('recImagePreview');
             if (url) {
-                preview.innerHTML = `<img src="${url}" style="width: 150px; height: 200px; object-fit: cover; border-radius: 4px;">`;
+                preview.innerHTML = `<img src="${url}" style="width: 150px; height: 200px; object-fit: cover; border-radius: 4px;" title="商品图片">`;
             } else {
                 preview.innerHTML = '';
             }
+        }
+
+        // 触发营销图片上传
+        function triggerRecMarketingImageUpload() {
+            document.getElementById('recMarketingImageUpload').click();
+        }
+
+        // 显示营销图片预览
+        function showRecMarketingImagePreview(url) {
+            const preview = document.getElementById('recMarketingImagePreview');
+            if (url) {
+                preview.innerHTML = `<img src="${url}" style="width: 150px; height: 200px; object-fit: cover; border-radius: 4px; border: 2px solid #ffc107;" title="营销图片（优先显示）">`;
+            } else {
+                preview.innerHTML = '';
+            }
+        }
+
+        // 清除营销图片
+        function clearRecMarketingImage() {
+            document.getElementById('recMarketingImage').value = '';
+            document.getElementById('recMarketingImagePreview').innerHTML = '';
         }
 
         // 初始化推荐图片上传（放在DOMContentLoaded中确保DOM已加载）
@@ -1702,6 +1746,36 @@
                 } catch (error) {
                     showToast('图片上传失败', 'error');
                     document.getElementById('recImage').value = '';
+                }
+            });
+
+            // 营销图片上传
+            document.getElementById('recMarketingImageUpload').addEventListener('change', async function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const formData = new FormData();
+                formData.append('image', file);
+
+                try {
+                    document.getElementById('recMarketingImage').value = '上传中...';
+                    const response = await fetch('/api/upload/image', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const result = await response.json();
+
+                    if (result.success) {
+                        document.getElementById('recMarketingImage').value = result.url;
+                        showRecMarketingImagePreview(result.url);
+                        showToast('营销图片上传成功', 'success');
+                    } else {
+                        showToast('上传失败: ' + (result.message || '未知错误'), 'error');
+                        document.getElementById('recMarketingImage').value = '';
+                    }
+                } catch (error) {
+                    showToast('图片上传失败', 'error');
+                    document.getElementById('recMarketingImage').value = '';
                 }
             });
 

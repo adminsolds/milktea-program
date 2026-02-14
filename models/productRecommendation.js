@@ -17,7 +17,12 @@ const ProductRecommendation = sequelize.define('ProductRecommendation', {
   image: {
     type: DataTypes.STRING(255),
     allowNull: false,
-    comment: '推荐图片URL'
+    comment: '推荐图片URL（商品图片）'
+  },
+  marketing_image: {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+    comment: '营销宣传图片URL（优先显示）'
   },
   product_id: {
     type: DataTypes.INTEGER,

@@ -54,7 +54,7 @@ const getRecommendationById = async (req, res) => {
 
 const createRecommendation = async (req, res) => {
   try {
-    const { type, title, image, product_id, link_type, link_url, sort_order, is_active } = req.body;
+    const { type, title, image, marketing_image, product_id, link_type, link_url, sort_order, is_active } = req.body;
 
     if (!image) {
       return res.status(400).json({ error: 'Image is required' });
@@ -68,6 +68,7 @@ const createRecommendation = async (req, res) => {
       type: type || 'new',
       title,
       image,
+      marketing_image: marketing_image || null,
       product_id: link_type === 'product' ? product_id : null,
       link_type: link_type || 'product',
       link_url: link_type === 'custom' ? link_url : null,
@@ -93,7 +94,7 @@ const createRecommendation = async (req, res) => {
 const updateRecommendation = async (req, res) => {
   try {
     const { id } = req.params;
-    const { type, title, image, product_id, link_type, link_url, sort_order, is_active } = req.body;
+    const { type, title, image, marketing_image, product_id, link_type, link_url, sort_order, is_active } = req.body;
 
     const recommendation = await ProductRecommendation.findByPk(id);
 
@@ -106,6 +107,7 @@ const updateRecommendation = async (req, res) => {
     if (type !== undefined) updateData.type = type;
     if (title !== undefined) updateData.title = title;
     if (image !== undefined) updateData.image = image;
+    if (marketing_image !== undefined) updateData.marketing_image = marketing_image || null;
     if (sort_order !== undefined) updateData.sort_order = sort_order;
     if (is_active !== undefined) updateData.is_active = is_active;
     
