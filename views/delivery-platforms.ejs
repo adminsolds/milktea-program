@@ -323,7 +323,14 @@
         document.addEventListener('DOMContentLoaded', function() {
             platformModal = new bootstrap.Modal(document.getElementById('platformModal'));
             loadPlatforms();
+            initCallbackUrl();
         });
+        
+        // 初始化回调地址
+        function initCallbackUrl() {
+            const baseUrl = window.location.origin;
+            document.getElementById('callbackUrl').value = `${baseUrl}/api/callback/delivery/callback`;
+        }
         
         // 生成随机字符串
         function generateRandomString(length) {
@@ -402,7 +409,7 @@
             }
             
             // 更新回调地址 - 统一的回调接口
-            document.getElementById('callbackUrl').value = `${baseUrl}/api/delivery/callback`;
+            document.getElementById('callbackUrl').value = `${baseUrl}/api/callback/delivery/callback`;
         }
         
         // 复制回调地址
