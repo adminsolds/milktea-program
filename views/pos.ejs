@@ -196,18 +196,30 @@
                     <!-- 右侧：点单列表区 -->
                     <div class="col-md-5">
                         <div class="card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0"><i class="bi bi-list-check"></i> 点单列表</h5>
-                                <span class="badge bg-primary" id="cartCount">0</span>
+                            <div class="card-header">
+                                <ul class="nav nav-tabs card-header-tabs" id="posTabs" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active" id="current-tab" data-bs-toggle="tab" data-bs-target="#current" type="button">
+                                            <i class="bi bi-list-check"></i> 当前订单 <span class="badge bg-primary" id="cartCount">0</span>
+                                        </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="suspended-tab" data-bs-toggle="tab" data-bs-target="#suspended" type="button" onclick="loadSuspendedOrders()">
+                                            <i class="bi bi-pause-circle"></i> 挂起订单 <span class="badge bg-warning" id="suspendedCount">0</span>
+                                        </button>
+                                    </li>
+                                </ul>
                             </div>
                             <div class="card-body">
-                                <!-- 点单列表 -->
-                                <div id="cartItems" style="max-height: 400px; overflow-y: auto;">
-                                    <div class="text-center text-muted py-5">
-                                        <i class="bi bi-list-check" style="font-size: 3rem;"></i>
-                                        <p class="mt-2">点单列表是空的</p>
-                                    </div>
-                                </div>
+                                <div class="tab-content">
+                                    <!-- 当前订单 -->
+                                    <div class="tab-pane fade show active" id="current">
+                                        <div id="cartItems" style="max-height: 300px; overflow-y: auto;">
+                                            <div class="text-center text-muted py-5">
+                                                <i class="bi bi-list-check" style="font-size: 3rem;"></i>
+                                                <p class="mt-2">点单列表是空的</p>
+                                            </div>
+                                        </div>
 
                                 <!-- 点单合计 -->
                                 <div id="cartSummary" class="border-top pt-3 mt-3" style="display: none;">
@@ -262,9 +274,23 @@
                                         <button type="button" class="btn btn-success btn-lg" onclick="submitCartOrder()">
                                             <i class="bi bi-check-circle"></i> 立即结算
                                         </button>
+                                        <button type="button" class="btn btn-warning" onclick="suspendCurrentOrder()">
+                                            <i class="bi bi-pause-circle"></i> 挂起订单
+                                        </button>
                                         <button type="button" class="btn btn-outline-danger" onclick="clearCart()">
                                             <i class="bi bi-trash"></i> 清空列表
                                         </button>
+                                    </div>
+                                </div>
+                                    </div>
+                                    <!-- 挂起订单 -->
+                                    <div class="tab-pane fade" id="suspended">
+                                        <div id="suspendedOrders" style="max-height: 500px; overflow-y: auto;">
+                                            <div class="text-center text-muted py-5">
+                                                <i class="bi bi-pause-circle" style="font-size: 3rem;"></i>
+                                                <p class="mt-2">暂无挂起订单</p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1168,6 +1194,215 @@
             } catch (error) {
                 console.error('提交订单失败:', error);
                 alert('下单失败，请重试');
+            }
+        }
+
+        // ==================== 挂起订单功能 ====================
+        let suspendedOrders = [];
+
+        // 挂起当前订单
+        async function suspendCurrentOrder() {
+            if (cartItems.length === 0) {
+                alert('点单列表是空的，无法挂起');
+                return;
+            }
+
+            const phone = document.getElementById('posMemberPhone').value;
+            const orderType = document.querySelector('input[name="posOrderType"]:checked').value;
+            const token = localStorage.getItem('adminToken');
+
+            try {
+                const response = await fetch('/api/suspended-orders', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': token ? `Bearer ${token}` : ''
+                    },
+                    body: JSON.stringify({
+                        store_id: 1,
+                        cart_data: cartItems,
+                        member_phone: phone,
+                        order_type: orderType
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('订单已挂起！');
+
+                    cartItems = [];
+                    cartMemberDiscountRate = 0;
+                    cartMemberDiscount = 0;
+                    document.getElementById('posMemberPhone').value = '';
+                    document.getElementById('memberDiscountInfo').textContent = '';
+                    renderCart();
+                } else {
+                    alert('挂起失败：' + (result.error || '未知错误'));
+                }
+            } catch (error) {
+                console.error('挂起订单失败:', error);
+                alert('挂起失败，请重试');
+            }
+        }
+
+        // 加载挂起订单列表
+        async function loadSuspendedOrders() {
+            try {
+                const token = localStorage.getItem('adminToken');
+                const response = await fetch('/api/suspended-orders?store_id=1', {
+                    headers: {
+                        'Authorization': token ? `Bearer ${token}` : ''
+                    }
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    suspendedOrders = result.suspended_orders || [];
+                    document.getElementById('suspendedCount').textContent = suspendedOrders.length;
+                    renderSuspendedOrders();
+                }
+            } catch (error) {
+                console.error('加载挂起订单失败:', error);
+            }
+        }
+
+        // 渲染挂起订单列表
+        function renderSuspendedOrders() {
+            const container = document.getElementById('suspendedOrders');
+
+            if (suspendedOrders.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-muted py-5">
+                        <i class="bi bi-pause-circle" style="font-size: 3rem;"></i>
+                        <p class="mt-2">暂无挂起订单</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            suspendedOrders.forEach((suspended, index) => {
+                const items = suspended.cart_data || [];
+                const totalQty = items.reduce((sum, item) => sum + item.quantity, 0);
+                const totalPrice = items.reduce((sum, item) => sum + item.finalPrice, 0);
+                const createdAt = new Date(suspended.created_at).toLocaleString('zh-CN');
+
+                html += `
+                    <div class="card mb-2 border-warning">
+                        <div class="card-body p-2">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <div class="fw-bold text-warning">
+                                        <i class="bi bi-pause-circle"></i> ${suspended.suspended_no}
+                                    </div>
+                                    <small class="text-muted">${createdAt}</small>
+                                    ${suspended.member_phone ? `<br><small class="text-muted">会员: ${maskPhoneNumber(suspended.member_phone)}</small>` : ''}
+                                </div>
+                                <div class="text-end">
+                                    <div class="text-muted">${totalQty}件商品</div>
+                                    <div class="fw-bold text-danger">¥${totalPrice.toFixed(2)}</div>
+                                </div>
+                            </div>
+                            <div class="mt-2 small">
+                                ${items.slice(0, 3).map(item => `${item.product_name} ×${item.quantity}`).join('、')}
+                                ${items.length > 3 ? '...' : ''}
+                            </div>
+                            <div class="d-grid gap-1 mt-2">
+                                <button class="btn btn-sm btn-primary" onclick="restoreSuspendedOrder(${index})">
+                                    <i class="bi bi-play-circle"></i> 恢复订单
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteSuspendedOrder(${suspended.id}, ${index})">
+                                    <i class="bi bi-trash"></i> 删除
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // 恢复挂起订单
+        async function restoreSuspendedOrder(index) {
+            const suspended = suspendedOrders[index];
+            if (!suspended) return;
+
+            if (cartItems.length > 0) {
+                if (!confirm('当前点单列表有商品，恢复挂起订单将清空当前列表。确定继续吗？')) {
+                    return;
+                }
+            }
+
+            try {
+                const token = localStorage.getItem('adminToken');
+                const response = await fetch(`/api/suspended-orders/${suspended.id}/restore`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': token ? `Bearer ${token}` : ''
+                    }
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    cartItems = suspended.cart_data || [];
+                    cartMemberDiscountRate = 0;
+                    cartMemberDiscount = 0;
+
+                    if (suspended.member_phone) {
+                        document.getElementById('posMemberPhone').value = suspended.member_phone;
+                        checkCartMemberDiscount();
+                    }
+
+                    if (suspended.order_type) {
+                        const radio = document.querySelector(`input[name="posOrderType"][value="${suspended.order_type}"]`);
+                        if (radio) radio.checked = true;
+                    }
+
+                    renderCart();
+
+                    // 重新加载挂起订单列表
+                    await loadSuspendedOrders();
+
+                    // 切换回当前订单标签
+                    document.getElementById('current-tab').click();
+                } else {
+                    alert('恢复订单失败：' + (result.error || '未知错误'));
+                }
+            } catch (error) {
+                console.error('恢复挂起订单失败:', error);
+                alert('恢复失败，请重试');
+            }
+        }
+
+        // 删除挂起订单
+        async function deleteSuspendedOrder(id, index) {
+            if (!confirm('确定要删除这个挂起订单吗？')) {
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('adminToken');
+                const response = await fetch(`/api/suspended-orders/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': token ? `Bearer ${token}` : ''
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    suspendedOrders.splice(index, 1);
+                    document.getElementById('suspendedCount').textContent = suspendedOrders.length;
+                    renderSuspendedOrders();
+                } else {
+                    alert('删除失败：' + (result.error || '未知错误'));
+                }
+            } catch (error) {
+                console.error('删除挂起订单失败:', error);
+                alert('删除失败，请重试');
             }
         }
 
@@ -2093,5 +2328,9 @@
             }
         }
     </style>
+    <!-- 页脚 - 备案号 -->
+    <div class="text-center text-muted py-3" style="border-top: 1px solid #dee2e6; margin-top: 20px; background: #fff;">
+        <small><a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">桂ICP备2026002844号</a></small>
+    </div>
 </body>
 </html>

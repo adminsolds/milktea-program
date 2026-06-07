@@ -26,6 +26,7 @@ const MemberActivity = require('./memberActivity');
 const MemberActivityLog = require('./memberActivityLog');
 const Activity = require('./activity');
 const UserActivity = require('./userActivity');
+const SuspendedOrder = require('./suspendedOrder');
 
 // 建立模型关联
 
@@ -195,5 +196,6 @@ module.exports = {
   MemberActivity,
   MemberActivityLog,
   Activity,
-  UserActivity
+  UserActivity,
+  SuspendedOrder
 };

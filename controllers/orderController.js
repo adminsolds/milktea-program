@@ -1,8 +1,9 @@
-const { Order, OrderItem, User, Store, MemberLevel, SystemConfig, UserCoupon, Coupon } = require('../models');
+const { Order, OrderItem, User, Store, MemberLevel, SystemConfig, UserCoupon, Coupon, DeliveryPlatform } = require('../models');
 const { autoUpgradeMemberLevel } = require('./memberController');
 const { calculateMemberDiscount, calculateFinalPrice } = require('../utils/discountUtils');
 const { sendOrderToPlatform } = require('../services/foodDeliveryService');
 const { createBalanceRecord } = require('./balanceController');
+const axios = require('axios');
 
 // 获取订单列表
 const getOrders = async (req, res) => {
@@ -397,6 +398,29 @@ const updateOrderStatus = async (req, res) => {
       ...(status === 5 && { complete_time: new Date() }), // 如果状态是已完成，设置完成时间
       ...(status === 6 && { complete_time: new Date() }) // 如果状态是已送达，设置完成时间
     });
+
+    // 如果是外卖订单，制作完成时自动发送到配送平台
+    if (status === 3 && order.order_type === 'delivery' && order.platform_code) {
+      try {
+        console.log('订单制作完成，自动发送到配送平台:', order.platform_code);
+        
+        // 使用 foodDeliveryService 发送订单（包含签名）
+        const result = await sendOrderToPlatform(order, order.platform_code);
+        
+        if (result.success) {
+          console.log('订单已发送到配送平台:', result.data);
+          await order.update({
+            platform_order_no: result.data?.order_no || order.order_no,
+            delivery_status: 'sent',
+            platform_status: 'pending'
+          });
+        } else {
+          console.error('发送订单到配送平台失败:', result.message);
+        }
+      } catch (error) {
+        console.error('自动发送订单到配送平台失败:', error.message);
+      }
+    }
 
     // 订单完成后更新用户成长值和积分（状态5或6）
     if (status === 5 || status === 6) {

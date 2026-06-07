@@ -164,6 +164,30 @@
                     </div>
                 </nav>
                 
+                <!-- 订单测试工具 -->
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0"><i class="bi bi-clipboard-check"></i> 订单测试工具</h5>
+                        <button class="btn btn-outline-light btn-sm" onclick="openOrderTestModal()">
+                            <i class="bi bi-wrench"></i> 测试工具
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted">用于测试第三方配送平台的订单流程，包括创建测试订单、模拟配送状态等。</p>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-primary" onclick="openOrderTestModal()">
+                                <i class="bi bi-plus-circle"></i> 创建测试订单
+                            </button>
+                            <button class="btn btn-outline-info" onclick="loadTestOrders()">
+                                <i class="bi bi-list-check"></i> 查看测试订单
+                            </button>
+                            <button class="btn btn-outline-warning" onclick="cleanupTestData()">
+                                <i class="bi bi-trash3"></i> 清理测试数据
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- 外卖平台管理页面 -->
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
@@ -343,7 +367,7 @@
         // 初始化回调地址
         function initCallbackUrl() {
             const baseUrl = window.location.origin;
-            document.getElementById('callbackUrl').value = `${baseUrl}/api/callback/delivery/callback`;
+            document.getElementById('callbackUrl').value = `${baseUrl}/api/delivery/callback`;
         }
         
         // 生成随机字符串
@@ -423,7 +447,7 @@
             }
             
             // 更新回调地址 - 统一的回调接口
-            document.getElementById('callbackUrl').value = `${baseUrl}/api/callback/delivery/callback`;
+            document.getElementById('callbackUrl').value = `${baseUrl}/api/delivery/callback`;
         }
         
         // 复制回调地址
@@ -787,6 +811,416 @@ API Secret：${apiSecret}
                 showToast('复制失败', 'error');
             });
         }
+
+        // ==================== 订单测试功能 ====================
+        let orderTestModal = null;
+
+        // 打开订单测试模态框
+        function openOrderTestModal() {
+            if (!orderTestModal) {
+                const modalDiv = document.createElement('div');
+                modalDiv.innerHTML = `
+                    <div class="modal fade" id="orderTestModal" tabindex="-1">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header bg-primary text-white">
+                                    <h5 class="modal-title mb-0"><i class="bi bi-clipboard-check"></i> 订单测试工具</h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="mb-4">
+                                        <h6><i class="bi bi-plus-circle"></i> 创建测试订单</h6>
+                                        <div class="card p-3">
+                                            <div class="mb-3">
+                                                <label class="form-label">店铺ID</label>
+                                                <input type="number" class="form-control" id="testStoreId" value="1" min="1">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">平台代码</label>
+                                                <select class="form-select" id="testPlatformCode">
+                                                    <option value="meituan">美团外卖</option>
+                                                    <option value="eleme">饿了么</option>
+                                                    <option value="dada">达达</option>
+                                                    <option value="shunfeng">顺丰</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">订单类型</label>
+                                                <select class="form-select" id="testOrderType">
+                                                    <option value="delivery">外卖配送</option>
+                                                    <option value="self">堂食</option>
+                                                    <option value="pickup">自取</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">支付方式</label>
+                                                <select class="form-select" id="testPaymentMethod">
+                                                    <option value="wechat">微信支付</option>
+                                                    <option value="alipay">支付宝</option>
+                                                    <option value="cash">现金支付</option>
+                                                    <option value="wallet">储值支付</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">商品数量</label>
+                                                <input type="number" class="form-control" id="testProductCount" value="2" min="1" max="10">
+                                            </div>
+                                            <div class="mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="testWithDelivery" checked>
+                                                    <label class="form-check-label" for="testWithDelivery">包含配送费</label>
+                                                </div>
+                                            </div>
+                                            <div class="d-grid">
+                                                <button class="btn btn-success" onclick="createTestOrder()">
+                                                    <i class="bi bi-plus"></i> 创建测试订单
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <h6><i class="bi bi-activity"></i> 模拟配送状态</h6>
+                                        <div class="card p-3">
+                                            <div class="mb-3">
+                                                <label class="form-label">订单ID</label>
+                                                <input type="number" class="form-control" id="testOrderId" placeholder="输入测试订单ID">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">目标状态</label>
+                                                <select class="form-select" id="testStatus">
+                                                    <option value="0">已取消</option>
+                                                    <option value="1">已下单</option>
+                                                    <option value="2">制作中</option>
+                                                    <option value="3">制作完成</option>
+                                                    <option value="4">配送中/待取餐</option>
+                                                    <option value="5">已完成</option>
+                                                    <option value="6">已送达</option>
+                                                </select>
+                                            </div>
+                                            <div class="d-grid">
+                                                <button class="btn btn-info" onclick="simulateDeliveryStatus()">
+                                                    <i class="bi bi-activity"></i> 模拟状态更新
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <h6><i class="bi bi-credit-card"></i> 模拟支付回调</h6>
+                                        <div class="card p-3">
+                                            <div class="mb-3">
+                                                <label class="form-label">订单ID</label>
+                                                <input type="number" class="form-control" id="testPaymentOrderId" placeholder="输入测试订单ID">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">支付方式</label>
+                                                <select class="form-select" id="testPaymentMethodCallback">
+                                                    <option value="wechat">微信支付</option>
+                                                    <option value="alipay">支付宝</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="testPaymentSuccess" checked>
+                                                    <label class="form-check-label" for="testPaymentSuccess">支付成功</label>
+                                                </div>
+                                            </div>
+                                            <div class="d-grid">
+                                                <button class="btn btn-warning" onclick="simulatePaymentCallback()">
+                                                    <i class="bi bi-credit-card"></i> 模拟支付回调
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modalDiv);
+                orderTestModal = new bootstrap.Modal(document.getElementById('orderTestModal'));
+                
+                document.getElementById('orderTestModal').addEventListener('hidden.bs.modal', function() {
+                    modalDiv.remove();
+                    orderTestModal = null;
+                });
+            }
+            orderTestModal.show();
+        }
+
+        // 创建测试订单
+        async function createTestOrder() {
+            try {
+                const storeId = parseInt(document.getElementById('testStoreId').value) || 1;
+                const platformCode = document.getElementById('testPlatformCode').value;
+                const orderType = document.getElementById('testOrderType').value;
+                const paymentMethod = document.getElementById('testPaymentMethod').value;
+                const productCount = parseInt(document.getElementById('testProductCount').value) || 2;
+                const withDelivery = document.getElementById('testWithDelivery').checked;
+
+                const token = localStorage.getItem('adminToken');
+                const response = await fetch('/api/order-test/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': token ? `Bearer ${token}` : ''
+                    },
+                    body: JSON.stringify({
+                        store_id: storeId,
+                        platform_code: platformCode,
+                        order_type: orderType,
+                        payment_method: paymentMethod,
+                        product_count: productCount,
+                        with_delivery: withDelivery
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showToast('测试订单创建成功！订单号：' + result.order.order_no, 'success');
+                    orderTestModal.hide();
+                } else {
+                    showToast('创建失败：' + (result.error || '未知错误'), 'error');
+                }
+            } catch (error) {
+                console.error('创建测试订单失败:', error);
+                showToast('创建失败，请重试', 'error');
+            }
+        }
+
+        // 模拟配送状态更新
+        async function simulateDeliveryStatus() {
+            try {
+                const orderId = parseInt(document.getElementById('testOrderId').value);
+                const status = parseInt(document.getElementById('testStatus').value);
+
+                if (!orderId) {
+                    showToast('请输入订单ID', 'warning');
+                    return;
+                }
+
+                const token = localStorage.getItem('adminToken');
+                const response = await fetch('/api/order-test/simulate-delivery-status', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': token ? `Bearer ${token}` : ''
+                    },
+                    body: JSON.stringify({
+                        order_id: orderId,
+                        status: status
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showToast('状态更新成功！', 'success');
+                } else {
+                    showToast('更新失败：' + (result.error || '未知错误'), 'error');
+                }
+            } catch (error) {
+                console.error('模拟配送状态失败:', error);
+                showToast('操作失败，请重试', 'error');
+            }
+        }
+
+        // 模拟支付回调
+        async function simulatePaymentCallback() {
+            try {
+                const orderId = parseInt(document.getElementById('testPaymentOrderId').value);
+                const paymentMethod = document.getElementById('testPaymentMethodCallback').value;
+                const success = document.getElementById('testPaymentSuccess').checked;
+
+                if (!orderId) {
+                    showToast('请输入订单ID', 'warning');
+                    return;
+                }
+
+                const token = localStorage.getItem('adminToken');
+                const response = await fetch('/api/order-test/simulate-payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': token ? `Bearer ${token}` : ''
+                    },
+                    body: JSON.stringify({
+                        order_id: orderId,
+                        payment_method: paymentMethod,
+                        success: success
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showToast('支付回调模拟成功！', 'success');
+                } else {
+                    showToast('模拟失败：' + (result.error || '未知错误'), 'error');
+                }
+            } catch (error) {
+                console.error('模拟支付回调失败:', error);
+                showToast('操作失败，请重试', 'error');
+            }
+        }
+
+        // 加载测试订单列表
+        async function loadTestOrders() {
+            try {
+                const token = localStorage.getItem('adminToken');
+                const response = await fetch('/api/order-test/list', {
+                    headers: {
+                        'Authorization': token ? `Bearer ${token}` : ''
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    const testOrders = result.test_orders || [];
+                    
+                    if (testOrders.length === 0) {
+                        showToast('暂无测试订单', 'info');
+                        return;
+                    }
+
+                    const modalDiv = document.createElement('div');
+                    let ordersHtml = '';
+                    
+                    testOrders.forEach(order => {
+                        ordersHtml += `
+                            <div class="card mb-2 border-primary">
+                                <div class="card-body p-3">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <div class="fw-bold text-primary">${order.order_no}</div>
+                                            <small class="text-muted">${new Date(order.created_at).toLocaleString('zh-CN')}</small>
+                                            <div class="text-muted">平台：${order.platform_code || '默认'}</div>
+                                            <div class="text-muted">类型：${order.order_type || '堂食'}</div>
+                                            <div class="text-muted">状态：${getStatusText(order.status)}</div>
+                                        </div>
+                                        <div class="text-end">
+                                            <div class="text-muted">商品：${order.items ? order.items.length : 0}件</div>
+                                            <div class="fw-bold text-danger">¥${order.final_price || 0}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    modalDiv.innerHTML = `
+                        <div class="modal fade" id="testOrdersModal" tabindex="-1">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header bg-primary text-white">
+                                        <h5 class="modal-title mb-0"><i class="bi bi-list-check"></i> 测试订单列表</h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body" style="max-height: 600px; overflow-y: auto;">
+                                        ${ordersHtml || '<div class="text-center text-muted py-5">暂无测试订单</div>'}
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-outline-warning" onclick="cleanupTestData()">
+                                            <i class="bi bi-trash3"></i> 清理测试数据
+                                        </button>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    document.body.appendChild(modalDiv);
+                    
+                    const modal = new bootstrap.Modal(document.getElementById('testOrdersModal'));
+                    modal.show();
+                    
+                    document.getElementById('testOrdersModal').addEventListener('hidden.bs.modal', function() {
+                        modalDiv.remove();
+                    });
+                } else {
+                    showToast('获取失败：' + (result.error || '未知错误'), 'error');
+                }
+            } catch (error) {
+                console.error('加载测试订单失败:', error);
+                showToast('加载失败，请重试', 'error');
+            }
+        }
+
+        // 清理测试数据
+        async function cleanupTestData() {
+            if (!confirm('确定要清理测试数据吗？这将删除所有测试订单。')) {
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('adminToken');
+                const response = await fetch('/api/order-test/cleanup?days=1', {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': token ? `Bearer ${token}` : ''
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showToast(`清理完成，删除了 ${result.deleted_count} 个测试订单`, 'success');
+                } else {
+                    showToast('清理失败：' + (result.error || '未知错误'), 'error');
+                }
+            } catch (error) {
+                console.error('清理测试数据失败:', error);
+                showToast('清理失败，请重试', 'error');
+            }
+        }
+
+        // 获取状态文本
+        function getStatusText(status) {
+            const statusMap = {
+                0: '已取消',
+                1: '已下单',
+                2: '制作中',
+                3: '制作完成',
+                4: '配送中/待取餐',
+                5: '已完成',
+                6: '已送达'
+            };
+            return statusMap[status] || '未知';
+        }
+
+        // 显示消息提示
+        function showToast(message, type = 'info') {
+            const toastDiv = document.createElement('div');
+            toastDiv.className = `toast position-fixed top-20 end-20 z-50 ${type === 'success' ? 'text-bg-success' : type === 'error' ? 'text-bg-danger' : type === 'warning' ? 'text-bg-warning' : 'text-bg-info'}`;
+            toastDiv.role = 'alert';
+            toastDiv.ariaLive = 'assertive';
+            toastDiv.ariaAtomic = 'true';
+            toastDiv.innerHTML = `
+                <div class="toast-body d-flex align-items-center">
+                    <i class="bi ${type === 'success' ? 'bi-check-circle' : type === 'error' ? 'bi-exclamation-circle' : type === 'warning' ? 'bi-exclamation-triangle' : 'bi-info-circle'} me-2"></i>
+                    ${message}
+                </div>
+            `;
+            
+            document.body.appendChild(toastDiv);
+            
+            const toast = new bootstrap.Toast(toastDiv, {
+                autohide: true,
+                delay: 3000
+            });
+            
+            toast.show();
+            
+            setTimeout(() => {
+                toastDiv.remove();
+            }, 3500);
+        }
         
         // 保存平台
         async function savePlatform() {
@@ -945,5 +1379,9 @@ API Secret：${apiSecret}
             setTimeout(() => toast.remove(), 3000);
         }
     </script>
+    <!-- 页脚 - 备案号 -->
+    <div class="text-center text-muted py-3" style="border-top: 1px solid #dee2e6; margin-top: 20px; background: #fff;">
+        <small><a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">桂ICP备2026002844号</a></small>
+    </div>
 </body>
 </html>

@@ -109,13 +109,12 @@ class WechatPayUtil {
   /**
    * JSON转XML
    */
-  static jsonToJson(obj) {
+  static jsonToXml(obj) {
     let xml = '<xml>';
 
     for (const key in obj) {
       const value = obj[key];
-      xml += `<${key}><
-![CDATA[${value}]]></${key}>`;
+      xml += `<${key}><![CDATA[${value}]]></${key}>`;
     }
 
     xml += '</xml>';
@@ -128,7 +127,7 @@ class WechatPayUtil {
   static async unifiedOrder(params) {
     const url = 'https://api.mch.weixin.qq.com/pay/unifiedorder';
 
-    const xml = this.jsonToJson(params);
+    const xml = this.jsonToXml(params);
 
     try {
       const response = await axios.post(url, xml, {
@@ -250,7 +249,7 @@ const paymentController = {
 
           if (sign !== data.sign) {
             console.error('签名验证失败');
-            return res.send(WechatPayUtil.jsonToJson({
+            return res.send(WechatPayUtil.jsonToXml({
               return_code: 'FAIL',
               return_msg: '签名失败'
             }));
@@ -279,19 +278,19 @@ const paymentController = {
             }
 
             // 返回成功响应
-            res.send(WechatPayUtil.jsonToJson({
+            res.send(WechatPayUtil.jsonToXml({
               return_code: 'SUCCESS',
               return_msg: 'OK'
             }));
           } else {
-            res.send(WechatPayUtil.jsonToJson({
+            res.send(WechatPayUtil.jsonToXml({
               return_code: 'FAIL',
               return_msg: data.return_msg || '支付失败'
             }));
           }
         } catch (error) {
           console.error('处理支付通知失败:', error);
-          res.send(WechatPayUtil.jsonToJson({
+          res.send(WechatPayUtil.jsonToXml({
             return_code: 'FAIL',
             return_msg: '处理失败'
           }));

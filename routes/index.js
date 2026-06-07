@@ -40,6 +40,8 @@ const printRoutes = require('./printRoutes');
 const memberActivityRoutes = require('./memberActivityRoutes');
 const activityRoutes = require('./activityRoutes');
 const recommendationRoutes = require('./recommendationRoutes');
+const suspendedOrderRoutes = require('./suspendedOrderRoutes');
+const orderTestRoutes = require('./orderTestRoutes');
 
 // 注册路由
 router.use('/admin', adminRoutes);
@@ -72,5 +74,7 @@ router.use('/print', printRoutes);
 router.use('/', memberActivityRoutes);
 router.use('/activities', activityRoutes);
 router.use('/recommendations', recommendationRoutes);
+router.use('/suspended-orders', suspendedOrderRoutes);
+router.use('/order-test', orderTestRoutes);
 
 module.exports = router;

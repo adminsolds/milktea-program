@@ -62,7 +62,7 @@ async function sendOrderToPlatform(order, platformCode) {
     }
 
     // 准备商品信息
-    const goodsInfo = order.items.map(item => ({
+    const goodsInfo = (order.items || []).map(item => ({
       name: item.product_name,
       quantity: item.quantity,
       price: parseFloat(item.price)
